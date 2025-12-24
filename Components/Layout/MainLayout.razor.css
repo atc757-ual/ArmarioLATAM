@@ -28,13 +28,6 @@
     font-size: var(--fs-18);
 }
 
-.header-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--color-neutral-0);
-}
-
 /* FOOTER */
 .app-footer {
     background: var(--color-footer);
