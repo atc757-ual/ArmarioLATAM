@@ -43,18 +43,19 @@
     --color-dark: #212529;
     --color-accent: #f51b5c;
     --color-disabled: #EBEBE4;
+    --color-footer: #ECECEE;
     /* Neutral scale 0–10 */
-    --color-neutral-0: #ffffff;
-    --color-neutral-1: #f8f9fa;
-    --color-neutral-2: #f1f3f5;
-    --color-neutral-3: #e9ecef;
-    --color-neutral-4: #dee2e6;
-    --color-neutral-5: #ced4da;
-    --color-neutral-6: #adb5bd;
-    --color-neutral-7: #6c757d;
-    --color-neutral-8: #495057;
-    --color-neutral-9: #343a40;
-    --color-neutral-10: #212529;
+    --color-neutral-0: #FFFFFF;
+    --color-neutral-1: #F7F7F7;
+    --color-neutral-2: #E9E9E9;
+    --color-neutral-3: #D7D7D7;
+    --color-neutral-4: #CCCCCC;
+    --color-neutral-5: #BBBBBB;
+    --color-neutral-6: #A4A4A6;
+    --color-neutral-7: #66686C;
+    --color-neutral-8: #212121;
+    --color-neutral-9: #191919;
+    --color-neutral-10: #0C0C0C;
     --gray-100: #f8f9fa;
     --gray-200: #e9ecef;
     --gray-300: #dee2e6;
@@ -625,7 +626,9 @@ html, body {
     }
 }
 
-
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 /*Inputs*/
 /* Logo centered at the top */
 .latam-login-logo {
@@ -643,6 +646,7 @@ html, body {
 
 .latam-field {
     padding-bottom: var(--space-base);
+
 }
 
 .latam-field:last-of-type {
@@ -657,8 +661,8 @@ html, body {
 }
 
 .latam-field:focus-within label {
-    color: var(--color-secondary); /* o el que quieras */
- }
+    color: var(--color-secondary);
+}
 
 .latam-input {
     width: 100%;
@@ -676,10 +680,11 @@ html, body {
     color: var(--color-neutral-6);
 }
 
-.latam-input:focus {
+ .latam-input:focus {
     border-bottom-color: var(--color-secondary);
     outline: none;
 }
+
 /* error */
 
 .latam-input.modified.invalid, .latam-input.invalid {
@@ -766,7 +771,7 @@ html, body {
     border-radius: var(--border-radius-soft);
     border: none;
     font-size: var(--fs-14);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-semibold);
     cursor: pointer;
     background: var(--color-secondary);
     color: var(--color-neutral-0);
@@ -788,8 +793,8 @@ html, body {
     }
 
     .latam-btn--primary:disabled {
-        background: var(--color-disabled);
-        color: var(--color-neutral-0);
+        background: var(--color-neutral-2);
+        color: var(--color-neutral-7);
         cursor: not-allowed;
         box-shadow: none;
         filter: none;
@@ -870,6 +875,13 @@ html, body {
 
     .latam-btn {
         width: 100%; /* botón ancho completo */
+    }
+
+    .latam-checkbox:checked::after {
+        left: 8px;
+        top: 1px;
+        width: 0.3rem;
+        height: 0.9rem;
     }
 }
 

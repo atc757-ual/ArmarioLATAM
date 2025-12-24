@@ -13,11 +13,13 @@
         <EditForm FormName="loginForm"
                   Model="@loginModel"
                   OnValidSubmit="@OnSubmit">
+            <DataAnnotationsValidator />
             <div class="latam-field">
                 <label for="correo">Correo</label>
                 <InputText id="correo"
                        name="Correo"
                        class="latam-input"
+                           @oninput="OnCorreoChanged"
                            @bind-Value="loginModel.Correo"
                            placeholder="Ingresa tu correo"></InputText>
                 <ValidationMessage For="@(() => loginModel.Correo)" />
@@ -29,8 +31,10 @@
                        type="password"
                        maxlength="50"
                        class="latam-input"
+                           @oninput="OnContrasenaChanged"
                        @bind-Value="loginModel.Contrasena"
                            placeholder="Ingresa tu contraseña"></InputText>
+                <ValidationMessage For="@(() => loginModel.Contrasena)" />
             </div>
             <div class="latam-remember-row">
                 <InputCheckbox id="recordarme" type="checkbox"
@@ -38,11 +42,23 @@
                                @bind-Value="loginModel.Recordarme" />
                 <label for="recordarme">¿Recordarme?</label>
             </div>
-            <div class="latam-btn-row">
-                <button type="submit" class=" latam-btn latam-btn--primary">
-                Ingresar
-                </button>
-            </div>
+            @if (isValidCorreo & isValidContrasena)
+            {
+                <div class="latam-btn-row">
+                    <button type="submit" class=" latam-btn latam-btn--primary">
+                    Ingresar
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="latam-btn-row">
+                    <button type="button" class=" latam-btn latam-btn--primary" disabled>
+                    Ingresar
+                    </button>
+                </div>
+            }
+            
         </EditForm>
     </div>
     <div class="latam-login-links">
@@ -51,10 +67,54 @@
         </a>
     </div>
 </div>
+
 @code {
     private LoginModel loginModel = new();
+
     private void OnSubmit()
     {
-      
+        NavigationManager.NavigateTo("/ResetPasswordSuccess"); 
+    }
+
+    private bool isValidCorreo;
+    private bool isValidContrasena;
+
+
+    private void OnCorreoChanged(ChangeEventArgs e)
+    {
+        loginModel.Correo = e.Value?.ToString() ?? string.Empty;
+
+        // valida SOLO la propiedad Correo con DataAnnotations
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(loginModel)
+        {
+            MemberName = nameof(LoginModel.Correo)
+        };
+
+        isValidCorreo = Validator.TryValidateProperty(
+            loginModel.Correo,
+            context,
+            results);
+
+        StateHasChanged();
+    }
+
+    private void OnContrasenaChanged(ChangeEventArgs e)
+    {
+        loginModel.Contrasena = e.Value?.ToString() ?? string.Empty;
+
+        // valida SOLO la propiedad Correo con DataAnnotations
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(loginModel)
+        {
+            MemberName = nameof(LoginModel.Contrasena)
+        };
+
+        isValidContrasena = Validator.TryValidateProperty(
+            loginModel.Contrasena,
+            context,
+            results);
+
+        StateHasChanged();
     }
 }

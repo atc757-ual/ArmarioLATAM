@@ -6,13 +6,19 @@ namespace ArmarioLATAM.Components.Models
     {
         [Required(ErrorMessage = "El correo es obligatorio")]
         [EmailAddress(ErrorMessage = "Ingresa un correo válido")]
-        public string? Correo { get; set; } 
+        public string Correo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [StringLength(50, MinimumLength = 8,
             ErrorMessage = "La contraseña debe tener entre 8 y 50 caracteres")]
-        public string? Contrasena { get; set; } 
+        public string Contrasena { get; set; } = string.Empty;
 
         public bool Recordarme { get; set; }
+    }
+    public class LoginModelOnlyPassword
+    {
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        [EmailAddress(ErrorMessage = "Ingresa un correo válido")]
+        public string Correo { get; set; } = string.Empty;
     }
 }

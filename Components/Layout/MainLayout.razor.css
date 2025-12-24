@@ -37,7 +37,7 @@
 
 /* FOOTER */
 .app-footer {
-    background: var(--color-neutral-2);
+    background: var(--color-footer);
     border-top: var(--border-size-s) solid var(--color-neutral-4);
     min-height: 96px;
     padding: var(--space-base) var(--space-m);
