@@ -1,0 +1,155 @@
+﻿@page "/Tabs"
+@rendermode InteractiveServer
+
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+
+<section class="latam-kits-section">
+
+    <div class="latam-kits-row">
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 1 ? "active" : "")"
+                    @onclick="() => SelectTab(1)">
+                <img src="images/ico_new.svg" alt="" />
+                <span class="latam-kit-label">Nuevo ingreso</span>
+            </button>
+
+            @* PANEL MÓVIL pegado al tab activo *@
+            @if (selectedTab == 1)
+            {
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    <table class="latam-kit-table latam-kit-table--details">
+                        <tbody>
+                            <tr>
+                                <td>Código</td>
+                                <td>KIT2-l</td>
+                            </tr>
+                            <tr>
+                                <td>Nombre kit</td>
+                                <td>Apto Outdoor Unisex Inicial</td>
+                            </tr>
+                            <tr>
+                                <td>Orden</td>
+                                <td>Sin orden</td>
+                            </tr>
+                            <tr>
+                                <td>Fecha de creación</td>
+                                <td><!-- fecha --></td>
+                            </tr>
+                            <tr >
+                                <td>Estado</td>
+                                <td>Pendiente</td>
+                            </tr>
+                            <tr class="separator">
+                               
+                            </tr>
+                            <tr class="latam-kit-table-footer">
+                                <td colspan="2">
+                                    <button class="latam-btn latam-btn--primary">
+                                        Solicitar uniforme
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 2 ? "active" : "")"
+                    @onclick="() => SelectTab(2)">
+                <img src="images/ico_alert.svg" alt="" />
+                <span class="latam-kit-label">Solicitud de emergencia</span>
+            </button>
+
+            @if (selectedTab == 2)
+            {
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    @* contenido tab 2 móvil *@
+                </div>
+            }
+        </div>
+
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 3 ? "active" : "")"
+                    @onclick="() => SelectTab(3)">
+                <img src="images/ico_embarazo.svg" alt="" />
+                <span class="latam-kit-label">Solicitud de embarazo</span>
+            </button>
+
+            @if (selectedTab == 3)
+            {
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    @* contenido tab 3 móvil *@
+                </div>
+            }
+        </div>
+
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 4 ? "active" : "")"
+                    @onclick="() => SelectTab(4)">
+                <img src="images/ico_upgrade.svg" alt="" />
+                <span class="latam-kit-label">Kit de ascenso</span>
+            </button>
+
+            @if (selectedTab == 4)
+            {
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    @* contenido tab 4 móvil *@
+                </div>
+            }
+        </div>
+    </div>
+
+    @* PANEL DESKTOP con tabla horizontal *@
+    <div class="latam-kit-panel latam-kit-panel--desktop">
+        @if (selectedTab == 1)
+        {
+            <table class="latam-kit-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre kit</th>
+                        <th>Orden</th>
+                        <th>Fecha de creación</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>KIT2-l</td>
+                        <td>Apto-Outdoor--Unisex-Inicial</td>
+                        <td>Sin orden</td>
+                        <td><!-- fecha --></td>
+                        <td>Pendiente</td>
+                    </tr>
+                    <tr class="latam-kit-table-footer">
+                        <td colspan="5">
+                            <button class="latam-btn latam-btn--primary">
+                                Solicitar uniforme
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else if (selectedTab == 2)
+        {
+            @* contenido tab 2 desktop *@
+        }
+        else if (selectedTab == 3)
+        {
+            @* contenido tab 3 desktop *@
+        }
+        else if (selectedTab == 4)
+        {
+            @* contenido tab 4 desktop *@
+        }
+    </div>
+</section>
+
+@code {
+    private int selectedTab = 0;
+    private void SelectTab(int tab) => selectedTab = tab;
+}

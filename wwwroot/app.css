@@ -44,6 +44,8 @@
     --color-accent: #f51b5c;
     --color-disabled: #EBEBE4;
     --color-footer: #ECECEE;
+    --color-navbar: #5C5C5C;
+    --color-separator: #B8B8B8;
     /* Neutral scale 0–10 */
     --color-neutral-0: #FFFFFF;
     --color-neutral-1: #F7F7F7;
@@ -618,7 +620,8 @@ html, body {
 
     .app-main {
         align-items: flex-start;
-        padding: var(--space-xxl) var(--space-base) var(--space-base) var(--space-base);
+        padding: var(--space-m);
+        display: block;
     }
     .app-footer {
         flex-direction: column;
@@ -744,7 +747,7 @@ html, body {
     width: 100%;
     max-width: 608px;
     max-height: 482px;
-    margin: 0 auto;
+    margin: var(--space-l) auto;
     padding: var(--space-xl) 0; /* 3rem arriba/abajo */
 }
 

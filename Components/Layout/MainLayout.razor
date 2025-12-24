@@ -10,12 +10,16 @@
         @if (isLogin)
         {
             <div class="header-right">
-                <button class="header-icon-btn" aria-label="Notificaciones">🔔</button>
-                <div class="header-avatar"></div>
+                <div class=""><img src="images/ico_burger.svg" /></div>
             </div>
+           
         }
     </header>
     <main class="app-main">
+        @if(isLogin)
+        {
+            <NavMenu />
+        }
         @Body
     </main>
     <footer class="app-footer">
@@ -36,6 +40,6 @@
 </div>
 
 @code {
-    public bool isLogin { get; set; } = false;
+    public bool isLogin { get; set; } = true;
     public bool IsLoading { get; set; } = false;
 }

@@ -1,0 +1,208 @@
+﻿/* CONTENEDOR GENERAL */
+.latam-kits-section{
+    min-width:70%;
+}
+/* FILA DE TABS */
+.latam-kits-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-base);
+    margin-top: var(--space-base);
+    margin-bottom: var(--space-s);
+}
+
+/* wrapper de cada tab + panel móvil */
+.latam-kit-wrapper {
+    min-width: 195px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TAB */
+.latam-kit {
+    position: relative;
+    min-width: 0;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: 0 var(--space-s);
+    border-radius: var(--border-radius-soft);
+    border: none;
+    background: var(--color-neutral-0);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    /* TAB activo */
+    .latam-kit:active,
+    .latam-kit.active {
+        border-top: var(--border-width-2) solid var(--color-accent);
+        border-radius: var(--border-radius-soft);
+        color: var(--color-title);
+        font-weight: var(--font-weight-semibold);
+        box-shadow: none;
+    }
+
+    /* foco accesible */
+    .latam-kit:focus-visible {
+        outline: var(--border-width-2) solid var(--color-neutral-3);
+        outline-offset: 2px;
+    }
+
+    .latam-kit:focus {
+        outline: none;
+    }
+
+/* PANEL DESKTOP (debajo de los tabs) */
+.latam-kit-panel--desktop {
+    background: var(--color-neutral-0);
+    border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* PANEL MÓVIL (pegado al tab activo) */
+.latam-kit-panel--mobile {
+    display: none;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 600px) {
+
+    .latam-kits-section {
+        width: 100%;
+    }
+    .latam-kits-row {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: var(--space-s);
+        margin-bottom: 0;
+    }
+    .latam-kit-wrapper {
+        min-width: 100%;
+    }
+       .latam-kit {
+        flex: 0 0 auto;
+        width: 100%;
+        border-radius: var(--border-radius-soft);
+        border-top-width: var(--border-width-1);
+        height: 48px;
+    }
+
+        .latam-kit.active {
+            border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+            height: 56px;
+        }
+
+    /* Oculta el panel horizontal en mobile */
+    .latam-kit-panel--desktop {
+        display: none;
+    }
+
+    /* Muestra el panel pegado al tab activo */
+    .latam-kit-panel--mobile {
+        display: block;
+        background: var(--color-neutral-0);
+        border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+        box-shadow: var(--shadow-lg);
+        margin-top: -1px;
+    }
+}
+
+/* panel móvil oculto por defecto en desktop */
+.latam-kit-panel--mobile {
+    display: none;
+}
+
+/* tabla horizontal clásica (desktop) ya la tienes como .latam-kit-table */
+.latam-kit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-14);
+    color: var(--color-neutral-7);
+}
+
+    .latam-kit-table thead th {
+        text-align: left;
+        padding: var(--space-ls) var(--space-base);
+        font-weight: var(--font-weight-semibold);
+        background: var(--color-neutral-0);
+        border-bottom: var(--border-width-1) solid var(--color-neutral-2);
+    }
+
+    .latam-kit-table tbody td {
+        padding: var(--space-ls) var(--space-base);
+        border-bottom: var(--border-width-1) solid var(--color-neutral-2);
+    }
+
+.latam-kit-table-footer td {
+    margin-top: var(--space-base);
+    border-bottom: none;
+    padding: var(--space-m) 0 var(--space-m);
+    text-align: center;
+}
+
+.latam-kit-table-footer .latam-btn {
+    width: 240px;
+    max-width: 100%;
+    margin-bottom: var(--space-xs); 
+}
+
+/* tabla detalle para mobile */
+.latam-kit-table--details {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-14);
+    color: var(--color-neutral-8);
+}
+
+    .latam-kit-table--details tbody td:first-child {
+        width: 120px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-neutral-8);
+        padding: var(--space-s) var(--space-base);
+        padding-right: var(--space-base);
+        white-space: nowrap;
+    }
+
+    .latam-kit-table--details tbody td:last-child {
+        padding: var(--space-s) var(--space-s);
+        color: var(--color-neutral-8);
+    }
+
+.separator {
+    border: 1px solid var(--color-separator);
+}
+
+/* MOBILE: muestra panel móvil y oculta el desktop */
+@media (max-width: 600px) {
+
+    .latam-kit-panel--desktop {
+        display: none;
+    }
+
+    .latam-kit-panel--mobile {
+        display: block;
+        background: var(--color-neutral-0);
+        border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+        box-shadow: var(--shadow-lg);
+        margin-top: -1px;
+    }
+
+        .latam-kit-panel--mobile .latam-kit-table--details thead {
+            display: none; /* no se usa cabecera en mobile */
+        }
+
+        .latam-kit-panel--mobile .latam-kit-table-footer td {
+            padding: var(--space-m) var(--space-base) var(--space-m);
+            text-align: center;
+        }
+        .latam-kit-table tbody td {
+        padding: var(--space-s) var(--space-base);
+        border-bottom: none;
+    }
+}
