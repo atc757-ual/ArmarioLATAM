@@ -25,10 +25,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Components\Pages\Home.razor.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

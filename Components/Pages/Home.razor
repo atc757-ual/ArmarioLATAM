@@ -1,9 +1,10 @@
-ï»¿@page "/"
+@page "/"
 @rendermode InteractiveServer
 
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
-@using ArmarioLATAM.Components.ClassProviders
+@inject NavigationManager NavigationManager
+
 <div class="latam-login-wrapper">
     <div class="latam-login-card">
         
@@ -22,20 +23,20 @@
                 <ValidationMessage For="@(() => loginModel.Correo)" />
             </div>
             <div class="latam-field">
-                <label for="contrasena">ContraseÃ±a</label>
+                <label for="contrasena">Contraseña</label>
                 <InputText id="contrasena"
                        name="Contrasena"
                        type="password"
                        maxlength="50"
                        class="latam-input"
                        @bind-Value="loginModel.Contrasena"
-                           placeholder="Ingresa tu contraseÃ±a"></InputText>
+                           placeholder="Ingresa tu contraseña"></InputText>
             </div>
             <div class="latam-remember-row">
                 <InputCheckbox id="recordarme" type="checkbox"
                                class="latam-checkbox"
                                @bind-Value="loginModel.Recordarme" />
-                <label for="recordarme">Â¿Recordarme?</label>
+                <label for="recordarme">¿Recordarme?</label>
             </div>
             <div class="latam-btn-row">
                 <button type="submit" class=" latam-btn latam-btn--primary">
@@ -46,7 +47,7 @@
     </div>
     <div class="latam-login-links">
         <a href="/ResetPassword" class="latam-link-danger">
-            Â¿Olvidaste tu contraseÃ±a?
+            ¿Olvidaste tu contraseña?
         </a>
     </div>
 </div>
@@ -54,7 +55,7 @@
     private LoginModel loginModel = new();
     private void OnSubmit()
     {
-        // lÃ³gica autenticaciÃ³n
+      
     }
 
 }

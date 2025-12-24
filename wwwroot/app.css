@@ -5,7 +5,7 @@
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
-    /* TYPOGRAPHY --------------------------------------------------------- */
+    /* TYPOGRAPHY ------------------------- */
     --font-family-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --fs-12: 0.75rem; /* 12px */
     --fs-14: 0.875rem; /* 14px */
@@ -26,10 +26,10 @@
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
-    /* COLORS (Bootstrap‑like) ------------------------------------------- */
+    /* COLORS (Bootstrap‑like) ---------- */
     --color-bg-main: #efeef5;
     --color-primary: #10004F;
-    --color-primary-blue: #002eff;
+    --color-primary-blue: #2D34CE;
     --color-primary-selected: #002eff;
     --color-primary-lightest: #002eff;
     --color-focus-outer: #002eff;
@@ -66,8 +66,7 @@
     --gray-900: #212529;
     --color-body-bg: #f3f5ff;
     --color-body-text: #212529;
-    /* SPACING (8px scale) ----------------------------------------------- */
-
+    /* SPACING (8px scale) --------- */
     --space-xs: 0.25rem; /* 4px */
     --space-s: 0.5rem; /* 8px */
     --space-ls: 0.75rem; /* 12px */
@@ -76,7 +75,7 @@
     --space-l: 2rem; /* 32px */
     --space-xl: 3rem; /* 48px */
     --space-xxl: 4rem; /* 64px */
-    /* BORDERS & RADII --------------------------------------------------- */
+    /* BORDERS & RADII --------------- */
     --border-width-0: 0;
     --border-width-1: 1px;
     --border-width-2: 2px;
@@ -88,10 +87,43 @@
     --border-radius-soft: 0.5rem; /*8px*/
     --border-radius-base: 1rem; /*8px*/
     --border-radius-pill: 50rem; /*800px*/
-    /* SHADOWS ----------------------------------------------------------- */
+    /* SHADOWS ------------------*/
     --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
     --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+/*Font sizes*/
+.fs-12 {
+    font-size: var(--fs-12);
+}
+
+.fs-14 {
+    font-size: var(--fs-14);
+}
+
+.fs-16 {
+    font-size: var(--fs-16);
+}
+
+.fs-18 {
+    font-size: var(--fs-18);
+}
+
+.fs-20 {
+    font-size: var(--fs-20);
+}
+
+.fs-22 {
+    font-size: var(--fs-22);
+}
+
+.fs-24 {
+    font-size: var(--fs-24);
+}
+
+.fs-28 {
+    font-size: var(--fs-28);
 }
 
 /* Utilidades de peso de fuente */
@@ -433,6 +465,117 @@
     margin-left: var(--margin-left-xxl);
 }
 
+.display-flex {
+    display: flex;
+}
+
+.display-inline-flex {
+    display: inline-flex;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+.flex-wrap-rev {
+    flex-wrap: wrap-reverse;
+}
+
+.justify-start {
+    justify-content: flex-start;
+}
+
+.justify-end {
+    justify-content: flex-end;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
+.justify-evenly {
+    justify-content: space-evenly;
+}
+
+.items-start {
+    align-items: flex-start;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.items-baseline {
+    align-items: baseline;
+}
+
+.items-stretch {
+    align-items: stretch;
+}
+
+.content-start {
+    align-content: flex-start;
+}
+
+.content-end {
+    align-content: flex-end;
+}
+
+.content-center {
+    align-content: center;
+}
+
+.content-between {
+    align-content: space-between;
+}
+
+.content-around {
+    align-content: space-around;
+}
+
+.content-stretch {
+    align-content: stretch;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
 
 /* Helpers globales mínimos */
 html, body {
@@ -525,7 +668,7 @@ html, body {
     border-top: none;
     border-left: none;
     border-right: none;
-    font-size: var(--fs-14);
+    font-size: var(--fs-16);
     background-color: var(--color-neutral-0);
 }
 
@@ -544,8 +687,9 @@ html, body {
 }
 
 /* éxito */
-.latam-input.modified.valid, .latam-input.valid {
+.latam-input.modified.valid {
     border-bottom-color: var(--color-primary-blue);
+
 }
 
 /* Remember me checkbox row */
@@ -588,4 +732,149 @@ html, body {
     border-top: 0;
     border-left: 0;
     transform: rotate(45deg);
+}
+
+/* Styles for the LATAM Airlines login page */
+.latam-login-wrapper {
+    width: 100%;
+    max-width: 608px;
+    max-height: 482px;
+    margin: 0 auto;
+    padding: var(--space-xl) 0; /* 3rem arriba/abajo */
+}
+
+.latam-login-card {
+    background: var(--color-neutral-0);
+    border-radius: var(--border-radius-soft);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-l) var(--space-m);
+    border-top: var(--border-width-4) solid var(--color-primary-blue);
+}
+
+
+/* Login button */
+.latam-btn-row {
+    display: flex;
+    justify-content: center;
+}
+
+.latam-btn {
+    width: 60%; /* ajusta a 55–65% hasta que veas el mismo ancho */
+    height: 54px;
+    max-width: 360px;
+    padding: var(--padding-y-s);
+    border-radius: var(--border-radius-soft);
+    border: none;
+    font-size: var(--fs-14);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    background: var(--color-secondary);
+    color: var(--color-neutral-0);
+}
+
+.latam-btn--primary {
+    background: var(--color-accent);
+    color: var(--color-neutral-0);
+}
+
+    .latam-btn--primary:hover:not(:disabled),
+    .latam-link-danger:hover:not(:disabled) {
+        filter: brightness(1.05);
+    }
+
+    .latam-btn--primary:active:not(:disabled),
+    .latam-link-danger:active:not(:disabled) {
+        filter: brightness(0.92);
+    }
+
+    .latam-btn--primary:disabled {
+        background: var(--color-disabled);
+        color: var(--color-neutral-0);
+        cursor: not-allowed;
+        box-shadow: none;
+        filter: none;
+    }
+
+/* Links below the button */
+.latam-login-links {
+    margin-top: var(--space-l);
+    text-align: center;
+    font-size: var(--fs-14);
+    font-weight: var(--font-weight-medium);
+}
+
+.latam-link-danger {
+    color: var(--color-accent); /* rojo de tu sistema */
+    text-decoration: none;
+}
+
+.latam-recover-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 48px;
+}
+
+.latam-card {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+/* contenedor del botón Volver */
+.latam-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    font-size: var(--fs-14);
+    border: 0;
+    font-weight: var(--font-weight-semibold);
+    background: transparent;
+    color: var(--color-primary-blue);
+    padding: var(--space-m) 0px;
+    cursor: pointer;
+}
+
+    .latam-back-link:hover {
+        color: var(--color-primary-blue);
+    }
+
+.latam-back-wrapper {
+    width: 100%;
+}
+
+
+/* Responsive */
+
+@media (max-width: 600px) {
+
+    .latam-login-wrapper {
+        max-width: 100%;
+        padding: 0 var(--space-s) var(--space-l);
+    }
+
+    .latam-login-card {
+        padding: var(--space-m) var(--space-base);
+        border-radius: var(--border-radius-soft);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .latam-login-logo {
+        max-width: 180px;
+        height: auto;
+    }
+
+    .latam-remember-row {
+        justify-content: center; /* centra checkbox + texto */
+        text-align: center;
+    }
+
+    .latam-btn {
+        width: 100%; /* botón ancho completo */
+    }
+}
+
+@media (min-width: 601px) {
+    .latam-login-wrapper {
+        padding: var(--space-xl) 0 var(--space-xl) 0;
+    }
 }
