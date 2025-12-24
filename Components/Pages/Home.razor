@@ -9,9 +9,9 @@
         
         <img src="images/logo_footer.svg" alt="LATAM" class="latam-login-logo" />
         <h1 class="latam-login-title">Ingresar</h1>
-        <EditForm FormName="loginForm" Model="@loginModel" OnValidSubmit="@OnSubmit">
-            <DataAnnotationsValidator />
-
+        <EditForm FormName="loginForm"
+                  Model="@loginModel"
+                  OnValidSubmit="@OnSubmit">
             <div class="latam-field">
                 <label for="correo">Correo</label>
                 <InputText id="correo"
@@ -21,7 +21,6 @@
                            placeholder="Ingresa tu correo"></InputText>
                 <ValidationMessage For="@(() => loginModel.Correo)" />
             </div>
-
             <div class="latam-field">
                 <label for="contrasena">Contraseña</label>
                 <InputText id="contrasena"
@@ -31,41 +30,28 @@
                        class="latam-input"
                        @bind-Value="loginModel.Contrasena"
                            placeholder="Ingresa tu contraseña"></InputText>
-                <ValidationMessage For="@(() => loginModel.Contrasena)" />
             </div>
-
             <div class="latam-remember-row">
                 <InputCheckbox id="recordarme" type="checkbox"
                                class="latam-checkbox"
                                @bind-Value="loginModel.Recordarme" />
                 <label for="recordarme">¿Recordarme?</label>
             </div>
-
             <div class="latam-btn-row">
                 <button type="submit" class=" latam-btn latam-btn--primary">
                 Ingresar
                 </button>
             </div>
         </EditForm>
-
     </div>
     <div class="latam-login-links">
-        <a href="#" class="latam-link-danger">
+        <a href="/ResetPassword" class="latam-link-danger">
             ¿Olvidaste tu contraseña?
         </a>
     </div>
 </div>
 @code {
     private LoginModel loginModel = new();
-
-    /*private EditContext? editContext;
-
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(loginModel);
-        editContext.SetFieldCssClassProvider(new LatamFieldClassProvider());
-    }
-    */
     private void OnSubmit()
     {
         // lógica autenticación
