@@ -1,7 +1,74 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+@using ArmarioLATAM.Components.ClassProviders
+<div class="latam-login-wrapper">
+    <div class="latam-login-card">
+        
+        <img src="images/logo_footer.svg" alt="LATAM" class="latam-login-logo" />
+        <h1 class="latam-login-title">Ingresar</h1>
+        <EditForm FormName="loginForm" Model="@loginModel" OnValidSubmit="@OnSubmit">
+            <DataAnnotationsValidator />
 
-<h1>Hello, world!</h1>
+            <div class="latam-field">
+                <label for="correo">Correo</label>
+                <InputText id="correo"
+                       name="Correo"
+                       class="latam-input"
+                           @bind-Value="loginModel.Correo"
+                           placeholder="Ingresa tu correo"></InputText>
+                <ValidationMessage For="@(() => loginModel.Correo)" />
+            </div>
 
-Welcome to your new app.
+            <div class="latam-field">
+                <label for="contrasena">Contraseña</label>
+                <InputText id="contrasena"
+                       name="Contrasena"
+                       type="password"
+                       maxlength="50"
+                       class="latam-input"
+                       @bind-Value="loginModel.Contrasena"
+                           placeholder="Ingresa tu contraseña"></InputText>
+                <ValidationMessage For="@(() => loginModel.Contrasena)" />
+            </div>
+
+            <div class="latam-remember-row">
+                <InputCheckbox id="recordarme" type="checkbox"
+                               class="latam-checkbox"
+                               @bind-Value="loginModel.Recordarme" />
+                <label for="recordarme">¿Recordarme?</label>
+            </div>
+
+            <div class="latam-btn-row">
+                <button type="submit" class=" latam-btn latam-btn--primary">
+                Ingresar
+                </button>
+            </div>
+        </EditForm>
+
+    </div>
+    <div class="latam-login-links">
+        <a href="#" class="latam-link-danger">
+            ¿Olvidaste tu contraseña?
+        </a>
+    </div>
+</div>
+@code {
+    private LoginModel loginModel = new();
+
+    /*private EditContext? editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(loginModel);
+        editContext.SetFieldCssClassProvider(new LatamFieldClassProvider());
+    }
+    */
+    private void OnSubmit()
+    {
+        // lógica autenticación
+    }
+
+}
