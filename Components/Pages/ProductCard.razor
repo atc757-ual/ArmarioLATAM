@@ -1,0 +1,124 @@
+﻿<div class="garment-card">
+    <img src="@ImageUrl" alt="@Title" class="garment-image" />
+
+    <div class="garment-content">
+        <h3 class="garment-title">@Title</h3>
+        <p class="garment-subtitle">
+            Cantidad autorizada para esta prenda: @AuthorizedCount
+        </p>
+
+        <div class="garment-qty">
+            <span>Cantidad</span>
+            <div class="garment-qty-controls ">
+                @if (AuthorizedCount > 1)
+                {
+                    <button type="button" @onclick="Decrement">
+                        <img src="images/ico_minus_blue.svg" />
+                    </button>
+                    <span class="garment-qty-count">@Quantity</span>
+                    <button type="button" @onclick="Increment">
+                        <img src="images/ico_add_blue.svg" />
+                    </button>
+                }
+                else
+                {
+                    <button type="button" @onclick="Decrement">
+                        <img src="images/ico_minus.svg" />
+                    </button>
+                    <span>@Quantity</span>
+                    <button type="button" @onclick="Increment">
+                        <img src="images/ico_add.svg" />
+                    </button>
+                }
+
+            </div>
+        </div>
+        @if (HasLanguage)
+        {
+            <div class="garment-languages">
+                <LanguageSelect Id="native" Placeholder="Lengua materna"
+                                Options="LanguageOptions"
+                                @bind-OpenId="openSelectId"
+                                @bind-Value="NativeLanguage" />
+
+                <LanguageSelect Id="second" Placeholder="Idioma 2"
+                                Options="LanguageOptions"
+                                @bind-OpenId="openSelectId"
+                                @bind-Value="SecondLanguage" />
+
+                <LanguageSelect Id="third" Placeholder="Idioma 3"
+                                Options="LanguageOptions"
+                                @bind-OpenId="openSelectId"
+                                @bind-Value="ThirdLanguage" />
+            </div>
+        }
+        else
+        {
+            <div class="garment-sizes">
+                <span>Selecciona tu talla</span>
+                <div class="garment-size-grid">
+                    @foreach (var size in Sizes)
+                    {
+                        <button type="button"
+                                class="garment-size @(SelectedSize == size ? "is-selected" : "")"
+                                @onclick="() => SelectSize(size)">
+                            @size
+                        </button>
+                    }
+                </div>
+            </div>
+
+        }
+
+        
+        @if (HasLanguage)
+        {
+            <div class="garment-language-note">
+               <ul>
+                    <li>Afirmo que hablo fluidamente los idiomas seleccionados y que poseo un Certificado que lo avala. En caso de no poseer certificado, la empresa podrá aplicar sanciones.</li>
+               </ul> 
+            </div>
+        }else{
+             <p class= "garment-note" >
+                Considera las indicaciones del <span class="text-accent">Manual de Uniformidad</span> al seleccionar la talla.
+            </p>
+        }
+    </div>
+
+    
+
+</div>
+
+@code {
+
+    [Parameter] public string ImageUrl { get; set; } = "";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public int AuthorizedCount { get; set; }
+    [Parameter] public IEnumerable<string> Sizes { get; set; } = Array.Empty<string>();
+    [Parameter] public bool HasLanguage { get; set; } = false;
+
+    public int Quantity { get; set; } = 1;
+    public string? SelectedSize { get; set; }
+    string? openSelectId; 
+    // idiomas disponibles para los combos
+    public List<string> LanguageOptions { get; set; } =
+        new() { "Español", "Inglés", "Portugués" };
+
+    public string? NativeLanguage { get; set; }
+    public string? SecondLanguage { get; set; }
+    public string? ThirdLanguage { get; set; }
+
+    void Increment()
+    {
+        if (Quantity < AuthorizedCount)
+             Quantity++;
+    }
+
+    void Decrement()
+    {
+        if (Quantity > 1)
+         Quantity--;
+    }
+
+    void SelectSize(string size) => SelectedSize = size;
+}

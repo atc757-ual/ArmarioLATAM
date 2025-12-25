@@ -1,0 +1,68 @@
+﻿@page "/NuevoIngreso"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<section class="latam-section">
+    <div class="page-title">Nuevo ingreso</div>
+    <Separator />
+    <div class="nuevo-ingreso-header">
+        <span class="label">Prendas asignadas para:</span><br class="mobile-break" /> <span class="label">Apto Outdoor Unisex</span>
+    </div>
+
+    <div class="garment-list">
+        <ProductCard ImageUrl="images/img_example.png"
+                     Title="Jaqueta cortaviento unissex azul"
+                     AuthorizedCount="1"
+                     Sizes="SizesAll" />
+
+        <ProductCard ImageUrl="images/img_example.png"
+                     Title="Calça-Bermuda Unissex Azul"
+                     AuthorizedCount="4"
+                     Sizes="SizesAll" />
+
+        <ProductCard ImageUrl="images/img_example.png"
+                     Title="Polera Manga Larga Unissex Azul"
+                     AuthorizedCount="3"
+                     Sizes="SizesAll" />
+    </div>
+
+    <Separator />
+    <div class="redirects-footer">
+        <button type="button"
+                class="latam-back-link"
+                @onclick="GoBack">
+            <img src="images/ico_arrow_left.svg" />
+            <span> Volver</span>
+        </button>
+
+        @if (isValid)
+        {
+            <div class="latam-btn-row">
+                <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Continuar</button>
+            </div>
+        }
+        else
+        {
+            <div class="latam-btn-row">
+                <button type="button" class="latam-btn latam-btn--primary " disabled>
+                    Continuar
+                </button>
+            </div>
+        }
+    </div>
+</section>
+@code {
+    private bool isValid = true;
+    string[] SizesAll = new[] { "XS", "S", "M", "L", "XL", "XXL", "XXXL" };
+    void GoBack()
+    {
+         JS.InvokeVoidAsync("history.back");
+    }
+
+    void GoNext()
+    {
+        Navigation.NavigateTo("/NuevoIngresoResumen");
+    }
+}
+

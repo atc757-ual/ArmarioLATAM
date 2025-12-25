@@ -1,7 +1,5 @@
-﻿/* CONTENEDOR GENERAL */
-.latam-kits-section{
-    min-width:70%;
-}
+﻿
+
 /* FILA DE TABS */
 .latam-kits-row {
     display: flex;
@@ -26,7 +24,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-s);
-    padding: 0 var(--space-s);
+    padding: 0 var(--space-base);
     border-radius: var(--border-radius-soft);
     border: none;
     background: var(--color-neutral-0);
@@ -41,7 +39,7 @@
     .latam-kit:active,
     .latam-kit.active {
         border-top: var(--border-width-2) solid var(--color-accent);
-        border-radius: var(--border-radius-soft);
+        border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
         color: var(--color-title);
         font-weight: var(--font-weight-semibold);
         box-shadow: none;
@@ -70,50 +68,12 @@
     display: none;
 }
 
-/* ---------- MOBILE ---------- */
-@media (max-width: 600px) {
-
-    .latam-kits-section {
-        width: 100%;
-    }
-    .latam-kits-row {
-        flex-direction: column;
-        flex-wrap: nowrap;
-        gap: var(--space-s);
-        margin-bottom: 0;
-    }
-    .latam-kit-wrapper {
-        min-width: 100%;
-    }
-       .latam-kit {
-        flex: 0 0 auto;
-        width: 100%;
-        border-radius: var(--border-radius-soft);
-        border-top-width: var(--border-width-1);
-        height: 48px;
-    }
-
-        .latam-kit.active {
-            border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
-            height: 56px;
-        }
-
-    /* Muestra el panel pegado al tab activo */
-    .latam-kit-panel--mobile {
-        display: block;
-        background: var(--color-neutral-0);
-        border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
-        box-shadow: var(--shadow-lg);
-        margin-top: -1px;
-    }
-}
-
-/* tabla horizontal clásica (desktop) ya la tienes como .latam-kit-table */
+/* TABLA HORIZONTAL (desktop) */
 .latam-kit-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--fs-14);
-    color: var(--color-neutral-7);
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
 }
 
     .latam-kit-table thead th {
@@ -129,6 +89,7 @@
         border-bottom: var(--border-width-1) solid var(--color-neutral-2);
     }
 
+/* fila del botón */
 .latam-kit-table-footer td {
     margin-top: var(--space-base);
     border-bottom: none;
@@ -136,24 +97,25 @@
     text-align: center;
 }
 
+/* botón en tabla desktop */
 .latam-kit-table-footer .latam-btn {
     width: 240px;
     max-width: 100%;
-    margin-bottom: var(--space-xs); 
+    margin: var(--space-s);
 }
 
-/* tabla detalle para mobile */
+/* TABLA DETALLE (para mobile) */
 .latam-kit-table--details {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--fs-14);
-    color: var(--color-neutral-8);
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
 }
 
     .latam-kit-table--details tbody td:first-child {
         width: 120px;
         font-weight: var(--font-weight-semibold);
-        color: var(--color-neutral-8);
+        color: var(--color-navbar);
         padding: var(--space-s) var(--space-base);
         padding-right: var(--space-base);
         white-space: nowrap;
@@ -161,38 +123,115 @@
 
     .latam-kit-table--details tbody td:last-child {
         padding: var(--space-s) var(--space-s);
-        color: var(--color-neutral-8);
+        color: var(--color-navbar);
     }
 
+/* separador opcional */
 .separator {
-    border: 1px solid var(--color-separator);
+    border-bottom: 1px solid var(--color-separator);
+    height: var(--space-s);
 }
 
-/* MOBILE: muestra panel móvil y oculta el desktop */
+/* estilo tabla vacía desktop */
+.latam-kit-table-empty {
+    text-align: center;
+    height: 150px;
+    font-weight: var(--font-weight-normal);
+}
+/* ---------- MOBILE ---------- */
 @media (max-width: 600px) {
+    .latam-kits-row {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: var(--space-base);
+        margin-bottom: 0;
+    }
 
+    .latam-kit-wrapper {
+        min-width: 100%;
+    }
+
+    .latam-kit {
+        flex: 0 0 auto;
+        width: 100%;
+        border-radius: var(--border-radius-soft);
+        border-top-width: var(--border-width-1);
+        height: 48px;
+    }
+
+        .latam-kit.active {
+            border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+            height: 56px;
+        }
+
+    /* Oculta panel horizontal en mobile */
     .latam-kit-panel--desktop {
         display: none;
     }
 
+    /* Muestra panel pegado al tab activo */
     .latam-kit-panel--mobile {
         display: block;
         background: var(--color-neutral-0);
         border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
         box-shadow: var(--shadow-lg);
         margin-top: -1px;
+        box-sizing: border-box;
     }
 
+        /* en mobile no se usa cabecera en tabla de detalles */
         .latam-kit-panel--mobile .latam-kit-table--details thead {
-            display: none; /* no se usa cabecera en mobile */
+            display: none;
         }
 
+        /* celdas de la tabla normal dentro del panel móvil sin borde extra */
+        .latam-kit-panel--mobile .latam-kit-table tbody td {
+            padding: var(--space-s) var(--space-base);
+            border-bottom: none;
+        }
+
+        /* celda del footer ocupa todo el ancho sin padding lateral */
         .latam-kit-panel--mobile .latam-kit-table-footer td {
-            padding: var(--space-m) var(--space-base) var(--space-m);
+            padding: var(--space-base) !important;
             text-align: center;
         }
-        .latam-kit-table tbody td {
-        padding: var(--space-s) var(--space-base);
-        border-bottom: none;
+
+        /* botón full width sin desbordar */
+        .latam-kit-panel--mobile .latam-kit-table-footer .latam-btn {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+        }
+    .latam-kit-table--details tbody td {
+        vertical-align: top;
+    }
+
+    /* estilo tabla vacía mobile */
+
+    .latam-kit-table-empty {
+        height: 120px;
+        
+    }
+    .latam-kit-table-empty td p {
+        font-weight: var(--font-weight-normal);
+    }
+}
+@media (min-width: 601px) {
+
+    /* asegúrate de tener este gap gris general */
+    .latam-kits-row {
+        margin-bottom: var(--space-s);
+    }
+    /* franja blanca bajo el tab activo */
+    .latam-kit.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(-1 * var(--space-s)); /* misma altura que el margin-bottom */
+        height: var(--space-s);
+        background: var(--color-neutral-0); /* blanco del panel */
     }
 }

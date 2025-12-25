@@ -1,0 +1,58 @@
+﻿<div class="lang-select">
+    <div class="lang-select-header" @onclick="Toggle">
+        <span class="lang-select-value">@DisplayValue</span>
+        <span class="lang-select-icon">@if (_open)
+            {
+                <img src="images/ico_arrow_up.svg" alt="Cerrar menú" />
+            }
+            else
+            {
+                <img src="images/ico_arrow_down.svg" alt="Abrir menú" />
+            }
+            </span>
+    </div>
+
+    @if (_open)
+    {
+        <ul class="lang-select-list">
+            @foreach (var opt in Options)
+            {
+                var active = opt == Value;
+                <li class="lang-select-item @(active ? "is-active" : "")"
+                    @onclick="() => Select(opt)">
+                    @opt
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public IEnumerable<string> Options { get; set; } = Enumerable.Empty<string>();
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "";
+
+    /* id único del combo */
+    [Parameter] public string Id { get; set; } = "";
+
+    /* cuál está abierto según el padre */
+    [Parameter] public string? OpenId { get; set; }
+    [Parameter] public EventCallback<string?> OpenIdChanged { get; set; }
+
+    bool _open => OpenId == Id;
+
+    string DisplayValue => string.IsNullOrWhiteSpace(Value) ? Placeholder : Value!;
+
+    async Task Toggle()
+    {
+        var newId = _open ? null : Id;      // si está abierto, ciérralo; si no, ábrelo
+        await OpenIdChanged.InvokeAsync(newId);
+    }
+
+    async Task Select(string value)
+    {
+        await ValueChanged.InvokeAsync(value);
+        await OpenIdChanged.InvokeAsync(null); // cerrar después de seleccionar
+    }
+}
