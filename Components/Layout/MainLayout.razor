@@ -2,24 +2,14 @@
 
 <div class="app-shell">
 
-    <header class="app-header">
-        <div class="header-left">
-            <img src="images/logo.svg" alt="Logo" class="header-logo" />
-        </div>
-
         @if (isLogin)
         {
             <div class="header-right">
                 <div class=""><img src="images/ico_burger.svg" /></div>
             </div>
-           
         }
     </header>
     <main class="app-main">
-        @if(isLogin)
-        {
-            <NavMenu />
-        }
         @Body
     </main>
     <footer class="app-footer">
@@ -29,7 +19,6 @@
             armariolatam@mail.com
         </span>
     </footer>
-
     @if (IsLoading)
     {
         <div class="latam-loading-overlay">

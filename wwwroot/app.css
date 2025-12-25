@@ -620,7 +620,6 @@ html, body {
 
     .app-main {
         align-items: flex-start;
-        padding: var(--space-m);
         display: block;
     }
     .app-footer {
@@ -767,9 +766,7 @@ html, body {
 }
 
 .latam-btn {
-    width: 60%; /* ajusta a 55–65% hasta que veas el mismo ancho */
     height: 54px;
-    max-width: 360px;
     padding: var(--padding-y-s);
     border-radius: var(--border-radius-soft);
     border: none;
@@ -852,7 +849,6 @@ html, body {
 
 
 /* Responsive */
-
 @media (max-width: 600px) {
 
     .latam-login-wrapper {

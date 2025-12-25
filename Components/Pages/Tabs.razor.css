@@ -98,11 +98,6 @@
             height: 56px;
         }
 
-    /* Oculta el panel horizontal en mobile */
-    .latam-kit-panel--desktop {
-        display: none;
-    }
-
     /* Muestra el panel pegado al tab activo */
     .latam-kit-panel--mobile {
         display: block;
@@ -111,11 +106,6 @@
         box-shadow: var(--shadow-lg);
         margin-top: -1px;
     }
-}
-
-/* panel móvil oculto por defecto en desktop */
-.latam-kit-panel--mobile {
-    display: none;
 }
 
 /* tabla horizontal clásica (desktop) ya la tienes como .latam-kit-table */
