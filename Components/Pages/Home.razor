@@ -19,8 +19,8 @@
                 <InputText id="correo"
                        name="Correo"
                        class="latam-input"
-                           @oninput="OnCorreoChanged"
                            @bind-Value="loginModel.Correo"
+                           @onblur="OnCorreoBlur"
                            placeholder="Ingresa tu correo"></InputText>
                 <ValidationMessage For="@(() => loginModel.Correo)" />
             </div>
@@ -31,8 +31,8 @@
                        type="password"
                        maxlength="50"
                        class="latam-input"
-                           @oninput="OnContrasenaChanged"
-                       @bind-Value="loginModel.Contrasena"
+                           @bind-Value="loginModel.Contrasena"
+                           @onblur="OnContrasenaBlur"
                            placeholder="Ingresa tu contraseña"></InputText>
                 <ValidationMessage For="@(() => loginModel.Contrasena)" />
             </div>
@@ -80,7 +80,7 @@
     private bool isValidContrasena;
 
 
-    private void OnCorreoChanged(ChangeEventArgs e)
+    private void OnCorreoBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
         var context = new ValidationContext(loginModel)
@@ -92,10 +92,10 @@
             loginModel.Correo,
             context,
             results);
-        StateHasChanged();
+        StateHasChanged(); 
     }
 
-    private void OnContrasenaChanged(ChangeEventArgs e)
+    private void OnContrasenaBlur(FocusEventArgs e)
     {
         // valida SOLO la propiedad Correo con DataAnnotations
         var results = new List<ValidationResult>();
@@ -109,6 +109,5 @@
             context,
             results);
 
-        StateHasChanged();
     }
 }

@@ -885,6 +885,46 @@ html, body {
     color: var(--color-secondary);
 }
 
+.latam-textarea::placeholder {
+    color: var(--color-neutral-6);
+}
+
+.latam-textarea:focus {
+    border-color: var(--color-neutral-3);
+    outline: none;
+}
+
+.latam-textarea {
+    width: 100%;
+    padding: var(--space-ls) var(--space-ls);
+    border-radius: var(--border-radius-soft);
+    border: var(--border-width-2) solid var(--gray-200);
+    font-size: var(--fs-16);
+    max-height: 200px;
+    color: var(--color-text-dropdown);
+    background-color: var(--color-neutral-0);
+    min-height: 6rem; /* o el valor que quieras */
+    resize: vertical; /* que el usuario pueda ampliarlo si quiere */
+}
+
+.latam-input-modal{
+    padding: var(--space-ls) var(--space-ls);
+    border-radius: var(--border-radius-soft);
+    border: var(--border-width-2) solid var(--gray-200);
+    font-size: var(--fs-16);
+    color: var(--color-text-dropdown);
+    background-color: var(--color-neutral-0);
+    width:100%;
+}
+.latam-input-modal::placeholder {
+    color: var(--color-neutral-6);
+}
+
+.latam-input-modal:focus {
+    border-bottom-color: var(--gray-200);
+    outline: none;
+}
+
 .latam-input {
     width: 100%;
     padding: var(--space-ls) var(--space-ls);
@@ -913,8 +953,8 @@ html, body {
 }
 
 /* éxito */
-.latam-input.modified.valid {
-    border-bottom-color: var(--color-primary-blue);
+.latam-input.modified.valid, .latam-input.valid {
+   border-bottom-color: var(--color-primary-blue);
 }
 
 /* Remember me checkbox row */
@@ -990,17 +1030,34 @@ html, body {
     max-width: 360px;
     padding: var(--padding-y-s);
     border-radius: var(--border-radius-soft);
-    border: none;
+    border: 2px solid var(--color-gray-light);
     font-size: var(--fs-14);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
-    background: var(--color-secondary);
-    color: var(--color-neutral-0);
+    background: var(--color-neutral-0);
+    color: var(--color-accent);
+    -webkit-tap-highlight-color: transparent; /* Android / iOS */
+}
+.latam-:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.latam-btn:active:not(:disabled) {
+    filter: brightness(0.99);
+}
+
+.latam-btn:disabled {
+    background: var(--color-neutral-2);
+    color: var(--color-neutral-7);
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: none;
 }
 
 .latam-btn--primary {
     background: var(--color-accent);
     color: var(--color-neutral-0);
+    border:none;
 }
 
     .latam-btn--primary:hover:not(:disabled),
@@ -1032,6 +1089,10 @@ html, body {
 .latam-link-danger {
     color: var(--color-accent); /* rojo de tu sistema */
     text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    text-align:center;
+    margin: var(--space-base);
+    width:100%;
 }
 
 .latam-recover-page {
@@ -1103,6 +1164,9 @@ html, body {
     .latam-btn {
         width: 100%; /* botón ancho completo */
         max-width: 100%;
+    }
+    .latam-link-danger{
+        width: auto;
     }
 
     .latam-checkbox:checked::after {

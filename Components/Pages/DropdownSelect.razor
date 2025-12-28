@@ -32,7 +32,7 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = "";
-
+    [Parameter] public EventCallback<string?> Changed { get; set; }
     /* id único del combo */
     [Parameter] public string Id { get; set; } = "";
 
@@ -44,6 +44,8 @@
 
     string DisplayValue => string.IsNullOrWhiteSpace(Value) ? Placeholder : Value!;
 
+ 
+
     async Task Toggle()
     {
         var newId = _open ? null : Id;      // si está abierto, ciérralo; si no, ábrelo
@@ -53,6 +55,7 @@
     async Task Select(string value)
     {
         await ValueChanged.InvokeAsync(value);
+        await Changed.InvokeAsync(value);
         await OpenIdChanged.InvokeAsync(null); // cerrar después de seleccionar
     }
 }

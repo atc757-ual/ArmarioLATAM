@@ -10,23 +10,28 @@
         <div class="garment-qty">
             <span>Cantidad</span>
             <div class="garment-qty-controls ">
-                @if (AuthorizedCount > 1)
+                @if (Quantity == 1 )
+                {
+                    <button type="button">
+                        <img src="images/ico_minus.svg" />
+                    </button>
+                }
+                else
                 {
                     <button type="button" @onclick="Decrement">
                         <img src="images/ico_minus_blue.svg" />
                     </button>
-                    <span class="garment-qty-count">@Quantity</span>
+                }
+                <span class="garment-qty-count">@Quantity</span>
+                @if(AuthorizedCount > Quantity)
+                {
                     <button type="button" @onclick="Increment">
                         <img src="images/ico_add_blue.svg" />
                     </button>
                 }
                 else
                 {
-                    <button type="button" @onclick="Decrement">
-                        <img src="images/ico_minus.svg" />
-                    </button>
-                    <span>@Quantity</span>
-                    <button type="button" @onclick="Increment">
+                    <button type="button">
                         <img src="images/ico_add.svg" />
                     </button>
                 }
@@ -36,17 +41,17 @@
         @if (HasLanguage)
         {
             <div class="garment-languages">
-                <LanguageSelect Id="native" Placeholder="Lengua materna"
+                <DropdownSelect Id="native" Placeholder="Lengua materna"
                                 Options="LanguageOptions"
                                 @bind-OpenId="openSelectId"
                                 @bind-Value="NativeLanguage" />
 
-                <LanguageSelect Id="second" Placeholder="Idioma 2"
+                <DropdownSelect Id="second" Placeholder="Idioma 2"
                                 Options="LanguageOptions"
                                 @bind-OpenId="openSelectId"
                                 @bind-Value="SecondLanguage" />
 
-                <LanguageSelect Id="third" Placeholder="Idioma 3"
+                <DropdownSelect Id="third" Placeholder="Idioma 3"
                                 Options="LanguageOptions"
                                 @bind-OpenId="openSelectId"
                                 @bind-Value="ThirdLanguage" />
