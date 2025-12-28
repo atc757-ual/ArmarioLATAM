@@ -915,7 +915,6 @@ html, body {
 /* éxito */
 .latam-input.modified.valid {
     border-bottom-color: var(--color-primary-blue);
-
 }
 
 /* Remember me checkbox row */

@@ -82,9 +82,6 @@
 
     private void OnCorreoChanged(ChangeEventArgs e)
     {
-        loginModel.Correo = e.Value?.ToString() ?? string.Empty;
-
-        // valida SOLO la propiedad Correo con DataAnnotations
         var results = new List<ValidationResult>();
         var context = new ValidationContext(loginModel)
         {
@@ -95,14 +92,11 @@
             loginModel.Correo,
             context,
             results);
-
         StateHasChanged();
     }
 
     private void OnContrasenaChanged(ChangeEventArgs e)
     {
-        loginModel.Contrasena = e.Value?.ToString() ?? string.Empty;
-
         // valida SOLO la propiedad Correo con DataAnnotations
         var results = new List<ValidationResult>();
         var context = new ValidationContext(loginModel)
