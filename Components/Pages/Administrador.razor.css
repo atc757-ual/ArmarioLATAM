@@ -1,0 +1,417 @@
+﻿/* Contenedor fila: campo | botón */
+.title-dashboard {
+    color: var(--color-title)
+}
+
+.admin-desktop {
+    padding: var(--space-base) var(--space-base) 0 var(--space-base);
+    display: flex;
+    column-gap: var(--space-base);
+    align-items: flex-start; /* centra verticalmente botón vs campo */
+}
+
+.admin-desktop-button {
+    width: auto;
+    padding-bottom: var(--space-base);
+}
+
+    .admin-desktop-button div {
+        height: 22px;
+    }
+/* Columna del campo en vertical */
+.admin-desktop-field {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+}
+
+    .admin-desktop-field input {
+        width: 50%
+    }
+
+    .admin-desktop-field label {
+        display: block;
+        font-size: var(--fs-14);
+        margin-bottom: var(--space-xs);
+        color: var(--color-neutral-7);
+    }
+
+    .admin-desktop-field:focus-within label {
+        color: var(--color-secondary);
+    }
+
+.userselect-row {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    width: 70%;
+}
+
+    .userselect-row a {
+        padding-left: var(--space-s);
+    }
+
+.latam-modal-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-base);
+    padding: 0 var(--space-base) var(--space-base);
+    width: 70%;
+    margin: 0 auto;
+}
+
+.latam-user-summary {
+    padding: var(--space-base) 0 0 0;
+}
+
+.latam-user-summary-row {
+    display: flex;
+    justify-content: space-between;
+    column-gap: var(--space-l);
+    row-gap: var(--space-m);
+    padding: 0 var(--space-base);
+    font-size: var(--fs-16);
+    max-width: 80%;
+}
+
+    .latam-user-summary-row strong {
+        font-weight: var(--font-weight-semibold);
+    }
+
+/* FILA DE TABS */
+.latam-kits-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-base);
+    margin-top: var(--space-base);
+    margin-bottom: var(--space-s);
+}
+
+/* wrapper de cada tab + panel móvil */
+.latam-kit-wrapper {
+    min-width: 195px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TAB */
+.latam-kit {
+    position: relative;
+    min-width: 0;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: 0 var(--space-base);
+    border-radius: var(--border-radius-soft);
+    border: none;
+    background: var(--color-neutral-0);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    .latam-kit:active,
+    .latam-kit.active {
+        border-top: var(--border-width-2) solid var(--color-accent);
+        border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+        color: var(--color-title);
+        font-weight: var(--font-weight-semibold);
+        box-shadow: none;
+    }
+
+    .latam-kit:focus-visible {
+        outline: var(--border-width-2) solid var(--color-neutral-3);
+        outline-offset: 2px;
+    }
+
+    .latam-kit:focus {
+        outline: none;
+    }
+
+/* PANEL DESKTOP (debajo de los tabs) */
+.latam-kit-panel--desktop {
+    background: var(--color-neutral-0);
+    border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* PANEL MÓVIL (pegado al tab activo) */
+.latam-kit-panel--mobile {
+    display: none;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 600px) {
+    .latam-kits-row {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: var(--space-base);
+        margin-bottom: 0;
+    }
+
+    .latam-kit-wrapper {
+        min-width: 100%;
+    }
+
+    .latam-kit {
+        flex: 0 0 auto;
+        width: 100%;
+        border-radius: var(--border-radius-soft);
+        border-top-width: var(--border-width-1);
+        height: 48px;
+    }
+
+        .latam-kit.active {
+            border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+            height: 56px;
+        }
+
+    .latam-kit-panel--desktop {
+        display: none;
+    }
+
+    .latam-kit-panel--mobile {
+        display: block;
+        background: var(--color-neutral-0);
+        border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+        box-shadow: var(--shadow-lg);
+        margin-top: -1px;
+        box-sizing: border-box;
+    }
+
+    .latam-modal-footer {
+        width: 100%;
+        max-width: 100%;
+        padding: var(--space-base) 0 0 0;
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+
+        .latam-modal-footer .latam-btn {
+            width: 100%; /* botón full width como en el diseño */
+        }
+
+    .admin-desktop {
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        max-width: 100%;
+        display: flex;
+        align-items: unset;
+    }
+
+    .user-row {
+        display: flex;
+        align-items: baseline;
+        padding: var(--space-ls) 0; /* alinea textos por la línea base */
+    }
+
+    .latam-user-summary {
+        padding: var(--space-base);
+    }
+    /* Columna fija para las claves */
+
+    .userselect-row {
+        padding: 0 var(--space-base) var(--space-base);
+        display: block;
+        width: 100%;
+    }
+
+        .userselect-row div {
+            display: flex;
+            gap: var(--space-base);
+        }
+
+        .userselect-row a {
+            padding: 0;
+        }
+
+    .user-label {
+        font-weight: var(--font-weight-semibold);
+        width: 110px; /* ajusta hasta que “Documento” quepa bien */
+        flex-shrink: 0; /* que no se encoja */
+    }
+
+    .admin-desktop-button {
+        padding: var(--space-base) 0;
+    }
+
+        .admin-desktop-button div {
+            height: auto;
+        }
+    /* Valores ocupan el resto */
+    .user-value {
+        flex: 1 1 auto;
+    }
+
+    .latam-user-summary-row {
+        width: 100%;
+    }
+}
+
+@media (min-width: 601px) {
+    .latam-kits-row {
+        margin-bottom: var(--space-s);
+    }
+
+    .latam-kit.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(-1 * var(--space-s));
+        height: var(--space-s);
+        background: var(--color-neutral-0);
+    }
+}
+/* Desktop tabla */
+.solicitudes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+}
+
+    .solicitudes-table th,
+    .solicitudes-table td {
+        padding: var(--space-base);
+        text-align: left;
+        border-bottom: 1px solid var(--color-separator);
+    }
+
+        .solicitudes-table td:last-child {
+            text-align: center;
+        }
+
+/* Mobile cards */
+.solicitud-card {
+    border-bottom: 1px solid var(--color-neutral-2);
+    padding: var(--space-s) var(--space-base);
+    background: var(--color-neutral-0);
+}
+
+.radio-form {
+    accent-color: var(--color-primary-blue);
+    height: 20px;
+    width: 20px;
+    background: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+}
+
+.solicitud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+}
+
+.solicitud-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--space-s);
+    row-gap: 2px;
+    margin-top: var(--space-s);
+    font-size: var(--fs-14);
+}
+
+    .solicitud-meta .label {
+        font-weight: var(--font-weight-semibold);
+    }
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* "Más solicitudes" */
+.mas-solicitudes.desktop-only {
+    text-align: center;
+    padding: var(--space-s) 0;
+    border-bottom: 1px solid var(--color-separator);
+}
+
+/* Poner texto + icono en línea y centrados verticalmente */
+.mas-solicitudes-link {
+    height: 54px;
+    display: inline-flex;
+    align-items: center; /* centra verticalmente texto e icono */
+    justify-content: center;
+    gap: var(--space-xs);
+    line-height: var(--space-m);
+    cursor: pointer;
+    color: var(--color-primary-blue);
+    font-weight: var(--font-weight-semibold);
+}
+.border-bottom-separator {
+    border: 1px solid var(--color-separator);    
+}
+.buttons-solicitudes {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-base);
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: var(--space-base);
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+.mobile-only {
+    display: none;
+}
+@media (max-width: 600px){
+    .solicitud-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        column-gap: var(--space-base);
+        align-items: center;
+        padding: var(--space-ls) var(--space-m) var(--space-ls) var(--space-base);
+        border-bottom: 1px solid var(--color-separator);
+    }
+
+    .solicitud-meta {
+        display: inline-flex;
+        gap: var(--space-s);
+        margin-top: var(--space-s);
+        color: var(--color-navbar);
+        font-size: var(--fs-16);
+        
+    }
+        .solicitud-meta .label {
+            font-weight: var(--font-weight-semibold);
+        }
+
+    .icon-btn{
+        margin-left: auto;
+    }
+
+    .mas-solicitudes.mobile-only {
+        text-align: center;
+        padding: var(--space-s) 0;
+        border-bottom: 1px solid var(--color-separator);
+    }
+    .buttons-solicitudes {
+        max-width: 100%;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none;
+    }
+
+    .mobile-only {
+        display: block;
+    }
+}

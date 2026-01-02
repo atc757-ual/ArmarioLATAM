@@ -85,7 +85,7 @@
     }
 
     .latam-kit-table tbody td {
-        padding: var(--space-ls) var(--space-base);
+        padding: var(--space-base);
         border-bottom: var(--border-width-1) solid var(--color-neutral-2);
     }
 
@@ -233,5 +233,41 @@
         bottom: calc(-1 * var(--space-s)); /* misma altura que el margin-bottom */
         height: var(--space-s);
         background: var(--color-neutral-0); /* blanco del panel */
+    }
+}
+
+/* El panel móvil nunca más ancho que la pantalla */
+.latam-kit-panel--mobile {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+    /* La tabla de detalles no puede crecer más que su contenedor */
+    .latam-kit-panel--mobile .latam-kit-table--details {
+        width: 100%;
+        max-width: 100%;
+        table-layout: fixed;
+    }
+
+        /* Las celdas largas rompen línea en vez de ensanchar la tabla */
+        .latam-kit-panel--mobile .latam-kit-table--details td,
+        .latam-kit-panel--mobile .latam-kit-table--details th {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+@media (max-width: 600px) {
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    .latam-kit-table--details tbody td:first-child {
+        white-space: normal; /* antes tenías nowrap */
+    }
+
+    /* Por si acaso, fuerza el wrap en todas las celdas */
+    .latam-kit-table--details td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
 }

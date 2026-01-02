@@ -10,23 +10,49 @@
         <span class="label">Prendas asignadas para:</span><br class="mobile-break" /> <span class="label">Apto Outdoor Unisex</span>
     </div>
 
-    <div class="garment-list">
-        <ProductCard ImageUrl="images/img_example.png"
-                     Title="Jaqueta cortaviento unissex azul"
-                     AuthorizedCount="1"
-                     Sizes="SizesAll" />
+    @if (ErrorSection)
+    {
+            <div class="latam-error-card">
+                <div class="latam-error-header">
+                    <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
+                    <span>No podemos mostrar las prendas del kit</span>
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-body">
+                    En estos momentos no es posible mostrar las prendas asignadas a este Kit.<br />
+                    Por favor, inténtalo nuevamente
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-footer">
+                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
+                        Reintentar
+                    </button>
+                    <a class="latam-link-danger" @onclick="GoInicio">
+                        Volver al inicio
+                    </a>
+                </div>
+        </div>
 
-        <ProductCard ImageUrl="images/img_example.png"
-                     Title="Calça-Bermuda Unissex Azul"
-                     AuthorizedCount="4"
-                     Sizes="SizesAll" />
+    }
+    else
+    {
+        <div class="garment-list">
+            <ProductCard ImageUrl="images/img_example.png"
+                         Title="Jaqueta cortaviento unissex azul"
+                         AuthorizedCount="1"
+                         Sizes="SizesAll" />
 
-        <ProductCard ImageUrl="images/img_example.png"
-                     Title="Polera Manga Larga Unissex Azul"
-                     AuthorizedCount="3"
-                     Sizes="SizesAll" />
-    </div>
+            <ProductCard ImageUrl="images/img_example.png"
+                         Title="Calça-Bermuda Unissex Azul"
+                         AuthorizedCount="4"
+                         Sizes="SizesAll" />
 
+            <ProductCard ImageUrl="images/img_example.png"
+                         Title="Polera Manga Larga Unissex Azul"
+                         AuthorizedCount="3"
+                         Sizes="SizesAll" />
+        </div>
+    }
     <Separator />
     <div class="redirects-footer">
         <button type="button"
@@ -36,7 +62,7 @@
             <span> Volver</span>
         </button>
 
-        @if (isValid)
+        @if (ErrorSection)
         {
             <div class="latam-btn-row">
                 <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Continuar</button>
@@ -53,7 +79,7 @@
     </div>
 </section>
 @code {
-    private bool isValid = true;
+    private bool ErrorSection = true;
     string[] SizesAll = new[] { "XS", "S", "M", "L", "XL", "XXL", "XXXL" };
     void GoBack()
     {
@@ -63,6 +89,14 @@
     void GoNext()
     {
         Navigation.NavigateTo("/NuevoIngresoResumen");
+    }
+    void Reintentar()
+    {
+        ErrorSection = false;
+    }
+    void GoInicio()
+    {
+        Navigation.NavigateTo("/");
     }
 }
 

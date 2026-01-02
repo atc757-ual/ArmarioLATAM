@@ -1,10 +1,4 @@
-﻿.page-title {
-    font-size: var(--fs-24);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-title);
-    margin: 0 0 var(--space-base);
-}
-
+﻿
 .nuevo-ingreso-header {
     padding-bottom: var(--space-s);
     margin-bottom: var(--space-base);

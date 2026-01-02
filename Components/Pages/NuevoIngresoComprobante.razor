@@ -9,8 +9,25 @@
     <div class="nuevo-ingreso-header">
         <span class="label">Comprobante de solicitud:</span><br class="mobile-break" /> <span class="label">Apto Outdoor Unisex</span>
     </div>
-    <div class="success-card">
-        <header class="success-card-header">
+
+    @if (ErrorSection)
+    {
+        <div class="latam-error-card">
+            <div class="latam-error-header">
+                <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
+                <span>No se ha realizado la solicitud</span>
+            </div>
+            <Separator></Separator>
+            <div class="latam-error-body margin-bottom-base">
+               <p class="padding-bottom-m"> Se produjo un error al momento de generar la solicitud por lo que no ha sido enviada.<br />
+                Por favor, inténtalo nuevamente.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="success-card">
+            <header class="success-card-header">
             <img src="images\ico_check_success.svg" />
             <div class="success-title">
                 ¡Felicidades! Tu solicitud de uniforme se ha generado con éxito
@@ -38,14 +55,14 @@
             </p>
         </div>
     </div>
-
+    }
             <div class="latam-btn-row">
                 <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Volver al inicio</button>
             </div>
  
 </section>
 @code {
-
+    private bool ErrorSection = true;
     void GoNext()
     {
         Navigation.NavigateTo("/Dashboard");

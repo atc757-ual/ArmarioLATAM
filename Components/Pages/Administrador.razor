@@ -1,0 +1,551 @@
+﻿@page "/Administrador"
+@rendermode InteractiveServer
+
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+
+@using System.Linq
+
+<section class="latam-section">
+    <div class="title-dashboard">
+        Administrador
+    </div>
+    @* TAB MOBILE con botones *@
+    <div class="latam-kits-row">
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 1 ? "active" : "")"
+                    @onclick="() => SelectTab(1)">
+                @if (selectedTab == 1)
+                {
+                    <img src="images/ico_new_blue.svg" alt="" />
+                }
+                else
+                {
+                    <img src="images/ico_new.svg" alt="" />
+                }
+                <span class="latam-kit-label">Actuar como otro usuario</span>
+            </button>
+            <div class="latam-kit-panel latam-kit-panel--mobile">
+                @* PANEL MÓVIL pegado al tab activo *@
+                @if (selectedTab == 1)
+                {
+
+                    <EditForm FormName="fomBP"
+                              Model="@adminModel"
+                              OnValidSubmit="@Search">
+                        <DataAnnotationsValidator />
+                        @if (step == 1 || step == 0)
+                        {
+                            <div class="admin-desktop">
+                                <div class="admin-desktop-field">
+                                    <label for="inputbp">BP usuario</label>
+                                    <InputText id="inputbp"
+                                               name="BP"
+                                               class="latam-input"
+                                               @onblur="OnBPBlur"
+                                               @bind-Value="adminModel.BPSearch"
+                                               placeholder="Ingresa BP" />
+                                    <ValidationMessage For="@(() => adminModel.BPSearch)"
+                                                       class="validation-message" />
+                                </div>
+                                @if (step == 0)
+                                {
+                                    <div class="admin-desktop-button">
+                                        <div></div>
+                                        @if (isValidBP)
+                                        {
+                                            <button class="latam-btn latam-btn--primary" type="submit">
+                                                Buscar
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="latam-btn latam-btn--primary" disabled>
+                                                Buscar
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </EditForm>
+
+                    @if (step == 1)
+                    {
+                        <div class="latam-user-summary">
+                            <div class="user-row">
+                                <span class="user-label">Nombre</span>
+                                <span class="user-value">@usuarioModel.Nombre</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Género</span>
+                                <span class="user-value">@usuarioModel.Genero</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Correo</span>
+                                <span class="user-value">@usuarioModel.Correo</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Documento</span>
+                                <span class="user-value">@usuarioModel.Documento</span>
+                            </div>
+                            <div class="latam-modal-footer">
+                                <button class="latam-btn latam-btn--primary"
+                                        type="button"
+                                        @onclick="ActuarComo">
+                                    Actuar como este usuario
+                                </button>
+                                <a class="latam-link-primary" @onclick="Limpiar">
+                                    Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    else if (step == 2)
+                    {
+                        <div class="userselect-row">
+                            <div>
+                                <p><strong>Actuando como</strong></p>
+                                <p>@usuarioModel.Nombre</p>
+                            </div>
+                            <span class="display-flex">
+                                <a class="latam-link-danger" @onclick="Recuperar">
+                                    Recuperar mi sesión
+                                </a>
+                            </span>
+                        </div>
+                    }
+                    else if (step == 2)
+                    {
+                        <div class="latam-user-summary">
+                            <div class="latam-user-summary-row">
+                                <div>
+                                    <p><strong>Actuando como</strong></p>
+                                    <p>@usuarioModel.Nombre</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="margin-top-m">
+                            <a class="latam-link-primary" @onclick="Limpiar">
+                                Limpiar
+                            </a>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 2 ? "active" : "")"
+                    @onclick="() => SelectTab(2)">
+                @if (selectedTab == 2)
+                {
+                    <img src="images/ico_solicitud_blue.svg" alt="" />
+                }
+                else
+                {
+                    <img src="images/ico_solicitud.svg" alt="" />
+                }
+                <span class="latam-kit-label">Solicitudes pendientes</span>
+            </button>
+
+            @if (selectedTab == 2)
+            {
+                <div class="border-bottom-separator"></div>
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    <div class="solicitudes-list mobile-only">
+                        @foreach (var s in SolicitudesVisibles)
+                        {
+                            <div class="solicitud-card">
+                                <input type="radio" class="radio-form"
+                                       name="solicitud-mobile" value="@s.check"
+                                       @onchange="(e => OnRadioChange(s))" />
+                                <div>
+                                    <span>@s.Nombre</span>
+                                    <div class="solicitud-meta">
+                                       <div> 
+                                            <span class="label">BP</span>
+                                            <span class="value">@s.BP</span>
+                                        </div>
+                                        <div class="padding-left-base">
+                                            <span class="label">Orden</span>
+                                            <span class="value">@s.Orden</span>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <button type="button" class="icon-btn" @onclick="verDetalle">
+                                    <img src="images\ico_vermas.svg" />
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    @if (CantidadVisible < Solicitudes.Count)
+                    {
+                        <div class="mas-solicitudes mobile-only">
+                            <a class="mas-solicitudes-link" @onclick="VerMas">
+                                <span>Más solicitudes</span>
+                                <img src="images/ico_add_circle.svg" />
+                            </a>
+                        </div>
+                    }
+                    <div class="buttons-solicitudes">
+                        @if (hasCheck)
+                        {
+                            <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar">
+                                Aprobar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="latam-btn latam-btn--primary" disabled>
+                                Aprobar
+                            </button>
+                        }
+                        <a class="latam-link-danger" @onclick="Rechazar">
+                            Rechazar
+                        </a>
+                    </div>
+
+                </div>
+
+            }
+
+        </div>
+    </div>
+
+    @* TAB DESKTOP con botones *@
+    <div class="latam-kit-panel latam-kit-panel--desktop">
+        @if (selectedTab == 1)
+        {
+            <EditForm FormName="fomBP"
+                      Model="@adminModel"
+                      OnValidSubmit="@Search">
+                <DataAnnotationsValidator />
+                @if (step == 1 || step == 0)
+                {
+
+                    <div class="admin-desktop">
+                        <div class="admin-desktop-field">
+                            <label for="inputbp">BP usuario</label>
+                            <InputText id="inputbp"
+                                       name="BP"
+                                       class="latam-input"
+                                       @onblur="OnBPBlur"
+                                       @bind-Value="adminModel.BPSearch"
+                                       placeholder="Ingresa BP" />
+                            <ValidationMessage For="@(() => adminModel.BPSearch)"
+                                               class="validation-message" />
+                        </div>
+                        @if (step == 0)
+                        {
+                            <div class="admin-desktop-button">
+                                <div></div>
+                                @if (isValidBP)
+                                {
+                                    <button class="latam-btn latam-btn--primary" type="submit">
+                                        Buscar
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="latam-btn latam-btn--primary" disabled>
+                                        Buscar
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+            </EditForm>
+
+            @if (step == 1)
+            {
+                <div class="latam-user-summary">
+                    <div class="latam-user-summary-row">
+                        <div>
+                            <p><strong>Nombre</strong></p>
+                            <p>@usuarioModel.Nombre</p>
+                        </div>
+                        <div>
+                            <p><strong>Género</strong></p>
+                            <p>@usuarioModel.Genero</p>
+                        </div>
+                        <div>
+                            <p><strong>Correo</strong></p>
+                            <p>@usuarioModel.Correo</p>
+                        </div>
+                        <div>
+                            <p><strong>Documento</strong></p>
+                            <p>@usuarioModel.Documento</p>
+                        </div>
+                    </div>
+                    <Separator></Separator>
+                    <div class="latam-modal-footer">
+                        <button class="latam-btn latam-btn--primary"
+                                type="button"
+                                @onclick="ActuarComo">
+                            Actuar como este usuario
+                        </button>
+                        <a class="latam-link-primary" @onclick="Limpiar">
+                            Limpiar
+                        </a>
+                    </div>
+                </div>
+            }
+            else if (step == 2)
+            {
+                <div class="padding-base">
+                    <div class="userselect-row">
+                        <p><strong>Actuando como</strong></p>
+                        <p>@usuarioModel.Nombre</p>
+                        <a class="latam-link-danger" @onclick="Recuperar">
+                            Recuperar mi sesión
+                        </a>
+                    </div>
+                </div>
+
+            }
+        }
+        else if (selectedTab == 2)
+        {
+            <table class="solicitudes-table desktop-only">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Nombre</th>
+                        <th>BP</th>
+                        <th>Orden</th>
+                        <th>Precio (US)</th>
+                        <th>Kit</th>
+                        <th>Ver detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in SolicitudesVisibles)
+                    {
+                        <tr>
+                            <td>
+                                <input class="radio-form" type="radio" name="solicitud"
+                                       value="@s.check"
+                                       @onchange="(e => OnRadioChange(s))" />
+                            </td>
+                            <td>@s.Nombre</td>
+                            <td>@s.BP</td>
+                            <td>@s.Orden</td>
+                            <td>@s.Precio</td>
+                            <td>@s.Kit</td>
+                            <td>
+                                <button type="button" class="icon-btn" @onclick="verDetalle">
+                                    <img src="images/ico_vermas.svg" />
+                                </button>
+                            </td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+            @if (CantidadVisible < Solicitudes.Count)
+            {
+                <div class="mas-solicitudes desktop-only">
+                    <a class="mas-solicitudes-link" @onclick="VerMas">
+                        <span>Más solicitudes</span>
+                        <img src="images/ico_add_circle.svg" />
+                    </a>
+                </div>
+            }
+
+            <div class="buttons-solicitudes">
+                @if (hasCheck)
+                {
+                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar">
+                        Aprobar
+                    </button>
+                }
+                else
+                {
+                    <button class="latam-btn latam-btn--primary" disabled>
+                        Aprobar
+                    </button>
+                }
+                <a class="latam-link-danger" @onclick="Rechazar">
+                    Rechazar
+                </a>
+            </div>
+        }
+
+    </div>
+       
+
+    @if (step == 2)
+    {
+        <Dashboard />
+    }
+    <ModalDetalle Visible="@MostrarModal" Orden="319070" items="KitDetail" Kit="Kit" OnClosed="@CerrarDetalle" />
+     <Toast Visible="@MostrarToast" Title="@title" Message="@message" Type="@type" OnClosed="@ToastCerrado" />
+
+</section>
+@code {
+    private bool MostrarToast;
+    private bool MostrarModal;
+    private string OrdenAprobada { get; set; } = "";
+    private bool isValidBP = false;
+    private int selectedTab = 0;
+    private void SelectTab(int tab) => selectedTab = tab;
+    private int step { get; set; } = 0;
+    private string? title { get; set; }
+    private string? message { get; set; }
+    private string? type { get; set;}
+    private bool success { get; set; } = true;
+    public AdminModel adminModel = new();
+    public UsuarioModel usuarioModel = new();
+
+
+    private void OnBPBlur(FocusEventArgs e)
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(adminModel)
+        {
+            MemberName = nameof(AdminModel.BPSearch)
+        };
+
+        isValidBP = Validator.TryValidateProperty(
+            adminModel.BPSearch,
+            context,
+            results);
+
+        StateHasChanged();
+    }
+
+    private void Search()
+    {
+        // TODO: llamada a servicio / lista
+        usuarioModel = new UsuarioModel
+        {
+            Nombre = "Quiroga Juan Camilo",
+            Genero = "Masculino",
+            Correo = "quirogajuan@latam.com",
+            Documento = "12387441-K"
+        };
+        step = 1;
+    }
+
+    private List<SolicitudModel> Solicitudes = new()
+    {
+        new() { check = false, Nombre = "Perez Fernandez Catalina",BP = "4468615",Orden = "319070",Precio = "18,48 US",Kit = "Crew Female Inicial CO Emergencia"},
+        new() { check = false, Nombre = "Pérez Juan Carlos",BP = "5521347",Orden = "319071",Precio = "22,10 US",Kit = "Crew Male Inicial CO Emergencia"},
+        new() { check = false, Nombre = "González María Elena",BP = "4789012", Orden = "319072",Precio = "19,85 US", Kit = "Crew Female Reposición CO Emergencia"},
+        new() { check = false, Nombre = "Rodríguez Ana Sofía",BP = "4938271",Orden = "319073",Precio = "17,30 US",Kit = "Crew Female Inicial Internacional" },
+        new() { check = false, Nombre = "López Diego Andrés",BP = "5012398",Orden = "319074",Precio = "20,00 US",Kit = "Crew Male Reposición Internacional"},
+        new() { check = false, Nombre = "Martínez Paula Andrea", BP = "5123401", Orden = "319075", Precio = "21,50 US", Kit = "Crew Female Inicial CO Emergencia" },
+        new() { check = false, Nombre = "Ramírez Carlos Eduardo", BP = "5234102", Orden = "319076", Precio = "18,90 US", Kit = "Crew Male Inicial CO Emergencia" },
+        new() { check = false, Nombre = "Suárez Daniela Marcela", BP = "5342103", Orden = "319077", Precio = "19,10 US", Kit = "Crew Female Reposición CO Emergencia" },
+        new() { check = false, Nombre = "Herrera Miguel Ángel", BP = "5451204", Orden = "319078", Precio = "22,30 US", Kit = "Crew Male Reposición CO Emergencia" },
+        new() { check = false, Nombre = "Rojas Camila Isabel", BP = "5564305", Orden = "319079", Precio = "17,95 US", Kit = "Crew Female Inicial Internacional" },
+        new() { check = false, Nombre = "Torres Juan Sebastián", BP = "5675406", Orden = "319080", Precio = "20,75 US", Kit = "Crew Male Inicial Internacional" },
+        new() { check = false, Nombre = "Castro Ana Lucía", BP = "5786507", Orden = "319081", Precio = "18,60 US", Kit = "Crew Female Reposición Internacional" },
+        new() { check = false, Nombre = "Vargas Diego Fernando", BP = "5897608", Orden = "319082", Precio = "19,40 US", Kit = "Crew Male Reposición Internacional" },
+        new() { check = false, Nombre = "Moreno Laura Juliana", BP = "5908709", Orden = "319083", Precio = "21,10 US", Kit = "Crew Female Inicial CO Emergencia" },
+        new() { check = false, Nombre = "Navarro Andrés Felipe", BP = "6019810", Orden = "319084", Precio = "22,80 US", Kit = "Crew Male Inicial CO Emergencia" }
+    };
+    private List<KitDetailModel> KitDetail = new()
+    {
+        new() { Nombre = "Calça-Bermuda Unissex Azul", Talla = "L", Cantidad = 1, PrecioUnitario = "$29,24", Total = "$18,48" },
+        new() { Nombre = "Calça-Bermuda Unissex Azul", Talla = "M", Cantidad = 1, PrecioUnitario = "$29,24", Total = "$18,48" },
+        new() { Nombre = "Calça-Bermuda Unissex Azul", Talla = "S", Cantidad = 1, PrecioUnitario = "$29,24", Total = "$18,48" },
+        new() { Nombre = "Camisa Unissex Blanca",      Talla = "L", Cantidad = 1, PrecioUnitario = "$15,00", Total = "$15,00" },
+        new() { Nombre = "Camisa Unissex Blanca",      Talla = "M", Cantidad = 1, PrecioUnitario = "$15,00", Total = "$15,00" },
+        new() { Nombre = "Camisa Unissex Blanca",      Talla = "S", Cantidad = 1, PrecioUnitario = "$15,00", Total = "$15,00" },
+        new() { Nombre = "Chaqueta Azul Unissex",      Talla = "L", Cantidad = 1, PrecioUnitario = "$45,00", Total = "$45,00" },
+        new() { Nombre = "Chaqueta Azul Unissex",      Talla = "M", Cantidad = 1, PrecioUnitario = "$45,00", Total = "$45,00" },
+        new() { Nombre = "Pantalón Unissex Negro",     Talla = "L", Cantidad = 1, PrecioUnitario = "$32,10", Total = "$32,10" },
+        new() { Nombre = "Pantalón Unissex Negro",     Talla = "M", Cantidad = 1, PrecioUnitario = "$32,10", Total = "$32,10" }
+    };
+    private int CantidadVisible = 5;
+    private IEnumerable<SolicitudModel> SolicitudesVisibles => Solicitudes.Take(CantidadVisible);
+    bool hasCheck { get; set; } = false;
+    private void OnRadioChange(SolicitudModel s)
+    {
+        foreach (var item in Solicitudes)
+            item.check = false;
+        s.check = true;
+        hasCheck = Solicitudes.Any(x => x.check);
+    }
+    private KitModel Kit = new()
+        {
+            Precio = "18,48 US",
+            KitName = "Crew Female Inicial CO Emergencia",
+            Motivo = "Rotura"
+        };
+    private void Limpiar()
+    {
+        usuarioModel = new();
+        step = 0;
+    }
+    private void ActuarComo()
+    {
+        step = 2;
+    }
+    private void Recuperar()
+    {
+        Limpiar();
+    }
+    private void VerMas()
+    {
+        if (CantidadVisible < Solicitudes.Count)
+        {
+            CantidadVisible = Math.Min(CantidadVisible + 5, Solicitudes.Count);
+        }
+    }
+    private void Aprobar()
+    {
+        if (success)
+        {
+            title = "¡Solicitud aprobada!";
+            message = "Orden 567890 aprobada con éxito";
+            type = "success";
+        }
+        else
+        {
+            title = "¡Ha ocurrido un error";
+            message = "No hemos podido aprobar la orden 567890";
+            type = "error";
+        }
+        MostrarToast = false;
+        StateHasChanged();
+        MostrarToast = true;
+    }
+    private void Rechazar()
+    {
+
+        if (success)
+        {
+            title = "¡Solicitud rechazada!";
+            message = "Orden 567890 rechazada con éxito";
+            type = "info";
+        }
+        else
+        {
+            title = "¡Ha ocurrido un error";
+            message = "No hemos podido rechazar la orden 567890";
+            type = "error";
+        }
+
+        MostrarToast = false;
+        StateHasChanged();
+        MostrarToast = true;
+    }
+    private void ToastCerrado()
+    {
+        MostrarToast = false;
+    }
+    private void verDetalle()
+    {
+        MostrarModal = true;
+    }
+    private void CerrarDetalle()
+    {
+        MostrarModal = false;
+    }
+}

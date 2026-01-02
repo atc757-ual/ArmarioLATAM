@@ -23,7 +23,11 @@ namespace ArmarioLATAM.Components.Models
         public string Correo { get; set; } = string.Empty;
     }
 
-
+    public class AdminModel
+    {
+        [Required(ErrorMessage = "El campo no puede estar vacío.")]
+        public string BPSearch { get; set; } = string.Empty;
+    }
 
     public class EmergencyModel
     {
@@ -37,7 +41,7 @@ namespace ArmarioLATAM.Components.Models
     public class AddressModel
     {
         [Required(ErrorMessage = "La dirección es obligatoria")]
-         public string Address { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debes seleccionar una provincia.")]
         public string Province { get; set; } = string.Empty;
@@ -48,4 +52,37 @@ namespace ArmarioLATAM.Components.Models
         public string Reference { get; set; } = string.Empty;
     }
 
+    public class UsuarioModel
+    {
+        public string Nombre { get; set; } = "";
+        public string Genero { get; set; } = "";
+        public string Correo { get; set; } = "";
+        public string Documento { get; set; } = "";
+    }
+    public class SolicitudModel
+    {
+        public bool check { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
+        public string Orden { get; set; } = string.Empty;
+        public string Precio { get; set; } = string.Empty;
+        public string Kit { get; set; } = string.Empty;
+    }
+
+    public class KitDetailModel
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public string Talla { get; set; } = string.Empty;
+        public int Cantidad { get; set; }
+        public string PrecioUnitario { get; set; } = string.Empty;
+        public string Total { get; set; } = string.Empty;
+
+    }
+
+    public class KitModel
+    {
+        public string Precio { get; set; } = string.Empty;
+        public string KitName { get; set; } = string.Empty;
+        public string Motivo { get; set; } = string.Empty;
+    }
 }
