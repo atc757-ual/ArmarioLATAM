@@ -2,7 +2,7 @@ using ArmarioLATAM.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container Alex.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
