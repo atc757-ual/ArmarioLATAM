@@ -15,7 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Latam Wardrobe API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Latam Wardrobe API Almeria", Version = "v1" });
 
     // Configurar JWT en Swagger
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -77,11 +77,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:7177", "http://localhost:7177") // Blazor
+              .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowCredentials();
     });
 });
+
 
 var app = builder.Build();
 
