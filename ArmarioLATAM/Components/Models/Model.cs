@@ -78,6 +78,25 @@ namespace ArmarioLATAM.Components.Models
         public string Total { get; set; } = string.Empty;
 
     }
+    public class Garment
+    {
+        public int GarmentId { get; set; }
+        public string Name { get; set; } = default!;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public string? ImageUrl { get; set; }
+        public int QuantityAuth { get; set; }
+        public string? Sizes { get; set; }
+        public string? Languages { get; set; }
+        public List<string> SizesList =>
+
+        string.IsNullOrWhiteSpace(Sizes)
+            ? []
+            : Sizes
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToList();
+    }
 
     public class KitModel
     {
@@ -100,5 +119,14 @@ namespace ArmarioLATAM.Components.Models
     public class ErrorResponse
     {
         public string Message { get; set; } = string.Empty;
+    }
+
+    public class KitType
+    {
+        public int KitTypeId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string ImageURL { get; set; } = default!;
+        public string ImageURLSelect { get; set; } = default!;
     }
 }

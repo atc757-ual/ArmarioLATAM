@@ -1,5 +1,6 @@
 ﻿using ArmarioLATAM.Components;
 using ArmarioLATAM.Services;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,16 @@ builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
-var app = builder.Build();
+builder.Services.AddHttpClient<IKitService, KitService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5215/"); // tu API
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
+// Registrar ProtectedSessionStorage
+builder.Services.AddScoped<ProtectedSessionStorage>();
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

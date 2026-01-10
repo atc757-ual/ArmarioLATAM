@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-
 <div class="app-shell">
 
     <header class="app-header">
@@ -20,16 +19,5 @@
             armariolatam@mail.com
         </span>
     </footer>
-    @if (IsLoading)
-    {
-        <div class="latam-loading-overlay">
-            @* <div class="latam-spinner"></div>*@
-            <div class="latam-dots"><span></span><span></span><span></span></div> 
-        </div>
-    }
-</div>
 
-@code {
-    private bool isLogin { get; set; } = true;
-    private bool IsLoading { get; set; } = false;
-}
+</div>

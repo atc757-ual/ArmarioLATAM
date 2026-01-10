@@ -1,6 +1,9 @@
 ﻿using ArmarioLATAM.Components.Models;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Text.Json;
+using static System.Net.WebRequestMethods;
 
 namespace ArmarioLATAM.Services
 {
@@ -9,79 +12,132 @@ namespace ArmarioLATAM.Services
         Task<LoginResponse?> LoginAsync(string email, string password);
         Task LogoutAsync();
         string? GetToken();
+        Task<string?> GetTokenAsync();
+        bool IsAuthenticated();
     }
 
     public class AuthService : IAuthService
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<AuthService> _logger;
-        private string? _token;
+        private readonly ProtectedSessionStorage _sessionStorage;
 
-        public AuthService(HttpClient httpClient, ILogger<AuthService> logger)
+        private string? _token;
+        private DateTime? _tokenExpiration;
+
+        public AuthService(HttpClient httpClient,
+                           ILogger<AuthService> logger,
+                           ProtectedSessionStorage sessionStorage)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _sessionStorage = sessionStorage;
+
+            _logger.LogInformation("AuthService creado. Hash={Hash}", GetHashCode());
         }
 
-       public async Task<LoginResponse?> LoginAsync(string email, string password)
-{
-    try
-    {
-        var request = new LoginRequest
+        public async Task<LoginResponse?> LoginAsync(string email, string password)
         {
-            Email = email,
-            Password = password
-        };
+            var response = await _httpClient.PostAsJsonAsync("auth/login", new
+            {
+                Email = email,
+                Password = password
+            });
 
-        // 👇 Ver qué URL está usando
-        var url = $"{_httpClient.BaseAddress}auth/login";
-        _logger.LogInformation($"Intentando login en: {url}");
-        _logger.LogInformation($"Email: {email}");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning($"Login falló: {response.StatusCode}");
+                return null;
+            }
 
-        var response = await _httpClient.PostAsJsonAsync("auth/login", request);
-
-        // 👇 Ver el status code
-        _logger.LogInformation($"Status Code: {response.StatusCode}");
-
-        if (response.IsSuccessStatusCode)
-        {
             var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-            
-            if (loginResponse != null)
+
+            if (!string.IsNullOrEmpty(loginResponse?.Token))
             {
                 _token = loginResponse.Token;
-                _logger.LogInformation("Login exitoso!");
+                _tokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn);
+
+                // ✅ LOGGEAR EL TOKEN
+                _logger.LogInformation("=== TOKEN GUARDADO ===");
+                _logger.LogInformation($"Token: {_token}");
+                _logger.LogInformation($"Expira en: {loginResponse.ExpiresIn} segundos");
+                _logger.LogInformation($"Expira el: {_tokenExpiration}");
+                _logger.LogInformation("=====================");
+
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+
+                // ✅ Guardar en sesión protegida
+                await _sessionStorage.SetAsync("authToken", _token);
+                await _sessionStorage.SetAsync("authTokenExpiration", _tokenExpiration);
             }
 
             return loginResponse;
         }
-        else
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogWarning($"Login failed: {response.StatusCode} - {errorContent}");
-            return null;
-        }
-    }
-    catch (HttpRequestException ex)
-    {
-        _logger.LogError(ex, $"Error de red: {ex.Message}");
-        return null;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error durante el login");
-        return null;
-    }
-}
 
-        public Task LogoutAsync()
+        // Inicializa _token/_tokenExpiration desde sesión si están vacíos
+        private async Task EnsureTokenLoadedAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(_token))
+                return;
+
+            var storedToken = await _sessionStorage.GetAsync<string>("authToken");
+            var storedExp = await _sessionStorage.GetAsync<DateTime?>("authTokenExpiration");
+
+            if (storedToken.Success &&
+                !string.IsNullOrWhiteSpace(storedToken.Value) &&
+                storedExp.Success &&
+                storedExp.Value.HasValue)
+            {
+                _token = storedToken.Value;
+                _tokenExpiration = storedExp.Value.Value;
+
+                _logger.LogInformation("Token recuperado de sesión. Hash={Hash}", GetHashCode());
+
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            }
+            else
+            {
+                _logger.LogInformation("No hay token válido en sesión.");
+            }
+        }
+
+        public bool IsAuthenticated()
+        {
+            _logger.LogInformation(
+                "IsAuthenticated? Token null/vacío={IsNullOrEmpty}, Expiration={Expiration}",
+                string.IsNullOrEmpty(_token), _tokenExpiration);
+
+            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
+                return false;
+
+            return DateTime.UtcNow < _tokenExpiration;
+        }
+
+        public async Task LogoutAsync()
         {
             _token = null;
-            return Task.CompletedTask;
+            _tokenExpiration = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+
+            // Limpiar sesión
+            await _sessionStorage.DeleteAsync("authToken");
+            await _sessionStorage.DeleteAsync("authTokenExpiration");
+
+            await Task.CompletedTask;
         }
 
-        public string? GetToken()
+        public string? GetToken() => _token;
+
+        // Versión async para servicios que quieran forzar carga desde sesión
+        public async Task<string?> GetTokenAsync()
         {
+            if (string.IsNullOrWhiteSpace(_token))
+            {
+                await EnsureTokenLoadedAsync();
+            }
+
             return _token;
         }
     }

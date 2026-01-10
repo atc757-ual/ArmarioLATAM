@@ -1,6 +1,8 @@
 ﻿@page "/NuevoIngreso"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
+@using ArmarioLATAM.Components.Models
+@using ArmarioLATAM.Services
 @inject NavigationManager Navigation
 
 <section class="latam-section">
@@ -37,6 +39,7 @@
     else
     {
         <div class="garment-list">
+
             <ProductCard ImageUrl="images/img_example.png"
                          Title="Jaqueta cortaviento unissex azul"
                          AuthorizedCount="1"
@@ -98,5 +101,8 @@
     {
         Navigation.NavigateTo("/");
     }
+
+
+
 }
 

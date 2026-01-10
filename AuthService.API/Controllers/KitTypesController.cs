@@ -20,7 +20,10 @@ public class KitTypesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var kitTypes = await _context.KitTypes.ToListAsync();
+        var kitTypes = await _context.KitTypes.
+            Where(k => k.IsActive).
+            ToListAsync();
+
         return Ok(kitTypes);
     }
 

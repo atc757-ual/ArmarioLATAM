@@ -3,13 +3,17 @@
 
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
+@using ArmarioLATAM.Services
 @inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject IKitService KitService
 
 
 <section class="latam-section">
     <div class="title-dashboard">
         Kits
     </div>
+
     @if (errorSection)
     {
         <div class="latam-kit-wrapper full-width margin-top-base">
@@ -34,36 +38,202 @@
     }
     else
     {
-        /* TAB MOBILE con botones */
-        <div class="latam-kits-row">
-            <div class="latam-kit-wrapper">
-                <button class="latam-kit @(selectedTab == 1 ? "active" : "")"
-                @onclick="() => SelectTab(1)">
-                    @if (selectedTab == 1)
-                    {
-                        <img src="images/ico_new_blue.svg" alt="" />
-                    }
-                    else
-                    {
-                        <img src="images/ico_new.svg" alt="" />
-                    }
-                    <span class="latam-kit-label">Nuevo ingreso</span>
-                </button>
-                @* PANEL MÓVIL pegado al tab activo *@
-                @if (selectedTab == 1)
+        if (!isLoaded)
+        {
+            <LoadPage></LoadPage>
+        }
+        else if (_kitTypes is null || !_kitTypes.Any())
+        {
+            <p> No hay kits disponibles.</p>
+        }
+        else
+        {
+            <div class="latam-kits-row">
+                @foreach (var kit in _kitTypes!)
                 {
 
-                    <div class="latam-kit-panel latam-kit-panel--mobile">
-                        <table class="latam-kit-table latam-kit-table--details">
-                            <tbody>
+                    <div class="latam-kit-wrapper">
+                        <button class="latam-kit @(kit.KitTypeId == selectedTab ? "active" : "")"
+                                @onclick="() => SelectTab(kit.KitTypeId)">
+                            @if (kit.KitTypeId == selectedTab)
+                            {
+                                <img src="@kit.ImageURLSelect" alt="" />
+                            }
+                            else
+                            {
+                                <img src="@kit.ImageURL" alt="" />
+                            }
+                            <span class="latam-kit-label">@kit.Name</span>
+                        </button>
+                        <!-- TAB Mobile con botones -->
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 1)
+                        {
+                           <div class="latam-kit-panel latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isErrorNew)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="ReintentarEmergency" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (isEmptyNew)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bag_cross.svg" />
+                                                    <p>Este Kit no esta disponible para ser solicitado.</p>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>KIT2-l</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>Apto Outdoor Unisex Inicial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>Sin orden</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>12/12/2025</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>Pendiente</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="GoNuevoIngreso" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
 
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 2)
+                        {
+                            <div class="latam-kit-panel latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isErrorEmergengy)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="ReintentarEmergency" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (isEmptyEmergency)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bag_cross.svg" />
+                                                    <p>Este Kit no esta disponible para ser solicitado.</p>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>KIT2-l</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>Apto Outdoor Unisex Inicial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>Sin orden</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>12/12/2025</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>Pendiente</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="GoSolicitudEmergency" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 3)
+                        {
+                            @* contenido tab 3 mobile *@
+                        }
+                        @if(selectedTab == kit.KitTypeId && kit.KitTypeId == 4)
+                                {
+                            @* contenido tab 4 mobile *@
+                        }
+                    </div>
+
+                }     
+            </div> <!--TAB DESKTOP con botones-->
+                <div class="latam-kit-panel latam-kit-panel--desktop">
+                    @if (selectedTab == 1)
+                    {
+                        <table class="latam-kit-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre kit</th>
+                                    <th>Orden</th>
+                                    <th>Fecha de creación</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 @if (isErrorNew)
                                 {
                                     <tr class="latam-kit-table-empty">
-                                        <td colspan="2">
+                                        <td colspan="5">
                                             <img src="images/ico_bloqueo.svg" />
-                                            <p>Ha ocurrido un problema al cargar el kit,<br />
-                                                por favor vuelve a intentarlo.</p>
+                                            <p>
+                                                Ha ocurrido un problema al cargar el kit,<br />
+                                                por favor vuelve a intentarlo.
+                                            </p>
                                             <div class="margin-top-base">
                                                 <button @onclick="ReintentarEmergency" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
                                             </div>
@@ -73,76 +243,51 @@
                                 else if (isEmptyNew)
                                 {
                                     <tr class="latam-kit-table-empty">
-                                        <td colspan="2">
+                                        <td colspan="5">
                                             <img src="images/ico_bag_cross.svg" />
                                             <p>Este Kit no esta disponible para ser solicitado.</p>
                                         </td>
                                     </tr>
+
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td>Código</td>
                                         <td>KIT2-l</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nombre kit</td>
-                                        <td>Apto Outdoor Unisex Inicial</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Orden</td>
+                                        <td>Apto-Outdoor--Unisex-Inicial</td>
                                         <td>Sin orden</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Fecha de creación</td>
-                                        <td>12/12/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Estado</td>
+                                        <td><!-- fecha --></td>
                                         <td>Pendiente</td>
                                     </tr>
-                                    <tr class="separator">
-                                    </tr>
                                     <tr class="latam-kit-table-footer">
-                                        <td colspan="2">
-                                            <button @onclick="GoNuevoIngreso" type="button" class="latam-btn latam-btn--primary">
+                                        <td colspan="5">
+                                            <button type="button" @onclick="GoNuevoIngreso" class="latam-btn latam-btn--primary">
                                                 Solicitar uniforme
                                             </button>
                                         </td>
                                     </tr>
-
-
                                 }
-
                             </tbody>
                         </table>
-                    </div>
+                    }
 
-                }
-
-            </div>
-            <div class="latam-kit-wrapper">
-                <button class="latam-kit @(selectedTab == 2 ? "active" : "")"
-                @onclick="() => SelectTab(2)">
                     @if (selectedTab == 2)
                     {
-                        <img src="images/ico_alert_blue.svg" alt="" />
-                    }
-                    else
-                    {
-                        <img src="images/ico_alert.svg" alt="" />
-                    }
-                    <span class="latam-kit-label">Solicitud de emergencia</span>
-                </button>
-                @if (selectedTab == 2)
-                {
-                    <div class="latam-kit-panel latam-kit-panel--mobile">
-                        <table class="latam-kit-table latam-kit-table--details">
+                        <table class="latam-kit-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre kit</th>
+                                    <th>Orden</th>
+                                    <th>Fecha de creación</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 @if (isErrorEmergengy)
                                 {
                                     <tr class="latam-kit-table-empty">
-                                        <td colspan="2">
+                                        <td colspan="5">
                                             <img src="images/ico_bloqueo.svg" />
                                             <p>
                                                 Ha ocurrido un problema al cargar el kit,<br />
@@ -157,39 +302,25 @@
                                 else if (isEmptyEmergency)
                                 {
                                     <tr class="latam-kit-table-empty">
-                                        <td colspan="2">
+                                        <td colspan="5">
                                             <img src="images/ico_bag_cross.svg" />
                                             <p>Este Kit no esta disponible para ser solicitado.</p>
                                         </td>
                                     </tr>
                                 }
+
                                 else
                                 {
                                     <tr>
-                                        <td>Código</td>
                                         <td>KIT2-l</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nombre kit</td>
-                                        <td>Apto Outdoor Unisex Inicial</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Orden</td>
+                                        <td>Apto-Outdoor--Unisex-Inicial</td>
                                         <td>Sin orden</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Fecha de creación</td>
-                                        <td>12/12/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Estado</td>
+                                        <td><!-- fecha --></td>
                                         <td>Pendiente</td>
                                     </tr>
-                                    <tr class="separator">
-                                    </tr>
                                     <tr class="latam-kit-table-footer">
-                                        <td colspan="2">
-                                            <button @onclick="GoSolicitudEmergency" type="button" class="latam-btn latam-btn--primary">
+                                        <td colspan="5">
+                                            <button type="button" @onclick="GoSolicitudEmergency" class="latam-btn latam-btn--primary">
                                                 Solicitar uniforme
                                             </button>
                                         </td>
@@ -197,199 +328,44 @@
                                 }
                             </tbody>
                         </table>
-                    </div>
-                }
+                    }
 
-            </div>
-            <div class="latam-kit-wrapper">
-                <button class="latam-kit @(selectedTab == 3 ? "active" : "")"
-                @onclick="() => SelectTab(3)">
                     @if (selectedTab == 3)
                     {
-                        <img src="images/ico_embarazo_blue.svg" alt="" />
+                        @* contenido tab 3 desktop *@
                     }
-                    else
-                    {
-                        <img src="images/ico_embarazo.svg" alt="" />
-                    }
-                    <span class="latam-kit-label">Solicitud de embarazo</span>
-                </button>
-                @if (selectedTab == 3)
-                {
-                    <div class="latam-kit-panel latam-kit-panel--mobile">
-                        @* contenido tab 3 móvil *@
-                    </div>
-                }
 
-            </div>
-            <div class="latam-kit-wrapper">
-                <button class="latam-kit @(selectedTab == 4 ? "active" : "")"
-                @onclick="() => SelectTab(4)">
                     @if (selectedTab == 4)
                     {
-                        <img src="images/ico_upgrade_blue.svg" alt="" />
+                        @* contenido tab 4 desktop *@
                     }
-                    else
-                    {
-                        <img src="images/ico_upgrade.svg" alt="" />
-                    }
-                    <span class="latam-kit-label">Kit de ascenso</span>
-                </button>
-                @if (selectedTab == 4)
-                {
-                    <div class="latam-kit-panel latam-kit-panel--mobile">
-                        @* contenido tab 4 móvil *@
-                    </div>
-                }
-            </div>
-        </div>
 
-        /* TAB DESKTOP con botones */
-    <div class="latam-kit-panel latam-kit-panel--desktop">
-        @if (selectedTab == 1)
-        {
-            <table class="latam-kit-table">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre kit</th>
-                        <th>Orden</th>
-                        <th>Fecha de creación</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                        @if (isErrorNew)
-                        {
-                            <tr class="latam-kit-table-empty">
-                                <td colspan="5">
-                                    <img src="images/ico_bloqueo.svg" />
-                                    <p>
-                                        Ha ocurrido un problema al cargar el kit,<br />
-                                        por favor vuelve a intentarlo.
-                                    </p>
-                                    <div class="margin-top-base">
-                                        <button @onclick="ReintentarEmergency" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        else if(isEmptyNew) 
-                        {
-                         <tr class="latam-kit-table-empty">
-                            <td colspan="5">
-                                <img src="images/ico_bag_cross.svg" />
-                                <p>Este Kit no esta disponible para ser solicitado.</p>
-                            </td>
-                        </tr>
-                           
-                        }
-                        else
-                        {
-                            <tr>
-                                <td>KIT2-l</td>
-                                <td>Apto-Outdoor--Unisex-Inicial</td>
-                                <td>Sin orden</td>
-                                <td><!-- fecha --></td>
-                                <td>Pendiente</td>
-                            </tr>
-                            <tr class="latam-kit-table-footer">
-                                <td colspan="5">
-                                    <button type="button" @onclick="GoNuevoIngreso" class="latam-btn latam-btn--primary">
-                                        Solicitar uniforme
-                                    </button>
-                                </td>
-                            </tr>
-                    }
-                </tbody>
-                </table>
-            }
-            else if (selectedTab == 2)
-            {
-                <table class="latam-kit-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre kit</th>
-                            <th>Orden</th>
-                            <th>Fecha de creación</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (isErrorEmergengy)
-                        {
-                            <tr class="latam-kit-table-empty">
-                                <td colspan="5">
-                                    <img src="images/ico_bloqueo.svg" />
-                                    <p>
-                                        Ha ocurrido un problema al cargar el kit,<br />
-                                        por favor vuelve a intentarlo.
-                                    </p>
-                                    <div class="margin-top-base">
-                                        <button @onclick="ReintentarEmergency" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }else if(isEmptyEmergency)
-                        {
-                            <tr class="latam-kit-table-empty">
-                                <td colspan="5">
-                                    <img src="images/ico_bag_cross.svg" />
-                                    <p>Este Kit no esta disponible para ser solicitado.</p>
-                                </td>
-                            </tr>
-                        }
+                </div>
+           
+        }
 
-                        else
-                        {
-                            <tr>
-                                <td>KIT2-l</td>
-                                <td>Apto-Outdoor--Unisex-Inicial</td>
-                                <td>Sin orden</td>
-                                <td><!-- fecha --></td>
-                                <td>Pendiente</td>
-                            </tr>
-                            <tr class="latam-kit-table-footer">
-                                <td colspan="5">
-                                    <button type="button" @onclick="GoSolicitudEmergency" class="latam-btn latam-btn--primary">
-                                        Solicitar uniforme
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                </tbody>
-            </table>
-        }
-        else if (selectedTab == 3)
-        {
-            @* contenido tab 3 desktop *@
-        }
-        else if (selectedTab == 4)
-        {
-            @* contenido tab 4 desktop *@
-        }
-    </div>
     }
     @if (!errorSection)
     {
         <ModalEmergency @ref="modalRef" @bind-IsOpenModal="IsOpenModal" />
-    } 
-   
+    }
+
 </section>
 
 @code {
-    private bool errorSection = false;
 
+
+
+    private bool errorSection = false;
     private bool isEmptyEmergency = false;
     private bool isErrorEmergengy = false;
-
+    private string? token { get; set; }
     private bool isEmptyNew = false;
     private bool isErrorNew = false;
 
     private int selectedTab = 0;
     private void SelectTab(int tab) => selectedTab = tab;
-    private bool IsOpenModal{ get; set; } = false;
+    private bool IsOpenModal { get; set; } = false;
     private ModalEmergency? modalRef;
     void GoNuevoIngreso()
     {
@@ -412,4 +388,29 @@
     {
 
     }
+
+    private List<KitType>? _kitTypes;
+    private bool isLoaded = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        token = AuthService.GetToken();
+        await Task.Delay(500);
+        try
+        {
+            _kitTypes = await KitService.GetKitTypesAsync();
+            isEmptyNew = _kitTypes == null || !_kitTypes.Any();
+        }
+        catch
+        {
+            errorSection = false;
+            isErrorNew = true;
+        }
+        finally
+        {
+            isLoaded = true;
+        }
+    }
+
 }

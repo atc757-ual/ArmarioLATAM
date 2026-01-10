@@ -5,7 +5,7 @@ public class Kit
     public int KitId { get; set; } // Auto-generado por SQL Server (IDENTITY)
     public string KitCode { get; set; } = default!;
     public string KitName { get; set; } = default!;
-    public string OrderNumber { get; set; } // CAMBIADO: de string a int para coincidir con BD
+    public string? OrderNumber { get; set; } // CAMBIADO: de string a int para coincidir con BD
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string Status { get; set; } = "Pending";
     public int KitTypeId { get; set; }
