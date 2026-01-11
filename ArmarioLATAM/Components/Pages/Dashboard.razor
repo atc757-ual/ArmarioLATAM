@@ -6,6 +6,7 @@
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 @inject IKitService KitService
+@inject LocalStorageService LocalStorage
 @inject KitSelectionState KitSelectionState
  
 
@@ -357,19 +358,21 @@ else
 
     private void SelectTab(int tab) => selectedTab = tab;
 
-    void GoNuevoIngreso(KitType kit)
+    async Task GoNuevoIngreso(KitType kit)
     {
         KitSelectionState.Set(kit);
+        await KitSelectionState.SaveAsync();
         Navigation.NavigateTo("/NuevoIngreso");
     }
 
-    void GoNuevoIngresoDesktop()
+    async Task GoNuevoIngresoDesktop()
     {
         var kit = _kitTypes?.FirstOrDefault(k => k.KitTypeId == selectedTab);
         if (kit is null)
-            return; 
+            return;
 
         KitSelectionState.Set(kit);
+        await KitSelectionState.SaveAsync();
         Navigation.NavigateTo("/NuevoIngreso");
     }
 
@@ -416,5 +419,14 @@ else
             {
                 isLoaded = true;
             }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
+            StateHasChanged(); // refresca la UI
         }
+    }
+
 }

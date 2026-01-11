@@ -3,80 +3,109 @@
 @using ArmarioLATAM.Components.Models
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
-@inject GarmentSelectionState SelectionState
+@inject GarmentSelectionState GarmentSelectionState
 @inject KitSelectionState KitSelectionState
 @rendermode InteractiveServer
 
-<section class="latam-section">
-    <div class="page-title">@KitSelectionState.Name</div>
-    <Separator />
-    <div class="nuevo-ingreso-header">
-        <span class="label">Resumen de solicitud:</span><br class="mobile-break" /> 
-        <span class="label">@KitSelectionState.Description</span>
-    </div>
+@if (!isLoaded)
+{
+    <LoadPage />
+}
+else
+{
+    <section class="latam-section">
+        <div class="page-title">@KitSelectionState.Name</div>
+        <Separator />
+        <div class="nuevo-ingreso-header">
+            <span class="label">Resumen de solicitud:</span><br class="mobile-break" />
+            <span class="label">@KitSelectionState.Description</span>
+        </div>
 
-    <div class="summary-list">
+        <div class="summary-list">
 
-        @foreach (var item in SelectionState.SelectedGarments)
-        {
-            <article class="summary-item">
-                <img src="@item.ImageURL" class="summary-image" />
-                <div class="summary-main">
-                    <div class="summary-head">
-                        <span class="summary-data-label">Name</span>
-                        <span class="summary-data-value">@item.Name</span>
+            @foreach (var item in GarmentSelectionState.SelectedGarments)
+            {
+                <article class="summary-item">
+                    <img src="@item.ImageURL" class="summary-image" />
+                    <div class="summary-main">
+                        <div class="summary-head">
+                            <span class="summary-data-label">Name</span>
+                            <span class="summary-data-value">@item.Name</span>
+                        </div>
+                        <div class="summary-data--mobile">
+                            <span class="summary-data-label">Talla</span>
+                            <span class="summary-data-value">@item.Size</span>
+                            <span class="summary-data-label">Cantidad</span>
+                            <span class="summary-data-value">@item.Quantity</span>
+                        </div>
                     </div>
-                    <div class="summary-data--mobile">
-                        <span class="summary-data-label">Talla</span>
-                        <span class="summary-data-value">@item.Size</span>
-                        <span class="summary-data-label">Cantidad</span>
-                        <span class="summary-data-value">@item.Quantity</span>
+
+                    <div class="summary-data--desktop">
+                        <div class="summary-size-block">
+                            <span class="summary-data-label">Talla</span>
+                            <span class="summary-data-value">@item.Size</span>
+                        </div>
+                        <div class="summary-qty-block">
+                            <span class="summary-data-label">Cantidad</span>
+                            <span class="summary-data-value">@item.Quantity</span>
+                        </div>
                     </div>
+                </article>
+            }
+
+        </div>
+
+        <Separator />
+        <div class="redirects-footer">
+            <button type="button"
+                    class="latam-back-link"
+                    @onclick="GoBack">
+                <img src="images/ico_arrow_left.svg" />
+                <span> Volver</span>
+            </button>
+
+            @if (isValid)
+            {
+                <div class="latam-btn-row">
+                    <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Confirmar solicitud</button>
                 </div>
-
-                <div class="summary-data--desktop">
-                    <div class="summary-size-block">
-                        <span class="summary-data-label">Talla</span>
-                        <span class="summary-data-value">@item.Size</span>
-                    </div>
-                    <div class="summary-qty-block">
-                        <span class="summary-data-label">Cantidad</span>
-                        <span class="summary-data-value">@item.Quantity</span>
-                    </div>
+            }
+            else
+            {
+                <div class="latam-btn-row">
+                    <button type="button" class="latam-btn latam-btn--primary " disabled>
+                        Confirmar solicitud
+                    </button>
                 </div>
-            </article>
-        }
+            }
+        </div>
+    </section>
+}
 
-    </div>
-
-    <Separator />
-    <div class="redirects-footer">
-        <button type="button"
-                class="latam-back-link"
-                @onclick="GoBack">
-            <img src="images/ico_arrow_left.svg" />
-            <span> Volver</span>
-        </button>
-
-        @if (isValid)
-        {
-            <div class="latam-btn-row">
-                <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Confirmar solicitud</button>
-            </div>
-        }
-        else
-        {
-            <div class="latam-btn-row">
-                <button type="button" class="latam-btn latam-btn--primary " disabled>
-                    Confirmar solicitud
-                </button>
-            </div>
-        }
-    </div>
-</section>
 @code {
+    private bool isLoaded = false;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 1. Cargar selección desde localStorage
+            if (KitSelectionState.IsEmpty || GarmentSelectionState.IsEmpty)
+            {
+                await KitSelectionState.LoadAsync();
+                await GarmentSelectionState.LoadAsync();
+            }
 
+            if (KitSelectionState.IsEmpty || GarmentSelectionState.IsEmpty)
+            {
+                Navigation.NavigateTo("/Dashboard");
+                return;
+            }
+            isLoaded = true;
+            StateHasChanged(); // un solo render extra tras cargar todo
+        }
+        
+    }
     private bool isValid = true;
     void GoBack()
     {

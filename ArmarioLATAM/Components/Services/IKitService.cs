@@ -14,7 +14,6 @@ namespace ArmarioLATAM.Services
         private readonly HttpClient _httpClient;
         private readonly IAuthService _authService;
         private readonly ILogger<KitService> _logger;
-        private int? _selectedKitTypeId;
 
         public KitService(HttpClient httpClient,
                           IAuthService authService,

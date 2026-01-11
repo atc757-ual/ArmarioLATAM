@@ -2,26 +2,75 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ArmarioLATAM.Components
+public class KitSelectionState
 {
-    public class KitSelectionState
+    private const string StorageKey = "kitSelection";
+
+    private readonly LocalStorageService _localStorage;
+
+    public KitSelectionState(LocalStorageService localStorage)
     {
-        public int KitTypeId { get; private set; }
-        public string? Name { get; private set; }
-        public string? Description { get; private set; }
+        _localStorage = localStorage;
+    }
 
-        public void Set(KitType kit)
-        {
-            KitTypeId = kit.KitTypeId;
-            Name = kit.Name;
-            Description = kit.Description;
-        }
+    // Estado en memoria
+    public int? KitTypeId { get; private set; }
+    public string? Name { get; private set; }
+    public string? Description { get; private set; }
 
-        public void Clear()
+    public bool IsEmpty =>
+        KitTypeId is null && string.IsNullOrEmpty(Name) && string.IsNullOrEmpty(Description);
+
+    // Set síncrono en memoria
+    public void Set(KitType kit)
+    {
+        KitTypeId = kit.KitTypeId;
+        Name = kit.Name;
+        Description = kit.Description;
+    }
+
+    // Guarda estado actual en localStorage
+    public async Task SaveAsync()
+    {
+        var dto = new
         {
-            KitTypeId = 0;
-            Name = null;
-            Description = null;
-        }
+            KitTypeId,
+            Name,
+            Description
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(dto);
+        await _localStorage.SetItemAsync(StorageKey, json);
+    }
+
+    // Carga desde localStorage al estado en memoria
+    public async Task LoadAsync()
+    {
+        var json = await _localStorage.GetItemAsync(StorageKey);
+        if (string.IsNullOrWhiteSpace(json))
+            return;
+
+        var dto = System.Text.Json.JsonSerializer.Deserialize<KitSelectionDto>(json);
+        if (dto is null)
+            return;
+
+        KitTypeId = dto.KitTypeId;
+        Name = dto.Name;
+        Description = dto.Description;
+    }
+
+    public async Task ClearAsync()
+    {
+        KitTypeId = null;
+        Name = null;
+        Description = null;
+        await _localStorage.RemoveItemAsync(StorageKey);
+    }
+
+    private class KitSelectionDto
+    {
+        public int? KitTypeId { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
     }
 }

@@ -5,7 +5,7 @@
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 @inject IGarmentService GarmentService
-@inject GarmentSelectionState SelectionState
+@inject GarmentSelectionState GarmentSelectionState
 @inject KitSelectionState KitSelectionState
 @rendermode InteractiveServer
 
@@ -24,34 +24,30 @@
     </div>
 
 
-    @if (errorSection)
-    {
-        <div class="latam-error-card">
-            <div class="latam-error-header">
-                <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
-                <span>No podemos mostrar las prendas del kit</span>
-            </div>
-            <Separator></Separator>
-            <div class="latam-error-body">
-                En estos momentos no es posible mostrar las prendas asignadas a este Kit.<br />
-                Por favor, inténtalo nuevamente
-            </div>
-            <Separator></Separator>
-            <div class="latam-error-footer">
-                <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
-                    Reintentar
-                </button>
-                <a class="latam-link-danger" @onclick="GoInicio">
-                    Volver al inicio
-                </a>
-            </div>
-        </div>
-    }
-    else if (isEmptyGarments)
-    {
-        <p>No hay prendas.</p>
-    }
 
+  @if (isEmptyGarments)
+        {
+            <div class="latam-error-card">
+                <div class="latam-error-header">
+                    <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
+                    <span>No podemos mostrar las prendas del kit</span>
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-body">
+                    En estos momentos no es posible mostrar las prendas asignadas a este Kit.<br />
+                    Por favor, inténtalo nuevamente
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-footer">
+                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
+                        Reintentar
+                    </button>
+                    <a class="latam-link-danger" @onclick="GoInicio">
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+    }
     else
     {
         <div class="garment-list">
@@ -94,57 +90,74 @@
     private List<Garment> _garments { get; set; } = new();
     private bool isEmptyGarments;
     private bool isLoaded = false;
-    private bool errorSection;
 
-    void GoBack()
+    async Task GoBack()
     {
-        SelectionState.Clear();
-        JS.InvokeVoidAsync("history.back");
+        await JS.InvokeVoidAsync("history.back");
     }
 
-    void GoNext()
+    async Task GoNext()
     {
-        SelectionState.SetSelections(_selected.Values);
+        GarmentSelectionState.SetSelections(_selected.Values);
+        await GarmentSelectionState.SaveAsync();
         Navigation.NavigateTo("/NuevoIngresoResumen");
     }
+
     void Reintentar()
     {
         
     }
-    void GoInicio()
+   void  GoInicio()
     {
-        SelectionState.Clear();
         Navigation.NavigateTo("/");
     }
 
 
 
-    protected override async Task OnInitializedAsync()
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Task.Delay(500);
-        try
+        if (firstRender)
         {
-            _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
-            if (_garments is null)
+            // 1. Cargar selección desde localStorage
+            if (KitSelectionState.IsEmpty)
             {
-                // no token o token caducado → sesión expirada
-                Navigation.NavigateTo("/");
+                await KitSelectionState.LoadAsync();
+            }
+
+            if (KitSelectionState.IsEmpty)
+            {
+                Navigation.NavigateTo("/Dashboard");
                 return;
             }
-            
-            isEmptyGarments = _garments == null || !_garments.Any();
-            errorSection = false;
-        }
-        catch
-        {
-            errorSection = true;
-            isEmptyGarments = false;
-        }
-        finally
-        {
-            isLoaded = true;
+
+            // 2. Cargar garments solo una vez
+            try
+            {
+                _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
+
+                if (_garments is null) // por si tu método puede devolver null para "no token"
+                {
+                    Navigation.NavigateTo("/");
+                    return;
+                }
+
+                isEmptyGarments = !_garments.Any();
+            }
+            catch
+            {
+                isEmptyGarments = false;
+            }
+            finally
+            {
+                isLoaded = true;
+            }
+
+            StateHasChanged(); // un solo render extra tras cargar todo
         }
     }
+
     private readonly Dictionary<int, GarmentSelection> _selected = new();
 
     private void OnGarmentChanged(GarmentSelection sel)

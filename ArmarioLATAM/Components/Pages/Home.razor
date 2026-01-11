@@ -4,7 +4,7 @@
 @using ArmarioLATAM.Components.Models
 @using ArmarioLATAM.Services
 @using System.ComponentModel.DataAnnotations
-
+@inject LocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
 
@@ -165,4 +165,14 @@
 
         StateHasChanged();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
+            StateHasChanged(); // refresca la UI
+        }
+    }
+
 }
