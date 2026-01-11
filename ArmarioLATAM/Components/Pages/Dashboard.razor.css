@@ -14,7 +14,6 @@
     min-width: 195px;
     display: flex;
     flex-direction: column;
-    /*gap: var(--space-base);*/
 }
 
 /* TAB */

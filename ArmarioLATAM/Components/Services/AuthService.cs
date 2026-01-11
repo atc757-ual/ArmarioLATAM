@@ -13,7 +13,9 @@ namespace ArmarioLATAM.Services
         Task LogoutAsync();
         string? GetToken();
         Task<string?> GetTokenAsync();
+        Task<bool> IsSessionValidAsync();
         bool IsAuthenticated();
+
     }
 
     public class AuthService : IAuthService
@@ -103,18 +105,6 @@ namespace ArmarioLATAM.Services
             }
         }
 
-        public bool IsAuthenticated()
-        {
-            _logger.LogInformation(
-                "IsAuthenticated? Token null/vacío={IsNullOrEmpty}, Expiration={Expiration}",
-                string.IsNullOrEmpty(_token), _tokenExpiration);
-
-            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
-                return false;
-
-            return DateTime.UtcNow < _tokenExpiration;
-        }
-
         public async Task LogoutAsync()
         {
             _token = null;
@@ -140,5 +130,27 @@ namespace ArmarioLATAM.Services
 
             return _token;
         }
+
+        // 3) Método ASYNC que combina ambos (para usar cuando puedas hacer await)
+        public async Task<bool> IsSessionValidAsync()
+        {
+            await EnsureTokenLoadedAsync();
+
+            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
+                return false;
+
+            return DateTime.UtcNow < _tokenExpiration.Value;
+        }
+
+        // 2) Método SYNC que solo mira memoria (para layout, páginas, etc.)
+        public bool IsAuthenticated()
+        {
+            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
+                return false;
+
+            return DateTime.UtcNow < _tokenExpiration.Value;
+        }
+
+
     }
 }

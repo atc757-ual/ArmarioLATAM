@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@using ArmarioLATAM.Services
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
 
 <div class="app-shell">
 
@@ -10,7 +13,7 @@
         <NavMenu />
     </header>
     <main class="app-main">
-        @Body
+            @Body
     </main>
     <footer class="app-footer">
         <img src="images/logo_footer.svg" alt="MiApp" class="footer-logo-img" />
@@ -21,3 +24,29 @@
     </footer>
 
 </div>
+
+
+@code {
+    private bool _checkedSessionFromStorage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _checkedSessionFromStorage)
+            return;
+
+        _checkedSessionFromStorage = true;
+
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri); // "" cuando es "/"
+        var isHome = string.IsNullOrEmpty(uri) || uri.Equals("home", StringComparison.OrdinalIgnoreCase);
+
+        var isValid = await AuthService.IsSessionValidAsync();
+
+        if (!isValid && !isHome)
+        {
+            Navigation.NavigateTo("/");
+        }
+        // IMPORTANTE: si estás en "/" no redirijas otra vez, o nunca saldrás de login
+    }
+}
+
+

@@ -115,7 +115,7 @@
             if (response != null && !string.IsNullOrEmpty(response.Token))
             {
                 // Login exitoso
-                NavigationManager.NavigateTo("/Dashboard");
+                NavigationManager.NavigateTo("/Dashboard",forceLoad:false);
             }
             else
             {

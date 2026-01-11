@@ -1,6 +1,5 @@
 ﻿@page "/Dashboard"
 @rendermode InteractiveServer
-
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
 @using ArmarioLATAM.Services
@@ -14,9 +13,20 @@
         Kits
     </div>
 
+
     @if (errorSection)
     {
-        <div class="latam-kit-wrapper full-width margin-top-base">
+
+    }
+    else
+    {
+        if (!isLoaded)
+        {
+            <LoadPage></LoadPage>
+        }
+        else if (_kitTypes is null || !_kitTypes.Any())
+        {
+          <div class="latam-kit-wrapper full-width margin-top-base">
             <div class="latam-error-card">
                 <div class="latam-error-header">
                     <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
@@ -35,16 +45,6 @@
                 </div>
             </div>
         </div>
-    }
-    else
-    {
-        if (!isLoaded)
-        {
-            <LoadPage></LoadPage>
-        }
-        else if (_kitTypes is null || !_kitTypes.Any())
-        {
-            <p> No hay kits disponibles.</p>
         }
         else
         {
@@ -353,9 +353,6 @@
 </section>
 
 @code {
-
-
-
     private bool errorSection = false;
     private bool isEmptyEmergency = false;
     private bool isErrorEmergengy = false;
@@ -391,26 +388,24 @@
 
     private List<KitType>? _kitTypes;
     private bool isLoaded = false;
+
     protected override async Task OnInitializedAsync()
-    {
-
-
-        token = AuthService.GetToken();
-        await Task.Delay(500);
-        try
-        {
-            _kitTypes = await KitService.GetKitTypesAsync();
-            isEmptyNew = _kitTypes == null || !_kitTypes.Any();
+    { 
+            token = AuthService.GetToken();
+            await Task.Delay(500);
+            try
+            {
+                _kitTypes = await KitService.GetKitTypesAsync();
+                isEmptyNew = _kitTypes == null || !_kitTypes.Any();
+            }
+            catch
+            {
+                errorSection = false;
+                isErrorNew = true;
+            }
+            finally
+            {
+                isLoaded = true;
+            }
         }
-        catch
-        {
-            errorSection = false;
-            isErrorNew = true;
-        }
-        finally
-        {
-            isLoaded = true;
-        }
-    }
-
 }
