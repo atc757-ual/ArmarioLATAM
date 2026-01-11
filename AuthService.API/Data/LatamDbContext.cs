@@ -1,4 +1,3 @@
-// Archivo: AuthService.API/Data/LatamDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using AuthService.API.Models;
 
@@ -10,7 +9,6 @@ public class LatamDbContext : DbContext
         : base(options) { }
 
     public DbSet<Garment> Garments => Set<Garment>();
-    
     public DbSet<KitType> KitTypes => Set<KitType>();
     public DbSet<Kit> Kits => Set<Kit>();
     public DbSet<KitItem> KitItems => Set<KitItem>();
@@ -23,7 +21,6 @@ public class LatamDbContext : DbContext
             entity.HasKey(e => e.GarmentId);
             entity.ToTable("Garments");
         });
-
 
         // KitTypes
         modelBuilder.Entity<KitType>(entity =>
@@ -47,6 +44,10 @@ public class LatamDbContext : DbContext
                 .WithOne(ki => ki.Kit)
                 .HasForeignKey(ki => ki.KitId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // ⭐ AGREGAR: Configurar RequestedByUserId como int
+            entity.Property(k => k.RequestedByUserId)
+                .IsRequired();
         });
 
         // KitItems
@@ -59,8 +60,6 @@ public class LatamDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(ki => ki.GarmentId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-           
         });
     }
 }

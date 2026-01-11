@@ -2,18 +2,17 @@ namespace AuthService.API.Models;
 
 public class Kit
 {
-    public int KitId { get; set; } // Auto-generado por SQL Server (IDENTITY)
+    public int KitId { get; set; }
     public string KitCode { get; set; } = default!;
     public string KitName { get; set; } = default!;
-    public string OrderNumber { get; set; } // CAMBIADO: de string a int para coincidir con BD
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public string Status { get; set; } = "Pending";
+    public string OrderNumber { get; set; } = default!;
+    public DateTime CreatedAt { get; set; }
+    public string Status { get; set; } = default!;
     public int KitTypeId { get; set; }
-    public Guid RequestedByUserId { get; set; } // User.Id es Guid
-    public int? MotherTongueLanguageId { get; set; }
-    public int? SecondLanguageId { get; set; }
-    public int? ThirdLanguageId { get; set; }
+    public int RequestedByUserId { get; set; } // CAMBIADO: de Guid a int
 
+    // Navegación
     public KitType? KitType { get; set; }
+    public User? RequestedByUser { get; set; } // Opcional: navegación al usuario
     public List<KitItem> Items { get; set; } = new();
 }

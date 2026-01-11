@@ -11,10 +11,21 @@ public class AuthDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            // Configurar Id como auto-incremental
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn(); // Para SQL Server
+            
+            // Email único
+            entity.HasIndex(e => e.Email).IsUnique();
+            
+            // Configuraciones adicionales
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
     }
 }
-
-

@@ -37,14 +37,13 @@ public class AuthService
 
         var user = new User
         {
-            Id = Guid.NewGuid(),
-            Email = email,
-            PasswordHash = hash,
-            PasswordSalt = salt,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
+    // Id se asignará automáticamente por la BD (auto-incremental)
+    Email = email,
+    PasswordHash = hash,
+    PasswordSalt = salt,
+    IsActive = true,
+    CreatedAt = DateTime.UtcNow
+};
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
