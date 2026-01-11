@@ -22,7 +22,7 @@ public class AuthService
     }
 
     // =========================
-    // REGISTRO DE USUARIO
+    // REGISTRO DE USUARIOALmeria
     // =========================
     public async Task<User?> Register(string email, string password)
     {
