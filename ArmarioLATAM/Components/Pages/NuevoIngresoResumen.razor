@@ -1,7 +1,10 @@
 ﻿@page "/NuevoIngresoResumen"
-@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Models
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject GarmentSelectionState SelectionState
+@rendermode InteractiveServer
 
 <section class="latam-section">
     <div class="page-title">Nuevo ingreso</div>
@@ -11,14 +14,15 @@
     </div>
 
     <div class="summary-list">
-        @foreach (var item in Items)
+
+        @foreach (var item in SelectionState.SelectedGarments)
         {
             <article class="summary-item">
-                <img src="@item.ImageUrl" class="summary-image" />
+                <img src="@item.ImageURL" class="summary-image" />
                 <div class="summary-main">
                     <div class="summary-head">
                         <span class="summary-data-label">Name</span>
-                        <span class="summary-data-value">@item.Description</span>
+                        <span class="summary-data-value">@item.Name</span>
                     </div>
                     <div class="summary-data--mobile">
                         <span class="summary-data-label">Talla</span>
@@ -40,6 +44,7 @@
                 </div>
             </article>
         }
+
     </div>
 
     <Separator />
@@ -69,17 +74,6 @@
 </section>
 @code {
 
-    record SummaryItem(string ImageUrl, string Description, string Size, int Quantity);
-
-    List<SummaryItem> Items = new()
-    {
-        new("images/img_example.png", "Jaqueta cortaviento unissex azul", "L", 1),
-        new("images/img_example.png", "Calça-Bermuda Unissex Azul", "L", 2),
-        new("images/img_example.png", "Polera Manga Larga Unisex Azul", "L", 1),
-        new("images/img_example.png", "Polera Manga Corta Unisex Azul", "L", 4),
-        new("images/img_example.png", "Polerón Algodón Azul Marino", "L", 3),
-
-    };
 
     private bool isValid = true;
     void GoBack()

@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             token,
-            expiresIn = 300
+            expiresIn = 3600
         });
     }
 }

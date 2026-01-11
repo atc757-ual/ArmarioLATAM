@@ -7,5 +7,7 @@ public class KitType
     public string? Description { get; set; }
     public string ImageURL { get; set; } = default!;
     public string ImageURLSelect { get; set; } = default!;
+    public string? KitCode { get; set; }
     public bool IsActive { get; set; } = true;
+   
 }

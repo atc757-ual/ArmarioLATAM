@@ -1,0 +1,21 @@
+﻿@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var isHome = string.IsNullOrEmpty(uri) || uri.Equals("home", StringComparison.OrdinalIgnoreCase);
+        var isValid = await AuthService.IsSessionValidAsync();
+
+        if (!isValid && !isHome)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}
+

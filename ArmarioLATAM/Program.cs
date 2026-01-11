@@ -20,10 +20,15 @@ builder.Services.AddHttpClient<IKitService, KitService>(client =>
     client.BaseAddress = new Uri("http://localhost:5215/"); // tu API
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+builder.Services.AddHttpClient<IGarmentService, GarmentService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5215/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 // Registrar ProtectedSessionStorage
 builder.Services.AddScoped<ProtectedSessionStorage>();
-
+builder.Services.AddScoped<GarmentSelectionState>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -1,16 +1,18 @@
-﻿<div class="garment-card">
-    <img src="@ImageUrl" alt="@Title" class="garment-image" />
+﻿@using ArmarioLATAM.Components.Models
+@rendermode InteractiveServer
+<div class="garment-card">
+    <img src="@garments.ImageURL" alt="@garments.Name" class="garment-image" />
 
     <div class="garment-content">
-        <h3 class="garment-title">@Title</h3>
+        <h3 class="garment-title">@garments.Name</h3>
         <p class="garment-subtitle">
-            Cantidad autorizada para esta prenda: @AuthorizedCount
+            Cantidad autorizada para esta prenda: @garments.QuantityAuth
         </p>
 
         <div class="garment-qty">
             <span>Cantidad</span>
             <div class="garment-qty-controls ">
-                @if (Quantity == 1 )
+                @if (Quantity == 0 )
                 {
                     <button type="button">
                         <img src="images/ico_minus.svg" />
@@ -23,7 +25,7 @@
                     </button>
                 }
                 <span class="garment-qty-count">@Quantity</span>
-                @if(AuthorizedCount > Quantity)
+                @if(garments.QuantityAuth > Quantity)
                 {
                     <button type="button" @onclick="Increment">
                         <img src="images/ico_add_blue.svg" />
@@ -38,7 +40,7 @@
 
             </div>
         </div>
-        @if (HasLanguage)
+        @if (garments.Languages == "")
         {
             <div class="garment-languages">
                 <DropdownSelect Id="native" Placeholder="Lengua materna"
@@ -59,16 +61,26 @@
         }
         else
         {
-            <div class="garment-sizes">
+            <div class="garment-sizes" >
                 <span>Selecciona tu talla</span>
                 <div class="garment-size-grid">
-                    @foreach (var size in Sizes)
+                    @foreach (var size in garments.SizeList)
                     {
-                        <button type="button"
+                        if(Quantity > 0)
+                        {
+                            <button type="button" 
                                 class="garment-size @(SelectedSize == size ? "is-selected" : "")"
-                                @onclick="() => SelectSize(size)">
-                            @size
-                        </button>
+                                    @onclick="() => SelectSize(size)">
+                                @size
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" 
+                                class="garment-size garment-size--disable" disabled>
+                                @size
+                            </button>
+                        }
                     }
                 </div>
             </div>
@@ -76,7 +88,7 @@
         }
 
         
-        @if (HasLanguage)
+        @if (garments.Languages == "")
         {
             <div class="garment-language-note">
                <ul>
@@ -95,35 +107,53 @@
 </div>
 
 @code {
+    [Parameter] public Garment garments { get; set; } = new Garment();
+    [Parameter] public EventCallback<GarmentSelection> OnChanged { get; set; }
 
-    [Parameter] public string ImageUrl { get; set; } = "";
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public int AuthorizedCount { get; set; }
-    [Parameter] public IEnumerable<string> Sizes { get; set; } = Array.Empty<string>();
-    [Parameter] public bool HasLanguage { get; set; } = false;
-
-    public int Quantity { get; set; } = 1;
+    public int Quantity { get; set; } = 0;
     public string? SelectedSize { get; set; }
     string? openSelectId; 
     // idiomas disponibles para los combos
-    public List<string> LanguageOptions { get; set; } =
-        new() { "Español", "Inglés", "Portugués" };
+    public List<string> LanguageOptions { get; set; } = new() { "Español", "Inglés", "Portugués" };
 
     public string? NativeLanguage { get; set; }
     public string? SecondLanguage { get; set; }
     public string? ThirdLanguage { get; set; }
 
-    void Increment()
+    async Task Increment()
     {
-        if (Quantity < AuthorizedCount)
-             Quantity++;
+        if (Quantity < garments.QuantityAuth)
+            Quantity++;
+        await NotifyParent();
     }
 
-    void Decrement()
+    async Task Decrement()
     {
-        if (Quantity > 1)
-         Quantity--;
+        if (Quantity >= 1)
+            Quantity--;
+        await NotifyParent();
     }
 
-    void SelectSize(string size) => SelectedSize = size;
+    async Task SelectSize(string size)
+    {
+        SelectedSize = size;
+        await NotifyParent();
+    }
+
+
+    async Task NotifyParent()
+    {
+        if (!OnChanged.HasDelegate) return;
+
+        var data = new GarmentSelection
+        {
+            GarmentId = garments.GarmentId,
+            Name = garments.Name,
+            Quantity = Quantity,
+            Size = SelectedSize,
+            ImageURL = garments.ImageURL,
+        };
+
+        await OnChanged.InvokeAsync(data);
+    }
 }

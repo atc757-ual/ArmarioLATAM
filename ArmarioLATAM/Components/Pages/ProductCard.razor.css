@@ -108,7 +108,12 @@
         background: var(--color-primary-blue);
         color: var(--color-neutral-0);
     }
+    .garment-size--disable {
+    background: var(--color-neutral-3);
+    opacity: 0.5;
+    cursor: not-allowed;
 
+    }
 .garment-note {
     margin-top: var(--space-m);
     font-size: var(--fs-14);

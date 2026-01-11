@@ -1296,3 +1296,8 @@ a, button {
     margin: 0 0 var(--space-base);
 }
 
+.page-title {
+    font-size: var(--fs-24);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-title);
+}
