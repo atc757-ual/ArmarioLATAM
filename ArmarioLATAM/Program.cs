@@ -29,6 +29,8 @@ builder.Services.AddHttpClient<IGarmentService, GarmentService>(client =>
 // Registrar ProtectedSessionStorage
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<GarmentSelectionState>();
+builder.Services.AddScoped<KitSelectionState>();
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

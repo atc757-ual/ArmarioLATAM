@@ -144,4 +144,11 @@ namespace ArmarioLATAM.Components.Models
         public string? Languages { get; set; }
 
     }
+    public class KitTypeSelection
+    {
+        public int KitTypeId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+
+    }
 }

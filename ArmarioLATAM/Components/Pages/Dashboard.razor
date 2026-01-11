@@ -6,27 +6,20 @@
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 @inject IKitService KitService
+@inject KitSelectionState KitSelectionState
+ 
 
-
+@if (!isLoaded)
+{
+    <LoadPage></LoadPage>
+}
+else
+{
 <section class="latam-section">
-    <div class="title-dashboard">
-        Kits
-    </div>
-
-
-    @if (errorSection)
-    {
-
-    }
-    else
-    {
-        if (!isLoaded)
-        {
-            <LoadPage></LoadPage>
-        }
-        else if (_kitTypes is null || !_kitTypes.Any())
-        {
-          <div class="latam-kit-wrapper full-width margin-top-base">
+    <div class="title-dashboard">Kits</div>
+       
+    <!--
+       <div class="latam-kit-wrapper full-width margin-top-base">
             <div class="latam-error-card">
                 <div class="latam-error-header">
                     <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
@@ -45,8 +38,8 @@
                 </div>
             </div>
         </div>
-        }
-        else
+    -->
+    @if (_kitTypes is not null && _kitTypes.Any())
         {
             <div class="latam-kits-row">
                 @foreach (var kit in _kitTypes!)
@@ -71,7 +64,7 @@
                            <div class="latam-kit-panel latam-kit-panel--mobile">
                                 <table class="latam-kit-table latam-kit-table--details">
                                     <tbody>
-                                        @if (isErrorNew)
+                                        @if (isError)
                                         {
                                             <tr class="latam-kit-table-empty">
                                                 <td colspan="2">
@@ -86,7 +79,7 @@
                                                 </td>
                                             </tr>
                                         }
-                                        else if (isEmptyNew)
+                                        else if (isEmpty)
                                         {
                                             <tr class="latam-kit-table-empty">
                                                 <td colspan="2">
@@ -121,7 +114,7 @@
                                             </tr>
                                             <tr class="latam-kit-table-footer">
                                                 <td colspan="2">
-                                                    <button @onclick="GoNuevoIngreso" type="button" class="latam-btn latam-btn--primary">
+                                                    <button @onclick="() => GoNuevoIngreso(kit)" type="button" class="latam-btn latam-btn--primary">
                                                         Solicitar uniforme
                                                     </button>
                                                 </td>
@@ -138,7 +131,7 @@
                             <div class="latam-kit-panel latam-kit-panel--mobile">
                                 <table class="latam-kit-table latam-kit-table--details">
                                     <tbody>
-                                        @if (isErrorEmergengy)
+                                        @if (isError)
                                         {
                                             <tr class="latam-kit-table-empty">
                                                 <td colspan="2">
@@ -153,7 +146,7 @@
                                                 </td>
                                             </tr>
                                         }
-                                        else if (isEmptyEmergency)
+                                        else if (isEmpty)
                                         {
                                             <tr class="latam-kit-table-empty">
                                                 <td colspan="2">
@@ -210,8 +203,10 @@
                     </div>
 
                 }     
-            </div> <!--TAB DESKTOP con botones-->
-                <div class="latam-kit-panel latam-kit-panel--desktop">
+            
+            </div> 
+            <!--TAB DESKTOP con botones-->
+            <div class="latam-kit-panel latam-kit-panel--desktop">
                     @if (selectedTab == 1)
                     {
                         <table class="latam-kit-table">
@@ -225,7 +220,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (isErrorNew)
+                                @if (isError)
                                 {
                                     <tr class="latam-kit-table-empty">
                                         <td colspan="5">
@@ -240,7 +235,7 @@
                                         </td>
                                     </tr>
                                 }
-                                else if (isEmptyNew)
+                                else if (isEmpty)
                                 {
                                     <tr class="latam-kit-table-empty">
                                         <td colspan="5">
@@ -261,7 +256,7 @@
                                     </tr>
                                     <tr class="latam-kit-table-footer">
                                         <td colspan="5">
-                                            <button type="button" @onclick="GoNuevoIngreso" class="latam-btn latam-btn--primary">
+                                            <button type="button" @onclick="GoNuevoIngresoDesktop" class="latam-btn latam-btn--primary">
                                                 Solicitar uniforme
                                             </button>
                                         </td>
@@ -284,7 +279,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (isErrorEmergengy)
+                                @if (isError)
                                 {
                                     <tr class="latam-kit-table-empty">
                                         <td colspan="5">
@@ -299,7 +294,7 @@
                                         </td>
                                     </tr>
                                 }
-                                else if (isEmptyEmergency)
+                                else if (isEmpty)
                                 {
                                     <tr class="latam-kit-table-empty">
                                         <td colspan="5">
@@ -341,31 +336,40 @@
                     }
 
                 </div>
-           
         }
 
-    }
-    @if (!errorSection)
+    @if (IsOpenModal)
     {
         <ModalEmergency @ref="modalRef" @bind-IsOpenModal="IsOpenModal" />
     }
 
 </section>
+}
+
 <ValidaSession />
 @code {
-    private bool errorSection = false;
-    private bool isEmptyEmergency = false;
-    private bool isErrorEmergengy = false;
-    private string? token { get; set; }
-    private bool isEmptyNew = false;
-    private bool isErrorNew = false;
-
+    private bool isEmpty = false;
+    private bool isError = false;
     private int selectedTab = 0;
-    private void SelectTab(int tab) => selectedTab = tab;
     private bool IsOpenModal { get; set; } = false;
     private ModalEmergency? modalRef;
-    void GoNuevoIngreso()
+
+
+    private void SelectTab(int tab) => selectedTab = tab;
+
+    void GoNuevoIngreso(KitType kit)
     {
+        KitSelectionState.Set(kit);
+        Navigation.NavigateTo("/NuevoIngreso");
+    }
+
+    void GoNuevoIngresoDesktop()
+    {
+        var kit = _kitTypes?.FirstOrDefault(k => k.KitTypeId == selectedTab);
+        if (kit is null)
+            return; 
+
+        KitSelectionState.Set(kit);
         Navigation.NavigateTo("/NuevoIngreso");
     }
 
@@ -377,6 +381,7 @@
         }
         IsOpenModal = true;
     }
+
     private void ReintentarEmergency()
     {
 
@@ -395,12 +400,11 @@
             try
             {
                 _kitTypes = await KitService.GetKitTypesAsync();
-                isEmptyNew = _kitTypes == null || !_kitTypes.Any();
+                isEmpty = _kitTypes == null || !_kitTypes.Any();
             }
             catch
             {
-                errorSection = false;
-                isErrorNew = true;
+                isError = true;
             }
             finally
             {

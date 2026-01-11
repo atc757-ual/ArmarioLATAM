@@ -6,7 +6,9 @@
 @inject IAuthService AuthService
 @inject IGarmentService GarmentService
 @inject GarmentSelectionState SelectionState
+@inject KitSelectionState KitSelectionState
 @rendermode InteractiveServer
+
 
 <ValidaSession/>
 @if (!isLoaded)
@@ -14,10 +16,11 @@
     <LoadPage />
 }else{
 <section class="latam-section">
-    <div class="page-title">Nuevo ingreso</div>
+        <div class="page-title">@KitSelectionState.Name</div>
     <Separator />
     <div class="nuevo-ingreso-header">
-        <span class="label">Prendas asignadas para:</span><br class="mobile-break" /> <span class="label">Apto Outdoor Unisex</span>
+            <span class="label">Prendas asignadas para:</span><br class="mobile-break" /> 
+            <span class="label">@KitSelectionState.Description</span>
     </div>
 
 
