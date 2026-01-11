@@ -53,8 +53,14 @@
         <div class="garment-list">
             @foreach (var garment in _garments)
             {
-                    <ProductCard garments=garment 
-                        OnChanged="OnGarmentChanged" />
+                    var sel = GarmentSelectionState.SelectedGarments
+                    .FirstOrDefault(g => g.GarmentId == garment.GarmentId);
+
+                    <ProductCard garments=garment
+                                 InitialQuantity="@(sel?.Quantity ?? 0)"
+                                 InitialSize="@(sel?.Size)"
+                        OnChanged="OnGarmentChanged"
+                         />
             }
 
         </div>
@@ -115,44 +121,50 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            // 1. Cargar selección desde localStorage
-            if (KitSelectionState.IsEmpty)
-            {
-                await KitSelectionState.LoadAsync();
-            }
+        if (!firstRender) return;
 
-            if (KitSelectionState.IsEmpty)
+        // 1. Cargar selección de KIT desde localStorage
+        if (KitSelectionState.IsEmpty)
+        {
+            await KitSelectionState.LoadAsync();
+        }
+
+        if (KitSelectionState.IsEmpty)
+        {
+            Navigation.NavigateTo("/Dashboard");
+            return;
+        }
+
+        // 2. Cargar selección de GARMENTS desde localStorage
+        await GarmentSelectionState.LoadAsync();
+
+        // 3. Cargar garments solo una vez
+        try
+        {
+            _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
+
+            if (_garments is null)
             {
-                Navigation.NavigateTo("/Dashboard");
+                Navigation.NavigateTo("/");
                 return;
             }
 
-            // 2. Cargar garments solo una vez
-            try
-            {
-                _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
+            isEmptyGarments = !_garments.Any();
 
-                if (_garments is null) // por si tu método puede devolver null para "no token"
-                {
-                    Navigation.NavigateTo("/");
-                    return;
-                }
-
-                isEmptyGarments = !_garments.Any();
-            }
-            catch
-            {
-                isEmptyGarments = false;
-            }
-            finally
-            {
-                isLoaded = true;
-            }
-
-            StateHasChanged(); // un solo render extra tras cargar todo
+            // (opcional) limpiar selecciones que ya no existan
+            GarmentSelectionState.SelectedGarments.RemoveAll(
+                sg => !_garments.Any(g => g.GarmentId == sg.GarmentId));
         }
+        catch
+        {
+            isEmptyGarments = false;
+        }
+        finally
+        {
+            isLoaded = true;
+        }
+
+        StateHasChanged();
     }
 
     private readonly Dictionary<int, GarmentSelection> _selected = new();
@@ -165,6 +177,8 @@
         else
             _selected.Remove(sel.GarmentId);
     }
+   
+
 
     // Cuando necesites los seleccionados:
     private IEnumerable<GarmentSelection> GetSelectedGarments()

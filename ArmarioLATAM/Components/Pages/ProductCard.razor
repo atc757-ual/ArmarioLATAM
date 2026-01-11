@@ -1,5 +1,8 @@
 ﻿@using ArmarioLATAM.Components.Models
+@using ArmarioLATAM.Services
+@inject GarmentSelectionState GarmentSelectionState
 @rendermode InteractiveServer
+
 <div class="garment-card">
     <img src="@garments.ImageURL" alt="@garments.Name" class="garment-image" />
 
@@ -108,8 +111,11 @@
 
 @code {
     [Parameter] public Garment garments { get; set; } = new Garment();
-    [Parameter] public EventCallback<GarmentSelection> OnChanged { get; set; }
+    [Parameter] public int InitialQuantity { get; set; }
+    [Parameter] public string? InitialSize { get; set; }
 
+    [Parameter] public EventCallback<GarmentSelection> OnChanged { get; set; }
+    private static bool _loadedFromStorage;
     public int Quantity { get; set; } = 0;
     public string? SelectedSize { get; set; }
     string? openSelectId; 
@@ -120,6 +126,7 @@
     public string? SecondLanguage { get; set; }
     public string? ThirdLanguage { get; set; }
 
+    
     async Task Increment()
     {
         if (Quantity < garments.QuantityAuth)
@@ -140,7 +147,19 @@
         await NotifyParent();
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Quantity == 0 && SelectedSize == null)
+        {
+            Quantity = InitialQuantity;
+            SelectedSize = InitialSize;
 
+            if (Quantity > 0 || !string.IsNullOrEmpty(SelectedSize))
+            {
+                await NotifyParent();
+            }
+        }
+    }
     async Task NotifyParent()
     {
         if (!OnChanged.HasDelegate) return;

@@ -12,7 +12,8 @@
 
 @if (!isLoaded)
 {
-    <LoadPage></LoadPage>
+    <LoadPage/>
+    <ClearLocalData/>
 }
 else
 {
@@ -420,13 +421,6 @@ else
                 isLoaded = true;
             }
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
-            StateHasChanged(); // refresca la UI
-        }
-    }
+
 
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using ArmarioLATAM.Services;
+using Microsoft.JSInterop;
 
 public class LocalStorageService
 {

@@ -1,0 +1,17 @@
+﻿@using ArmarioLATAM.Services
+@inject LocalStorageService LocalStorage
+@inject KitSelectionState KitSelectionState
+@inject GarmentSelectionState GarmentSelectionState
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await KitSelectionState.ClearAsync();
+            await GarmentSelectionState.ClearAsync();
+            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
+            StateHasChanged(); // refresca la UI
+        }
+    }
+}
