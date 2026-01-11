@@ -53,10 +53,11 @@
     gap: var(--space-s);
 }
 
-.garment-qty-controls button {
-    border: none;
+    .garment-qty-controls button {
+        border: none;
         background: var(--color-neutral-0);
-}
+        cursor: pointer;
+    }
 /* nota */
 .garment-language-note ul li {
     font-size: var(--fs-12);

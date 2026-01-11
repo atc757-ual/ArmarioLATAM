@@ -400,6 +400,12 @@ else
             try
             {
                 _kitTypes = await KitService.GetKitTypesAsync();
+
+                if (_kitTypes is null)
+                {
+                    Navigation.NavigateTo("/");
+                    return;
+                }
                 isEmpty = _kitTypes == null || !_kitTypes.Any();
             }
             catch

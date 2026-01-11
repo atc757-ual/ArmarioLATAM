@@ -125,6 +125,13 @@
         try
         {
             _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
+            if (_garments is null)
+            {
+                // no token o token caducado → sesión expirada
+                Navigation.NavigateTo("/");
+                return;
+            }
+            
             isEmptyGarments = _garments == null || !_garments.Any();
             errorSection = false;
         }

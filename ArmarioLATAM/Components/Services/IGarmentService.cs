@@ -30,24 +30,21 @@ namespace ArmarioLATAM.Services
             _logger.LogInformation("GarmentService creado. Hash AuthService={Hash}", _authService.GetHashCode());
         }
 
-        private async Task AttachTokenAsync()
+
+        private async Task<bool> AttachTokenAsync()
         {
-            var token = (_authService as AuthService) is not null
-                ? await ((AuthService)_authService).GetTokenAsync()
-                : _authService.GetToken();
+            var token = await _authService.GetTokenAsync(); // ya filtra caducados
 
-            _logger.LogWarning("GarmentService.AttachToken: token = {Token}", token);
-
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-            }
-            else
+            if (string.IsNullOrWhiteSpace(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = null;
-                _logger.LogWarning("GarmentService: NO hay header Authorization en HttpClient.");
+                _logger.LogWarning("Sin token válido, NO se llama al API.");
+                return false;
             }
+
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+            return true;
         }
 
         public async Task<List<Garment>?> GetGarmentsAsync()
