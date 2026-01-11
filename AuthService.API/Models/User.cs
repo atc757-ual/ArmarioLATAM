@@ -1,13 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AuthService.API.Models;
 
 public class User
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public Guid Id { get; set; }   // GUID manual
 
     [Required]
     [EmailAddress]
@@ -16,11 +14,10 @@ public class User
 
     [Required]
     public byte[] PasswordHash { get; set; } = default!;
-    
+
     [Required]
     public byte[] PasswordSalt { get; set; } = default!;
 
-    public bool IsActive { get; set; } = true;
-    
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

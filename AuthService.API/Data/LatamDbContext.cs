@@ -10,56 +10,35 @@ public class LatamDbContext : DbContext
 
     public DbSet<Garment> Garments => Set<Garment>();
     public DbSet<KitType> KitTypes => Set<KitType>();
-    public DbSet<Kit> Kits => Set<Kit>();
-    public DbSet<KitItem> KitItems => Set<KitItem>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderKit> OrderKits => Set<OrderKit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Garments
-        modelBuilder.Entity<Garment>(entity =>
-        {
-            entity.HasKey(e => e.GarmentId);
-            entity.ToTable("Garments");
-        });
+        // ========================
+        // TABLAS
+        // ========================
+        modelBuilder.Entity<Garment>().ToTable("Garments");
+        modelBuilder.Entity<KitType>().ToTable("KitTypes");
+        modelBuilder.Entity<Order>().ToTable("Orders");
+        modelBuilder.Entity<OrderKit>().ToTable("OrderKits");
 
-        // KitTypes
-        modelBuilder.Entity<KitType>(entity =>
-        {
-            entity.HasKey(e => e.KitTypeId);
-            entity.ToTable("KitTypes");
-        });
+        // ========================
+        // ORDER -> ORDERKITS (1:N)
+        // ========================
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderKits)          // ✅ NOMBRE CORRECTO
+            .WithOne(ok => ok.Order)
+            .HasForeignKey(ok => ok.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Kits
-        modelBuilder.Entity<Kit>(entity =>
-        {
-            entity.HasKey(e => e.KitId);
-            entity.ToTable("Kits");
-
-            entity.HasOne(k => k.KitType)
-                .WithMany()
-                .HasForeignKey(k => k.KitTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasMany(k => k.Items)
-                .WithOne(ki => ki.Kit)
-                .HasForeignKey(ki => ki.KitId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            // ⭐ AGREGAR: Configurar RequestedByUserId como int
-            entity.Property(k => k.RequestedByUserId)
-                .IsRequired();
-        });
-
-        // KitItems
-        modelBuilder.Entity<KitItem>(entity =>
-        {
-            entity.HasKey(e => e.KitItemId);
-            entity.ToTable("KitItems");
-
-            entity.HasOne(ki => ki.Garment)
-                .WithMany()
-                .HasForeignKey(ki => ki.GarmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
+        // ========================
+        // ORDERKIT -> GARMENT (N:1)
+        // ========================
+        modelBuilder.Entity<OrderKit>()
+            .HasOne(ok => ok.Garment)
+            .WithMany()
+            .HasForeignKey(ok => ok.GarmentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,8 +1,8 @@
 namespace AuthService.API.Dtos;
 
-public class KitItemDto
+public class CreateOrderItemDto
 {
     public int GarmentId { get; set; }
-    public int SizeId { get; set; }
+    public string Size { get; set; } = default!;
     public int Quantity { get; set; }
 }

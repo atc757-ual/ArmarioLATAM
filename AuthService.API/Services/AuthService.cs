@@ -1,13 +1,12 @@
-﻿// AuthService.API.Services/AuthService.cs - AÑADE ESTOS MÉTODOS:
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using AuthService.API.Data;
 using AuthService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace AuthService.API.Services;
 
@@ -22,7 +21,9 @@ public class AuthService
         _config = config;
     }
 
-    // MÉTODO PARA REGISTRAR NUEVO USUARIO
+    // =========================
+    // REGISTRO DE USUARIO
+    // =========================
     public async Task<User?> Register(string email, string password)
     {
         // Verificar si el usuario ya existe
@@ -37,23 +38,26 @@ public class AuthService
 
         var user = new User
         {
-    // Id se asignará automáticamente por la BD (auto-incremental)
-    Email = email,
-    PasswordHash = hash,
-    PasswordSalt = salt,
-    IsActive = true,
-    CreatedAt = DateTime.UtcNow
-};
+            Id = Guid.NewGuid(), // ✅ OBLIGATORIO (BD NO genera GUID)
+            Email = email,
+            PasswordHash = hash,
+            PasswordSalt = salt,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
         Console.WriteLine($"✅ Usuario registrado: {email}");
-        Console.WriteLine($"🔐 Hash generado: {BitConverter.ToString(hash)}");
-        Console.WriteLine($"🧂 Salt generado: {BitConverter.ToString(salt)}");
+        Console.WriteLine($"🆔 UserId: {user.Id}");
 
         return user;
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     public async Task<string?> Login(string email, string password)
     {
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
@@ -70,28 +74,20 @@ public class AuthService
             return null;
         }
 
-        Console.WriteLine($"✅ Usuario encontrado: {user.Email}");
-        Console.WriteLine($"🔐 Hash almacenado: {BitConverter.ToString(user.PasswordHash)}");
-        Console.WriteLine($"🧂 Salt almacenado: {BitConverter.ToString(user.PasswordSalt)}");
-
         var isValid = VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
-        Console.WriteLine($"🔓 Contraseña válida: {isValid}");
 
         if (!isValid)
         {
-            // Para debug: calcular hash con el salt de la BD
-            using var hmac = new HMACSHA512(user.PasswordSalt);
-            var computed = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            Console.WriteLine($"🔑 Hash calculado: {BitConverter.ToString(computed)}");
-            Console.WriteLine($"📏 Longitud hash BD: {user.PasswordHash.Length}");
-            Console.WriteLine($"📏 Longitud hash calc: {computed.Length}");
+            Console.WriteLine("❌ Contraseña incorrecta");
             return null;
         }
 
-        return GenerateJwt(user.Email);
+        return GenerateJwt(user);
     }
 
-    // MÉTODO PARA CREAR HASH (USADO EN REGISTRO)
+    // =========================
+    // PASSWORD HASHING
+    // =========================
     private void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)
     {
         using var hmac = new HMACSHA512();
@@ -102,24 +98,31 @@ public class AuthService
     private bool VerifyPassword(string password, byte[] hash, byte[] salt)
     {
         using var hmac = new HMACSHA512(salt);
-        var computed = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return computed.SequenceEqual(hash);
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(hash);
     }
 
-    private string GenerateJwt(string email)
+    // =========================
+    // JWT
+    // =========================
+    private string GenerateJwt(User user)
     {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email)
+        };
+
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
         );
+
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
-            claims: new[]
-            {
-                new Claim(ClaimTypes.Email, email)
-            },
+            claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds
         );

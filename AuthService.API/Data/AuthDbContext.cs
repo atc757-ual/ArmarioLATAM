@@ -10,22 +10,28 @@ public class AuthDbContext : DbContext
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<User>(entity =>
     {
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            
-            // Configurar Id como auto-incremental
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .UseIdentityColumn(); // Para SQL Server
-            
-            // Email único
-            entity.HasIndex(e => e.Email).IsUnique();
-            
-            // Configuraciones adicionales
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-        });
-    }
+        entity.HasKey(e => e.Id);
+
+        // ❌ NO generar Id en SQL
+        entity.Property(e => e.Id)
+              .ValueGeneratedNever();
+
+        entity.HasIndex(e => e.Email).IsUnique();
+
+        entity.Property(e => e.Email)
+              .IsRequired()
+              .HasMaxLength(256);
+
+        entity.Property(e => e.IsActive)
+              .IsRequired();
+
+        entity.Property(e => e.CreatedAt)
+              .IsRequired();
+    });
+}
+
+
 }
