@@ -10,7 +10,7 @@ public class LatamDbContext : DbContext
         : base(options) { }
 
     public DbSet<Garment> Garments => Set<Garment>();
-    public DbSet<Size> Sizes => Set<Size>();
+    
     public DbSet<KitType> KitTypes => Set<KitType>();
     public DbSet<Kit> Kits => Set<Kit>();
     public DbSet<KitItem> KitItems => Set<KitItem>();
@@ -24,12 +24,6 @@ public class LatamDbContext : DbContext
             entity.ToTable("Garments");
         });
 
-        // Sizes
-        modelBuilder.Entity<Size>(entity =>
-        {
-            entity.HasKey(e => e.SizeId);
-            entity.ToTable("Sizes");
-        });
 
         // KitTypes
         modelBuilder.Entity<KitType>(entity =>
@@ -66,10 +60,7 @@ public class LatamDbContext : DbContext
                 .HasForeignKey(ki => ki.GarmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(ki => ki.Size)
-                .WithMany()
-                .HasForeignKey(ki => ki.SizeId)
-                .OnDelete(DeleteBehavior.Restrict);
+           
         });
     }
 }

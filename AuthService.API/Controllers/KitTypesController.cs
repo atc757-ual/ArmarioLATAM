@@ -20,18 +20,87 @@ public class KitTypesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var kitTypes = await _context.KitTypes.ToListAsync();
-        return Ok(kitTypes);
+        try
+        {
+            var kitTypes = await _context.KitTypes.ToListAsync();
+
+            if (!kitTypes.Any())
+                return NotFound(new
+                {
+                    message = "No se encontraron tipos de kit",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
+
+            return Ok(new
+            {
+                kitTypes,
+                count = kitTypes.Count,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Error al obtener los tipos de kit",
+                error = ex.Message,
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
+            });
+        }
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id) // CAMBIADO: de Guid a int
+    public async Task<IActionResult> GetById(int id)
     {
-        var kitType = await _context.KitTypes.FindAsync(id);
+        try
+        {
+            var kitType = await _context.KitTypes.FindAsync(id);
 
-        if (kitType == null)
-            return NotFound(new { message = "Tipo de kit no encontrado" });
+            if (kitType == null)
+                return NotFound(new
+                {
+                    message = "Tipo de kit no encontrado",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
 
-        return Ok(kitType);
+            return Ok(new
+            {
+                kitType,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Error al obtener el tipo de kit",
+                error = ex.Message,
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
+            });
+        }
     }
 }

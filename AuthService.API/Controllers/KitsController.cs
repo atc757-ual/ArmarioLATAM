@@ -30,21 +30,53 @@ public class KitsController : ControllerBase
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             if (string.IsNullOrEmpty(userEmail))
-                return Unauthorized(new { message = "Usuario no autenticado" });
+                return Unauthorized(new
+                {
+                    message = "Usuario no autenticado",
+                    Result = new
+                    {
+                        Code = "401",
+                        Description = "Unauthorized"
+                    }
+                });
 
             var user = await _authContext.Users
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
             if (user == null)
-                return NotFound(new { message = "Usuario no encontrado" });
+                return NotFound(new
+                {
+                    message = "Usuario no encontrado",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
 
             var kitType = await _context.KitTypes.FindAsync(dto.KitTypeId);
 
             if (kitType == null)
-                return BadRequest(new { message = "Tipo de kit no válido" });
+                return BadRequest(new
+                {
+                    message = "Tipo de kit no válido",
+                    Result = new
+                    {
+                        Code = "400",
+                        Description = "Bad Request"
+                    }
+                });
 
             if (dto.Items == null || !dto.Items.Any())
-                return BadRequest(new { message = "Debe seleccionar al menos una prenda" });
+                return BadRequest(new
+                {
+                    message = "Debe seleccionar al menos una prenda",
+                    Result = new
+                    {
+                        Code = "400",
+                        Description = "Bad Request"
+                    }
+                });
 
             var kit = new Kit
             {
@@ -57,36 +89,36 @@ public class KitsController : ControllerBase
                 RequestedByUserId = user.Id
             };
 
-            // 5. Agregar items
+            // Agregar items
             foreach (var itemDto in dto.Items)
             {
                 var garment = await _context.Garments.FindAsync(itemDto.GarmentId);
                 if (garment == null)
                 {
                     Console.WriteLine($"❌ Prenda {itemDto.GarmentId} no encontrada");
-                    return BadRequest(new { message = $"Prenda {itemDto.GarmentId} no encontrada" });
-                }
-
-                var size = await _context.Sizes.FindAsync(itemDto.SizeId);
-                if (size == null)
-                {
-                    Console.WriteLine($"❌ Talla {itemDto.SizeId} no encontrada");
-                    return BadRequest(new { message = $"Talla {itemDto.SizeId} no encontrada" });
+                    return BadRequest(new
+                    {
+                        message = $"Prenda {itemDto.GarmentId} no encontrada",
+                        Result = new
+                        {
+                            Code = "400",
+                            Description = "Bad Request"
+                        }
+                    });
                 }
 
                 var kitItem = new KitItem
                 {
-                    // NO asignar KitId aquí - EF lo hará automáticamente
                     GarmentId = itemDto.GarmentId,
                     SizeId = itemDto.SizeId,
                     Quantity = itemDto.Quantity
                 };
 
                 kit.Items.Add(kitItem);
-                Console.WriteLine($"   ✅ Item agregado: {garment.Name} - {size.Code} x{itemDto.Quantity}");
+                Console.WriteLine($"   ✅ Item agregado: {garment.Name} x{itemDto.Quantity}");
             }
 
-            // 6. Guardar en BD
+            // Guardar en BD
             Console.WriteLine($"💾 Guardando en BD...");
             _context.Kits.Add(kit);
             await _context.SaveChangesAsync();
@@ -98,12 +130,16 @@ public class KitsController : ControllerBase
                 kitId = kit.KitId,
                 orderNumber = kit.OrderNumber,
                 createdAt = kit.CreatedAt,
-                status = kit.Status
+                status = kit.Status,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
             });
         }
         catch (Exception ex)
         {
-            // Log del error completo para debugging
             Console.WriteLine($"❌ ERROR al crear kit: {ex.Message}");
             Console.WriteLine($"❌ Inner Exception: {ex.InnerException?.Message}");
             Console.WriteLine($"❌ Stack Trace: {ex.StackTrace}");
@@ -113,7 +149,11 @@ public class KitsController : ControllerBase
                 message = "Error al crear el kit",
                 error = ex.Message,
                 innerError = ex.InnerException?.Message,
-                details = ex.ToString()
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
             });
         }
     }
@@ -126,23 +166,48 @@ public class KitsController : ControllerBase
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             if (string.IsNullOrEmpty(userEmail))
-                return Unauthorized(new { message = "Usuario no autenticado" });
+                return Unauthorized(new
+                {
+                    message = "Usuario no autenticado",
+                    Result = new
+                    {
+                        Code = "401",
+                        Description = "Unauthorized"
+                    }
+                });
 
             var user = await _authContext.Users
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
             if (user == null)
-                return NotFound(new { message = "Usuario no encontrado" });
+                return NotFound(new
+                {
+                    message = "Usuario no encontrado",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
 
             var kits = await _context.Kits
                 .Include(k => k.KitType)
                 .Include(k => k.Items)
                     .ThenInclude(ki => ki.Garment)
-                .Include(k => k.Items)
-                    .ThenInclude(ki => ki.Size)
                 .Where(k => k.RequestedByUserId == user.Id)
                 .OrderByDescending(k => k.CreatedAt)
                 .ToListAsync();
+
+            if (!kits.Any())
+                return NotFound(new
+                {
+                    message = "No se encontraron solicitudes de kits",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
 
             var response = kits.Select(k => new KitResponseDto
             {
@@ -154,21 +219,38 @@ public class KitsController : ControllerBase
                 Items = k.Items.Select(ki => new KitItemResponseDto
                 {
                     GarmentName = ki.Garment?.Name ?? "N/A",
-                    SizeCode = ki.Size?.Code ?? "N/A",
                     Quantity = ki.Quantity
                 }).ToList()
             }).ToList();
 
-            return Ok(response);
+            return Ok(new
+            {
+                kits = response,
+                count = response.Count,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
+            });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error al obtener solicitudes", error = ex.Message });
+            return StatusCode(500, new
+            {
+                message = "Error al obtener solicitudes",
+                error = ex.Message,
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
+            });
         }
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id) // CAMBIADO: de Guid a int
+    public async Task<IActionResult> GetById(int id)
     {
         try
         {
@@ -176,12 +258,18 @@ public class KitsController : ControllerBase
                 .Include(k => k.KitType)
                 .Include(k => k.Items)
                     .ThenInclude(ki => ki.Garment)
-                .Include(k => k.Items)
-                    .ThenInclude(ki => ki.Size)
                 .FirstOrDefaultAsync(k => k.KitId == id);
 
             if (kit == null)
-                return NotFound(new { message = "Kit no encontrado" });
+                return NotFound(new
+                {
+                    message = "Kit no encontrado",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
 
             var response = new KitResponseDto
             {
@@ -193,16 +281,32 @@ public class KitsController : ControllerBase
                 Items = kit.Items.Select(ki => new KitItemResponseDto
                 {
                     GarmentName = ki.Garment?.Name ?? "N/A",
-                    SizeCode = ki.Size?.Code ?? "N/A",
                     Quantity = ki.Quantity
                 }).ToList()
             };
 
-            return Ok(response);
+            return Ok(new
+            {
+                kit = response,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
+            });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error al obtener kit", error = ex.Message });
+            return StatusCode(500, new
+            {
+                message = "Error al obtener kit",
+                error = ex.Message,
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
+            });
         }
     }
 }

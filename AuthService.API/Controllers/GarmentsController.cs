@@ -20,10 +20,46 @@ public class GarmentsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var garments = await _context.Garments
-            .Where(g => g.IsActive)
-            .ToListAsync();
+        try
+        {
+            var garments = await _context.Garments
+                .Where(g => g.IsActive)
+                .ToListAsync();
 
-        return Ok(garments);
+            if (!garments.Any())
+                return NotFound(new
+                {
+                    message = "No se encontraron prendas activas",
+                    Result = new
+                    {
+                        Code = "404",
+                        Description = "Not Found"
+                    }
+                });
+
+            return Ok(new
+            {
+                garments,
+                count = garments.Count,
+                Result = new
+                {
+                    Code = "200",
+                    Description = "OK"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Error al obtener las prendas",
+                error = ex.Message,
+                Result = new
+                {
+                    Code = "500",
+                    Description = "Internal Server Error"
+                }
+            });
+        }
     }
 }

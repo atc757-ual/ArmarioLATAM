@@ -10,5 +10,5 @@ public class KitItem
 
     public Kit? Kit { get; set; }
     public Garment? Garment { get; set; }
-    public Size? Size { get; set; }
+    
 }
