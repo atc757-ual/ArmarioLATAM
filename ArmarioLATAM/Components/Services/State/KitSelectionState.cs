@@ -1,7 +1,7 @@
 ﻿using ArmarioLATAM.Components.Models;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text.Json;
 public class KitSelectionState
 {
     private const string StorageKey = "kitSelection";
@@ -39,7 +39,7 @@ public class KitSelectionState
             Description
         };
 
-        var json = System.Text.Json.JsonSerializer.Serialize(dto);
+        var json = JsonSerializer.Serialize(dto);
         await _localStorage.SetItemAsync(StorageKey, json);
     }
 
@@ -50,7 +50,7 @@ public class KitSelectionState
         if (string.IsNullOrWhiteSpace(json))
             return;
 
-        var dto = System.Text.Json.JsonSerializer.Deserialize<KitSelectionDto>(json);
+        var dto = JsonSerializer.Deserialize<KitSelectionDto>(json);
         if (dto is null)
             return;
 

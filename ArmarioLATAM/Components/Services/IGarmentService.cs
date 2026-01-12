@@ -67,7 +67,17 @@ namespace ArmarioLATAM.Services
                 return null;
             }
 
-            return await response.Content.ReadFromJsonAsync<List<Garment>>();
+            var garment = await response.Content.ReadFromJsonAsync<GarmentsResponse>();
+
+            if (garment is null)
+            {
+                _logger.LogWarning("GetGarmentsAsync: wrapper null");
+                return null;
+            }
+
+            _logger.LogInformation("GetGarmentsAsync: recibidos {Count} garments", garment.Count);
+
+            return garment.Garments;
         }
 
         public async Task<Garment?> GetGarmentByIdAsync(int id)

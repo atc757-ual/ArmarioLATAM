@@ -63,13 +63,12 @@
 }
 
 .success-data-label {
-    font-weight: var(--font-weight-bold);
+    font-weight: 700;
     margin-right: var(--space-xs);
 }
 
 .success-data-value {
-    font-weight: var(--font-weight-regular);
-    padding-right: var(--space-m);
+    font-weight: 400;
 }
 
 /* mobile */

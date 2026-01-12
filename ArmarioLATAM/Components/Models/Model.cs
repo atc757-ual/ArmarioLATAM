@@ -102,7 +102,11 @@ namespace ArmarioLATAM.Components.Models
     {
         public string Message { get; set; } = string.Empty;
     }
-
+    public class ResultInfo
+    {
+        public string? Code { get; set; }
+        public string? Description { get; set; }
+    }
     public class KitType
     {
         public int KitTypeId { get; set; }
@@ -150,5 +154,38 @@ namespace ArmarioLATAM.Components.Models
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
 
+    }
+    public class KitTypesResponse
+    {
+        public List<KitType> KitTypes { get; set; } = new();
+        public int Count { get; set; }
+        public ResultInfo? Result { get; set; }
+    }
+    public class GarmentsResponse
+    {
+        public List<Garment> Garments { get; set; } = new();
+        public int Count { get; set; }
+        public ResultInfo? Result { get; set; }
+    }
+    public class CreateOrderItem
+    {
+        public int GarmentId { get; set; }
+        public string? Size { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    public class CreateOrder
+    {
+        public int KitTypeId { get; set; }
+        public List<CreateOrderItem> Items { get; set; } = new();
+    }
+
+    public class CreateOrderResponse
+    {
+        public string? Message { get; set; }
+        public int OrderId { get; set; }
+        public decimal Total { get; set; }
+        public string? Estado { get; set; }
+        public string? Fecha { get; set; }   // "2026-01-12"
     }
 }

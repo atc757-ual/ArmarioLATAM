@@ -1,4 +1,5 @@
 ﻿using ArmarioLATAM.Components.Models;
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -45,6 +46,7 @@ namespace ArmarioLATAM.Services
         public async Task<List<KitType>?> GetKitTypesAsync()
         {
 
+            _logger.LogInformation("getkit async");
             if (!await AttachTokenAsync())
                 return null; // o lanzar una excepción de sesión no válida
 
@@ -58,8 +60,13 @@ namespace ArmarioLATAM.Services
             {
                 return null;
             }
+            var kitType = await response.Content.ReadFromJsonAsync<KitTypesResponse>();
+            if (kitType is null)
+                return null;
 
-            return await response.Content.ReadFromJsonAsync<List<KitType>>();
+            _logger.LogInformation("Recibidos {Count} kits", kitType.Count);
+
+            return kitType.KitTypes;
         }
     
     }

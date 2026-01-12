@@ -1,6 +1,7 @@
 ﻿@using ArmarioLATAM.Services
 @inject KitSelectionState KitSelectionState
 @inject GarmentSelectionState GarmentSelectionState
+@inject OrderState OrderState
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -9,8 +10,8 @@
         {
             await KitSelectionState.ClearAsync();
             await GarmentSelectionState.ClearAsync();
-            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
-            StateHasChanged(); // refresca la UI
+            await OrderState.ClearAsync();
+            StateHasChanged(); 
         }
     }
 }
