@@ -1,52 +1,13 @@
 ﻿@page "/Dashboard"
-@rendermode InteractiveServer
 @using ArmarioLATAM.Components.Models
-@using System.ComponentModel.DataAnnotations
 @using ArmarioLATAM.Services
 @inject NavigationManager Navigation
-@inject IAuthService AuthService
 @inject IKitService KitService
 @inject LocalStorageService LocalStorage
 @inject KitSelectionState KitSelectionState
  
 
-@if (!isLoaded)
-{
-    <LoadPage/>
-    <ClearLocalData/>
-}
-else
-{
-<section class="latam-section">
-    <div class="title-dashboard">Kits</div>
        
-    <!--
-       <div class="latam-kit-wrapper full-width margin-top-base">
-            <div class="latam-error-card">
-                <div class="latam-error-header">
-                    <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
-                    <span>No podemos cargar los kit</span>
-                </div>
-                <Separator></Separator>
-                <div class="latam-error-body">
-                    En estos momentos no es posible mostrar los kit de uniforme.<br />
-                    Por favor, inténtalo nuevamente.
-                </div>
-                <Separator></Separator>
-                <div class="latam-error-footer">
-                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
-                        Reintentar
-                    </button>
-                </div>
-            </div>
-        </div>
-    -->
-    @if (_kitTypes is not null && _kitTypes.Any())
-        {
-            <div class="latam-kits-row">
-                @foreach (var kit in _kitTypes!)
-                {
-
                     <div class="latam-kit-wrapper">
                         <button class="latam-kit @(kit.KitTypeId == selectedTab ? "active" : "")"
                                 @onclick="() => SelectTab(kit.KitTypeId)">
@@ -264,8 +225,6 @@ else
                                         </td>
                                     </tr>
                                 }
-                            </tbody>
-                        </table>
                     }
 
                     @if (selectedTab == 2)
@@ -308,119 +267,9 @@ else
 
                                 else
                                 {
-                                    <tr>
-                                        <td>KIT2-l</td>
-                                        <td>Apto-Outdoor--Unisex-Inicial</td>
-                                        <td>Sin orden</td>
-                                        <td><!-- fecha --></td>
-                                        <td>Pendiente</td>
-                                    </tr>
-                                    <tr class="latam-kit-table-footer">
-                                        <td colspan="5">
-                                            <button type="button" @onclick="GoSolicitudEmergency" class="latam-btn latam-btn--primary">
-                                                Solicitar uniforme
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
 
-                    @if (selectedTab == 3)
-                    {
-                        @* contenido tab 3 desktop *@
                     }
-
-                    @if (selectedTab == 4)
-                    {
-                        @* contenido tab 4 desktop *@
                     }
 
                 </div>
-        }
-
-    @if (IsOpenModal)
-    {
-        <ModalEmergency @ref="modalRef" @bind-IsOpenModal="IsOpenModal" />
-    }
-
 </section>
-}
-
-<ValidaSession />
-@code {
-    private bool isEmpty = false;
-    private bool isError = false;
-    private int selectedTab = 0;
-    private bool IsOpenModal { get; set; } = false;
-    private ModalEmergency? modalRef;
-
-
-    private void SelectTab(int tab) => selectedTab = tab;
-
-    async Task GoNuevoIngreso(KitType kit)
-    {
-        KitSelectionState.Set(kit);
-        await KitSelectionState.SaveAsync();
-        Navigation.NavigateTo("/NuevoIngreso");
-    }
-
-    async Task GoNuevoIngresoDesktop()
-    {
-        var kit = _kitTypes?.FirstOrDefault(k => k.KitTypeId == selectedTab);
-        if (kit is null)
-            return;
-
-        KitSelectionState.Set(kit);
-        await KitSelectionState.SaveAsync();
-        Navigation.NavigateTo("/NuevoIngreso");
-    }
-
-    private async Task GoSolicitudEmergency()
-    {
-        if (modalRef is not null)
-        {
-            await modalRef.OpenAsync();
-        }
-        IsOpenModal = true;
-    }
-
-    private void ReintentarEmergency()
-    {
-
-    }
-    private void Reintentar()
-    {
-
-    }
-
-    private List<KitType>? _kitTypes;
-    private bool isLoaded = false;
-
-    protected override async Task OnInitializedAsync()
-    { 
-            await Task.Delay(500);
-            try
-            {
-                _kitTypes = await KitService.GetKitTypesAsync();
-
-                if (_kitTypes is null)
-                {
-                    Navigation.NavigateTo("/");
-                    return;
-                }
-                isEmpty = _kitTypes == null || !_kitTypes.Any();
-            }
-            catch
-            {
-                isError = true;
-            }
-            finally
-            {
-                isLoaded = true;
-            }
-    }
-
-
-}

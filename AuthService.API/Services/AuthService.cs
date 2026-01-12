@@ -6,8 +6,6 @@ using AuthService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace AuthService.API.Services;
 
@@ -71,12 +69,7 @@ public class AuthService
             return null;
         }
 
-        Console.WriteLine($"✅ Usuario encontrado: {user.Email}");
-        Console.WriteLine($"🔐 Hash almacenado: {BitConverter.ToString(user.PasswordHash)}");
-        Console.WriteLine($"🧂 Salt almacenado: {BitConverter.ToString(user.PasswordSalt)}");
-
         var isValid = VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
-        Console.WriteLine($"🔓 Contraseña válida: {isValid}");
 
         if (!isValid)
         {

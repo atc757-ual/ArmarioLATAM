@@ -49,7 +49,6 @@ namespace ArmarioLATAM.Services
                 return null; // o lanzar una excepción de sesión no válida
 
             var response = await _httpClient.GetAsync("api/KitTypes");
-
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 return null;
