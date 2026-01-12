@@ -63,18 +63,19 @@
 }
 
 .success-data-label {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     margin-right: var(--space-xs);
 }
 
 .success-data-value {
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
+    padding-right: var(--space-m);
 }
 
 /* mobile */
 @media (max-width: 600px) {
-    .success-card {
-        padding: var(--space-m);
+    .success-title {
+        font-size: var(--fs-16);
     }
 
     .success-data {

@@ -5,6 +5,8 @@
 @inject NavigationManager Navigation
 @inject GarmentSelectionState GarmentSelectionState
 @inject KitSelectionState KitSelectionState
+@inject OrderState OrderState
+@inject IOrderService OrderService
 @rendermode InteractiveServer
 
 @if (!isLoaded)
@@ -67,7 +69,11 @@ else
             @if (isValid)
             {
                 <div class="latam-btn-row">
-                    <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Confirmar solicitud</button>
+                    <button type="button" 
+                        class="latam-btn latam-btn--primary"
+                            @onclick="CreateOrder">
+                        Confirmar solicitud
+                    </button>
                 </div>
             }
             else
@@ -84,7 +90,6 @@ else
 
 @code {
     private bool isLoaded = false;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -104,7 +109,7 @@ else
             isLoaded = true;
             StateHasChanged(); // un solo render extra tras cargar todo
         }
-        
+
     }
     private bool isValid = true;
     void GoBack()
@@ -112,9 +117,53 @@ else
         JS.InvokeVoidAsync("history.back");
     }
 
-    void GoNext()
+    async Task CreateOrder()
     {
+        if (KitSelectionState.KitTypeId is null || !GarmentSelectionState.SelectedGarments.Any())
+        {
+            return;
+        }
+
+        var dto = new CreateOrder
+            {
+                KitTypeId = KitSelectionState.KitTypeId.Value,
+                Items = GarmentSelectionState.SelectedGarments
+                    .Select(g => new CreateOrderItem
+                    {
+                        GarmentId = g.GarmentId,
+                        Size = g.Size,
+                        Quantity = g.Quantity
+                    })
+                    .ToList()
+            };
+
+        var response = await OrderService.CreateOrderAsync(dto);
+
+        if (response is null)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/NuevoIngresoError");
+            return;
+        }
+        var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
+
+        if (result is null)
+        {
+            Navigation.NavigateTo("/NuevoIngresoError");
+            return;
+        }
+        string orderNumber = result.OrderId.ToString("D5"); 
+        var fecha = DateTime.ParseExact(result.Fecha!, "yyyy-MM-dd", null); 
+        string orderDate = fecha.ToString("dd/MM/yyyy");
+        OrderState.Set(orderNumber, orderDate);
+        await OrderState.SaveAsync();
         Navigation.NavigateTo("/NuevoIngresoComprobante");
     }
+    
 
 }

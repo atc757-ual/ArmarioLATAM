@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
-namespace ArmarioLATAM.Services
-{
+
     public class GarmentSelectionState
     {
         private const string StorageKey = "garmentSelections";
-
+        public bool IsEmpty => !SelectedGarments.Any();
         private readonly LocalStorageService _localStorage;
 
         public GarmentSelectionState(LocalStorageService localStorage)
@@ -19,7 +18,6 @@ namespace ArmarioLATAM.Services
         // Estado en memoria
         public List<GarmentSelection> SelectedGarments { get; } = new();
 
-        public bool IsEmpty => !SelectedGarments.Any();
 
         // Set síncrono en memoria (filtra quantity > 0)
         public void SetSelections(IEnumerable<GarmentSelection> garments)
@@ -90,4 +88,4 @@ namespace ArmarioLATAM.Services
             public string? Languages { get; set; }
         }
     }
-}
+

@@ -113,9 +113,7 @@
     [Parameter] public Garment garments { get; set; } = new Garment();
     [Parameter] public int InitialQuantity { get; set; }
     [Parameter] public string? InitialSize { get; set; }
-
     [Parameter] public EventCallback<GarmentSelection> OnChanged { get; set; }
-    private static bool _loadedFromStorage;
     public int Quantity { get; set; } = 0;
     public string? SelectedSize { get; set; }
     string? openSelectId; 

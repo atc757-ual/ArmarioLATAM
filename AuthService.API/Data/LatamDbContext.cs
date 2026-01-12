@@ -1,4 +1,3 @@
-// Archivo: AuthService.API/Data/LatamDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using AuthService.API.Models;
 
@@ -10,66 +9,51 @@ public class LatamDbContext : DbContext
         : base(options) { }
 
     public DbSet<Garment> Garments => Set<Garment>();
-    public DbSet<Size> Sizes => Set<Size>();
     public DbSet<KitType> KitTypes => Set<KitType>();
-    public DbSet<Kit> Kits => Set<Kit>();
-    public DbSet<KitItem> KitItems => Set<KitItem>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderKit> OrderKits => Set<OrderKit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Garments
-        modelBuilder.Entity<Garment>(entity =>
-        {
-            entity.HasKey(e => e.GarmentId);
-            entity.ToTable("Garments");
-        });
+        // ========================
+        // TABLAS
+        // ========================
+        modelBuilder.Entity<Garment>().ToTable("Garments");
+        modelBuilder.Entity<KitType>().ToTable("KitTypes");
+        modelBuilder.Entity<Order>().ToTable("Orders");
+        modelBuilder.Entity<OrderKit>().ToTable("OrderKits");
 
-        // Sizes
-        modelBuilder.Entity<Size>(entity =>
-        {
-            entity.HasKey(e => e.SizeId);
-            entity.ToTable("Sizes");
-        });
+        // ========================
+        // PRECISIÓN DECIMAL
+        // ========================
+        modelBuilder.Entity<Garment>()
+            .Property(g => g.Price)
+            .HasPrecision(18, 2);          // decimal(18,2)
 
-        // KitTypes
-        modelBuilder.Entity<KitType>(entity =>
-        {
-            entity.HasKey(e => e.KitTypeId);
-            entity.ToTable("KitTypes");
-        });
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalPrice)
+            .HasPrecision(18, 2);
 
-        // Kits
-        modelBuilder.Entity<Kit>(entity =>
-        {
-            entity.HasKey(e => e.KitId);
-            entity.ToTable("Kits");
+        modelBuilder.Entity<OrderKit>()
+            .Property(ok => ok.Price)
+            .HasPrecision(18, 2);
 
-            entity.HasOne(k => k.KitType)
-                .WithMany()
-                .HasForeignKey(k => k.KitTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
+        // ========================
+        // ORDER -> ORDERKITS (1:N)
+        // ========================
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderKits)          // ✅ NOMBRE CORRECTO
+            .WithOne(ok => ok.Order)
+            .HasForeignKey(ok => ok.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasMany(k => k.Items)
-                .WithOne(ki => ki.Kit)
-                .HasForeignKey(ki => ki.KitId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // KitItems
-        modelBuilder.Entity<KitItem>(entity =>
-        {
-            entity.HasKey(e => e.KitItemId);
-            entity.ToTable("KitItems");
-
-            entity.HasOne(ki => ki.Garment)
-                .WithMany()
-                .HasForeignKey(ki => ki.GarmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(ki => ki.Size)
-                .WithMany()
-                .HasForeignKey(ki => ki.SizeId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
+        // ========================
+        // ORDERKIT -> GARMENT (N:1)
+        // ========================
+        modelBuilder.Entity<OrderKit>()
+            .HasOne(ok => ok.Garment)
+            .WithMany()
+            .HasForeignKey(ok => ok.GarmentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

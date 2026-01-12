@@ -18,6 +18,7 @@ public class LocalStorageService
 
     public async Task RemoveItemAsync(string key)
         => await _js.InvokeVoidAsync("localStorage.removeItem", key);
+
     public async Task ClearAllAsync()
        => await _js.InvokeVoidAsync("localStorage.clear");
 }
