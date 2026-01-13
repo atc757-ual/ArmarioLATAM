@@ -354,11 +354,85 @@ else
     private bool IsOpenModal { get; set; } = false;
     private ModalEmergency? modalRef;
     private List<KitType>? _kitTypes;
-    private bool isLoaded = false;
+    List<MyOrderItem> historycOrders = new();
+    PendingOrderItem pendingOrder = new();
+    /*Navigation*/
+    int currentPageDesktop = 1;
+    int pageSizeDesktop = 3;
 
-    private void SelectTab(int tab) => selectedTab = tab;
+    int currentPageMobile = 1;
+    int pageSizeMobile = 1;
 
-    async Task GoNuevoIngreso(KitType kit)
+    IEnumerable<MyOrderItem> PagedDesktop =>
+    historycOrders
+        .Skip((currentPageDesktop - 1) * pageSizeDesktop)
+        .Take(pageSizeDesktop);
+
+    IEnumerable<MyOrderItem> PagedMobile =>
+        historycOrders
+            .Skip((currentPageMobile - 1) * pageSizeMobile)
+            .Take(pageSizeMobile);
+
+    int TotalPagesDesktop =>
+        historycOrders.Count == 0
+            ? 1
+            : (int)Math.Ceiling(historycOrders.Count / (double)pageSizeDesktop);
+
+    int TotalPagesMobile =>
+        historycOrders.Count == 0
+            ? 1
+            : (int)Math.Ceiling(historycOrders.Count / (double)pageSizeMobile);
+
+    void NextDesktop()
+    {
+        if (currentPageDesktop < TotalPagesDesktop)
+            currentPageDesktop++;
+    }
+
+    void PrevDesktop()
+    {
+        if (currentPageDesktop > 1)
+            currentPageDesktop--;
+    }
+
+    void NextMobile()
+    {
+        if (currentPageMobile < TotalPagesMobile)
+            currentPageMobile++;
+    }
+
+    void PrevMobile()
+    {
+        if (currentPageMobile > 1)
+            currentPageMobile--;
+    }
+    /*Task y Voids*/
+    private async Task SelectTab(int tab)
+    {
+        if (tab <= 0)
+            return;
+
+        selectedTab = tab;
+        try
+        {
+            var result = await OrderService.GetMyPendingOrderAsync(kitTypeId: tab);
+
+            if (result is null)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+            pendingOrder = result.Order;
+        }
+        catch
+        {
+            isError = true;
+        }
+
+        StateHasChanged();
+    }
+
+    async Task GoGarments(KitType kit)
     {
         KitSelectionState.Set(kit);
         await KitSelectionState.SaveAsync();
