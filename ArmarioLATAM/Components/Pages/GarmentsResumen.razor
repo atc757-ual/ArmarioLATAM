@@ -1,4 +1,4 @@
-﻿@page "/NuevoIngresoResumen"
+﻿@page "/GarmentsResumen"
 @using ArmarioLATAM.Services
 @using ArmarioLATAM.Components.Models
 @inject IJSRuntime JS
@@ -65,31 +65,23 @@ else
                 <img src="images/ico_arrow_left.svg" />
                 <span> Volver</span>
             </button>
-
-            @if (isValid)
-            {
                 <div class="latam-btn-row">
-                    <button type="button" 
-                        class="latam-btn latam-btn--primary"
+                    <button type="button"
+                        class="latam-btn latam-btn--primary" disabled="@isLoadingButton"
                             @onclick="CreateOrder">
-                        Confirmar solicitud
+                        @(isLoadingButton ? "Enviando solicitud..." : "Confirmar solicitud")
                     </button>
                 </div>
-            }
-            else
-            {
-                <div class="latam-btn-row">
-                    <button type="button" class="latam-btn latam-btn--primary " disabled>
-                        Confirmar solicitud
-                    </button>
-                </div>
-            }
+
         </div>
     </section>
+    <ValidaSession />
 }
 
 @code {
     private bool isLoaded = false;
+    private bool isLoadingButton = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -111,11 +103,7 @@ else
         }
 
     }
-    private bool isValid = true;
-    void GoBack()
-    {
-        JS.InvokeVoidAsync("history.back");
-    }
+
 
     async Task CreateOrder()
     {
@@ -124,6 +112,8 @@ else
             return;
         }
 
+        isLoadingButton = true;
+        await Task.Delay(500); // Simula tiempo de espera
         var dto = new CreateOrder
             {
                 KitTypeId = KitSelectionState.KitTypeId.Value,
@@ -147,14 +137,14 @@ else
 
         if (!response.IsSuccessStatusCode)
         {
-            Navigation.NavigateTo("/NuevoIngresoError");
+            Navigation.NavigateTo("/GarmentsError");
             return;
         }
         var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
 
         if (result is null)
         {
-            Navigation.NavigateTo("/NuevoIngresoError");
+            Navigation.NavigateTo("/GarmentsError");
             return;
         }
         string orderNumber = result.OrderId.ToString("D5"); 
@@ -162,8 +152,11 @@ else
         string orderDate = fecha.ToString("dd/MM/yyyy");
         OrderState.Set(orderNumber, orderDate);
         await OrderState.SaveAsync();
-        Navigation.NavigateTo("/NuevoIngresoComprobante");
+        Navigation.NavigateTo("/GarmentsComprobante");
     }
     
-
+    void GoBack()
+    {
+        JS.InvokeVoidAsync("history.back");
+    }
 }

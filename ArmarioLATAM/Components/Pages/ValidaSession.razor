@@ -1,4 +1,4 @@
-﻿@rendermode InteractiveServer
+﻿
 @using ArmarioLATAM.Services
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
@@ -11,12 +11,12 @@
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
         var isHome = string.IsNullOrEmpty(uri) || uri.Equals("home", StringComparison.OrdinalIgnoreCase);
         var isValid = await AuthService.IsSessionValidAsync();
-        showToast = !isValid;
+
         if (!isValid && !isHome)
         {
             Navigation.NavigateTo("/");
         }
+
+        StateHasChanged();
     }
 }
-
-

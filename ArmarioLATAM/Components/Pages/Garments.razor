@@ -1,4 +1,4 @@
-﻿@page "/NuevoIngreso"
+﻿@page "/Garments"
 @using ArmarioLATAM.Services
 @using ArmarioLATAM.Components.Models
 @inject IJSRuntime JS
@@ -10,7 +10,6 @@
 @rendermode InteractiveServer
 
 
-<ValidaSession/>
 @if (!isLoaded)
 {
     <LoadPage />
@@ -56,7 +55,7 @@
                     var sel = GarmentSelectionState.SelectedGarments
                     .FirstOrDefault(g => g.GarmentId == garment.GarmentId);
 
-                    <ProductCard garments=garment
+                    <GarmentCard garments=garment
                                  InitialQuantity="@(sel?.Quantity ?? 0)"
                                  InitialSize="@(sel?.Size)"
                         OnChanged="OnGarmentChanged"
@@ -90,6 +89,7 @@
         }
     </div>
 </section>
+<ValidaSession />
 }
 @code {
 
@@ -106,7 +106,7 @@
     {
         GarmentSelectionState.SetSelections(_selected.Values);
         await GarmentSelectionState.SaveAsync();
-        Navigation.NavigateTo("/NuevoIngresoResumen");
+        Navigation.NavigateTo("/GarmentsResumen");
     }
 
     void Reintentar()
