@@ -185,7 +185,67 @@ namespace ArmarioLATAM.Components.Models
         public string? Message { get; set; }
         public int OrderId { get; set; }
         public decimal Total { get; set; }
-        public string? Estado { get; set; }
-        public string? Fecha { get; set; }   // "2026-01-12"
+        public string? Status { get; set; }
+        public string? Fecha { get; set; }   
+    }
+
+    public class MyOrdersResponse
+    {
+        public int Count { get; set; }
+        public List<MyOrderItem> Orders { get; set; } = new();
+    }
+
+    public class MyOrderItem
+    {
+        public int OrderId { get; set; }
+        public string Fecha { get; set; } = "";
+        public string Status { get; set; } = "";
+        public decimal TotalPrice { get; set; }
+        public string KitType { get; set; } = "";
+        public string KitCode { get; set; } = "";
+    }
+
+    public class OrderDetailResponse
+    {
+        public int OrderId { get; set; }
+        public string Fecha { get; set; } = "";
+        public string Status { get; set; } = "";
+        public decimal TotalPrice { get; set; }
+        public string KitType { get; set; } = "";
+        public string KitCode { get; set; } = "";
+        public List<OrderDetailItem>? Items { get; set; }
+    }
+
+    public class OrderDetailItem
+    {
+        public string Garment { get; set; } = "";
+        public string Size { get; set; } = "";
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+    }
+    public class PendingOrderResponse
+    {
+        public int Count { get; set; }
+        public PendingOrderItem Order { get; set; } = new();
+    }
+
+    public class PendingOrderItem
+    {
+        public int OrderId { get; set; }
+        public string Fecha { get; set; } = "";
+        public string Status { get; set; } = "";
+        public decimal TotalPrice { get; set; }
+        public string KitType { get; set; } = "";
+        public string KitCode { get; set; } = "";
+    }
+
+    public class DetailDelivered
+    {
+        public string Motive { get; set; } = string.Empty;
+        public string DetailMotive { get; set; } = string.Empty;
+        public string Province { get; set; } = string.Empty;
+        public string District { get; set; } = string.Empty; 
+        public string Address { get; set; } = string.Empty;
+        public string Reference { get; set; } = string.Empty;
     }
 }

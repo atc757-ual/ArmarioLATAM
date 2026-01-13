@@ -36,7 +36,9 @@ builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<GarmentSelectionState>();
 builder.Services.AddScoped<KitSelectionState>();
 builder.Services.AddScoped<OrderState>();
-builder.Services.AddScoped<LocalStorageService>();
+builder.Services.AddScoped<DetailDeliveredState>();
+builder.Services.AddScoped<ProtectedLocalStorageService>();
+builder.Services.AddScoped<SessionStorageService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

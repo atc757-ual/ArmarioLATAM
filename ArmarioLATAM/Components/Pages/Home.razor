@@ -3,7 +3,7 @@
 @using ArmarioLATAM.Components.Models
 @using ArmarioLATAM.Services
 @using System.ComponentModel.DataAnnotations
-@inject LocalStorageService LocalStorage
+@inject ProtectedLocalStorageService ProtectedLocalStorage
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
 
@@ -17,7 +17,7 @@
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div style="background-color:#fee;border:1px solid #fcc;color:#c33;
-                            padding:10px;margin-bottom:15px;border-radius:4px;">
+                                padding:10px;margin-bottom:15px;border-radius:4px;">
                 @errorMessage
             </div>
         }
@@ -74,9 +74,7 @@
             else
             {
                 <div class="latam-btn-row">
-                    <button type="button"
-                            class="latam-btn latam-btn--primary"
-                            disabled>
+                    <button disabled type="button" class="latam-btn latam-btn--primary">
                         Ingresar
                     </button>
                 </div>
@@ -100,36 +98,51 @@
     private bool isLoading;
     private string errorMessage = string.Empty;
 
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && isValidContrasena && isValidCorreo)
+        {
+           await OnSubmit();
+        }
+    }
+
     private async Task OnSubmit()
     {
         isLoading = true;
         errorMessage = string.Empty;
-        StateHasChanged();
-
         try
         {
+            await Task.Delay(500); // Simula tiempo de espera
             var response = await AuthService.LoginAsync(
                 loginModel.Correo,
                 loginModel.Contrasena);
 
             if (response != null && !string.IsNullOrEmpty(response.Token))
             {
-                // Login exitoso
-                NavigationManager.NavigateTo("/Dashboard",forceLoad:false);
+                if (loginModel.Recordarme)
+                {
+                    await ProtectedLocalStorage.SetItemAsync("remember", loginModel.Correo);
+                }
+                else
+                {
+                    await ProtectedLocalStorage.RemoveItemAsync("remember");
+                }
+                NavigationManager.NavigateTo("/Dashboard");
             }
             else
             {
+                isLoading = false;
                 errorMessage = "Credenciales inválidas. Verifica tu correo y contraseña.";
             }
         }
         catch (Exception ex)
         {
+            isLoading = false;
             errorMessage = "Error al conectar con el servidor.";
             Console.WriteLine(ex.Message);
         }
         finally
         {
-            isLoading = false;
             StateHasChanged();
         }
     }
@@ -165,14 +178,20 @@
 
         StateHasChanged();
     }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!firstRender)
+            return; // solo ejecuta en el primer render
+
+        var savedEmail = await ProtectedLocalStorage.GetItemAsync<string>("remember");
+        if (!string.IsNullOrEmpty(savedEmail))
         {
-            await LocalStorage.ClearAllAsync(); ; // aquí sí puedes usar JS
-            StateHasChanged(); // refresca la UI
+            loginModel.Correo = savedEmail;
+            loginModel.Recordarme = true;
+
+            // Valida el email cargado
+            OnCorreoBlur(new FocusEventArgs());
         }
     }
-
 }
+
