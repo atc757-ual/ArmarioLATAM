@@ -6,9 +6,9 @@ public class KitSelectionState
 {
     private const string StorageKey = "kitSelection";
 
-    private readonly LocalStorageService _localStorage;
+    private readonly SessionStorageService _localStorage;
 
-    public KitSelectionState(LocalStorageService localStorage)
+    public KitSelectionState(SessionStorageService localStorage)
     {
         _localStorage = localStorage;
     }

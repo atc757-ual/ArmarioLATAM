@@ -8,9 +8,9 @@ using System.Text.Json;
     {
         private const string StorageKey = "garmentSelections";
         public bool IsEmpty => !SelectedGarments.Any();
-        private readonly LocalStorageService _localStorage;
+        private readonly SessionStorageService _localStorage;
 
-        public GarmentSelectionState(LocalStorageService localStorage)
+    public GarmentSelectionState(SessionStorageService localStorage)
         {
             _localStorage = localStorage;
         }
@@ -52,7 +52,7 @@ using System.Text.Json;
             if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            var dtoList = JsonSerializer.Deserialize<List<GarmentSelectionDto>>(json);
+        var dtoList = JsonSerializer.Deserialize<List<GarmentSelectionDto>>(json);
             if (dtoList is null)
                 return;
 

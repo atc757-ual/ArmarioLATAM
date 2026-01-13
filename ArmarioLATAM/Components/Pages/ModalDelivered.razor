@@ -1,9 +1,8 @@
 ﻿@rendermode InteractiveServer
-
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
-
-@if (IsOpenModal)
+@inject DetailDeliveredState DetailDeliveredState
+@if (isOpen)
 {
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <div class="latam-modal-overlay">
@@ -11,13 +10,12 @@
             @if (stepModal == 1)
             {
                 <header class="latam-modal-header">
-                    <img src="images/ico_alert_blue.svg" alt="alert" class="" />
+                    <img src="images/typeKits/ico_alert_blue.svg" alt="alert" class="" />
                     <p class="card-title">Motivo de la solicitud</p>
                 </header>
                 <Separator></Separator>
                  <EditForm FormName="formEmergency"
-                              Model="@emergencyModel"
-                              OnValidSubmit="@NextStep">
+                              Model="@emergencyModel">
                 <DataAnnotationsValidator />
                 <div class="latam-modal-body">
                     <div class="margin-bottom-base">
@@ -48,7 +46,7 @@
                 <footer class="latam-modal-footer">
                         @if (@isValidEmergencyType & @isValidDetalleMotivo)
                     {
-                        <button class="latam-btn latam-btn--primary" type="submit">
+                            <button class="latam-btn latam-btn--primary" type="button" @onclick="NextStep">
                             Continuar
                         </button>
                     }
@@ -58,7 +56,7 @@
                             Continuar
                         </button>
                     }
-                        <a class="latam-link-danger" @onclick="Close">
+                        <a class="latam-link-danger" @onclick="CloseAsync">
                             Cancelar
                         </a>
                 </footer>
@@ -72,7 +70,7 @@
                 <Separator></Separator>
                 <EditForm FormName="formAddress"
                           Model="@addressModel"
-                          OnValidSubmit="@Close">
+                          OnValidSubmit="@Continuar">
                     <DataAnnotationsValidator />
                     <div class="latam-modal-body">
                         <div class="margin-bottom-base">
@@ -147,16 +145,14 @@
         </div>
     </div>
 }
+
 @code {
     [Parameter] public EventCallback<bool> IsOpenModalChanged { get; set; }
-    [Parameter] public bool IsOpenModal { get; set; }
-
+    public bool isOpen { get; set; }
     private AddressModel addressModel = new();
     private EmergencyModel emergencyModel = new();
-    private Task Close() => IsOpenModalChanged.InvokeAsync(false);
     private int stepModal { get; set; } = 1;
     string? openSelectId;
-
 
     /*valid address*/
     private bool isValidAddress { get; set; } = false;
@@ -169,9 +165,8 @@
     // idiomas disponibles para los combos
     private List<string> EmergencyType { get; set; } = new() { "Perdida o robo", "Rotura", "Cambio de talla" };
     private List<string> Provinces { get; set; } = new() { "Lima Metropolitana" };
-    private List<string> LimaDistricts { get; set; } =
-        new()
-        {
+    private List<string> LimaDistricts { get; set; } = new()
+    {
             "Ancón","Ate","Barranco","Breña","Carabayllo","Chaclacayo",
             "Chorrillos","Cieneguilla","Comas","El Agustino","Independencia",
             "Jesús María","La Molina","La Victoria","Lima","Lince","Los Olivos",
@@ -181,7 +176,8 @@
             "San Juan de Miraflores","San Luis","San Martín de Porres","San Miguel",
             "Santa Anita","Santa María del Mar","Santa Rosa","Santiago de Surco",
             "Surquillo","Villa El Salvador","Villa María del Triunfo"
-        };
+     };
+
     /*Address*/
     private void OnProvinceChanged(string? value)
     {
@@ -273,13 +269,36 @@
     {
         stepModal = 2;
     }
-    /*Async empty*/
+
     public async Task OpenAsync()
     {
-        stepModal = 1;
-        addressModel = new();
-        isValidProvince = false;
+        // Limpiar states
+        await DetailDeliveredState.ClearAsync();
+        // Limpiar modelos locales
         emergencyModel = new();
+        addressModel = new();
+
+        // Reiniciar paso y validaciones
+        stepModal = 1;
+        isValidEmergencyType = false;
+        isValidDetalleMotivo = false;
+        isValidAddress = false;
+        isValidProvince = false;
+        isValidDistrict = false;
+        isOpen = true;
+        StateHasChanged();
+    }
+    public void CloseAsync()
+    {
+        isOpen = false;
+        StateHasChanged();
+    }
+
+    public async Task Continuar()
+    {
+        await DetailDeliveredState.SaveAsync();
         await IsOpenModalChanged.InvokeAsync(true);
+        isOpen = false;
+        StateHasChanged();
     }
 }

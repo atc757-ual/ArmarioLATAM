@@ -1,4 +1,5 @@
 ﻿using ArmarioLATAM.Components.Models;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -7,6 +8,10 @@ namespace ArmarioLATAM.Services
     public interface IOrderService
     {
         Task<HttpResponseMessage?> CreateOrderAsync(CreateOrder dto);
+        Task<MyOrdersResponse?> GetMyOrdersAsync();
+        Task<OrderDetailResponse?> GetOrderByIdAsync(int id);
+        Task<MyOrdersResponse?> GetMyOrdersHistoryAsync();
+        Task<PendingOrderResponse?> GetMyPendingOrderAsync(int? kitTypeId = null);
     }
 
     public class OrderService : IOrderService
@@ -62,6 +67,93 @@ namespace ArmarioLATAM.Services
             }
 
             return response;
+        }
+
+        public async Task<MyOrdersResponse?> GetMyOrdersAsync()
+        {
+            if (!await AttachTokenAsync())
+                return null;
+
+            var response = await _httpClient.GetAsync("api/Orders/my-orders");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _logger.LogWarning("GetMyOrdersAsync -> Unauthorized");
+                return null;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Error al obtener órdenes. Status={Status}, Body={Body}",
+                                 response.StatusCode, body);
+                return null;
+            }
+
+            return await response.Content.ReadFromJsonAsync<MyOrdersResponse>();
+        }
+
+
+        public async Task<OrderDetailResponse?> GetOrderByIdAsync(int id)
+        {
+            if (!await AttachTokenAsync())
+                return null;
+
+            var response = await _httpClient.GetAsync($"api/Orders/{id}");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _logger.LogWarning("GetOrderByIdAsync -> Unauthorized");
+                return null;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Error al obtener orden. Status={Status}, Body={Body}",
+                                 response.StatusCode, body);
+                return null;
+            }
+
+            return await response.Content.ReadFromJsonAsync<OrderDetailResponse>();
+        }
+
+        public async Task<MyOrdersResponse?> GetMyOrdersHistoryAsync()
+        {
+            if (!await AttachTokenAsync())
+                return null;
+
+            var response = await _httpClient.GetAsync("api/Orders/my-orders-history");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                return null;
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<MyOrdersResponse>();
+        }
+
+        public async Task<PendingOrderResponse?> GetMyPendingOrderAsync(int? kitTypeId = null)
+        {
+            if (!await AttachTokenAsync())
+                return null;
+
+            var url = "api/Orders/my-order-pending";
+            if (kitTypeId.HasValue)
+            {
+                url += $"?kitTypeId={kitTypeId.Value}";
+            }
+
+            var response = await _httpClient.GetAsync(url);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                return null;
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<PendingOrderResponse>();
         }
     }
 }

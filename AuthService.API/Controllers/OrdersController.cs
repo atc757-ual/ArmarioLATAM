@@ -55,7 +55,7 @@ public class OrdersController : ControllerBase
             {
                 UserId = user.Id,               // GUID del usuario
                 DateOrder = DateTime.UtcNow,
-                Estado = "Pending",
+                Status = "Pendiente",
                 KitTypeId = dto.KitTypeId,
                 TotalPrice = 0
             };
@@ -95,7 +95,7 @@ public class OrdersController : ControllerBase
                 message = "Orden creada exitosamente",
                 orderId = order.OrderId,
                 total = order.TotalPrice,
-                estado = order.Estado,
+                status = order.Status,
                 fecha = order.DateOrder.ToString("yyyy-MM-dd") // solo fecha
             });
         }
@@ -133,9 +133,11 @@ public class OrdersController : ControllerBase
                 {
                     o.OrderId,
                     fecha = o.DateOrder.ToString("yyyy-MM-dd"), // formateamos
-                    o.Estado,
+                    o.Status,
                     o.TotalPrice,
-                    KitType = o.KitType.Name
+                    KitType = o.KitType.Name,
+                    o.KitType.KitCode
+
                 })
                 .ToListAsync();
 
@@ -154,6 +156,112 @@ public class OrdersController : ControllerBase
             });
         }
     }
+
+
+    [HttpGet("my-orders-history")]
+    public async Task<IActionResult> GetMyOrdersNoPending()
+    {
+        try
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(userEmail))
+                return Unauthorized();
+
+            var user = await _authContext.Users
+                .FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (user == null)
+                return NotFound();
+
+            var orders = await _context.Orders
+                .Where(o => o.UserId == user.Id)
+                .Where(o => o.Status != "Pendiente")   // <-- solo estados distintos de Pending
+                .OrderByDescending(o => o.DateOrder)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    fecha = o.DateOrder.ToString("dd/MM/yyyy HH:mm"),
+                    o.Status,
+                    o.TotalPrice,
+                    KitType = o.KitType.Name,
+                    o.KitType.KitCode
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                count = orders.Count,
+                orders
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Error al obtener órdenes",
+                error = ex.Message
+            });
+        }
+    }
+
+    [HttpGet("my-order-pending")]
+    public async Task<IActionResult> GetMyOrders([FromQuery] int? kitTypeId)
+    {
+        try
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(userEmail))
+                return Unauthorized();
+
+            var user = await _authContext.Users
+                .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+            if (user == null)
+                return NotFound();
+
+            var query = _context.Orders
+                .Where(o => o.UserId == user.Id)
+                .Where(o => o.Status == "Pendiente");
+
+            if (kitTypeId.HasValue)
+            {
+                query = query.Where(o => o.KitTypeId == kitTypeId.Value);
+            }
+
+            var order = await query
+                .OrderByDescending(o => o.DateOrder)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    fecha = o.DateOrder.ToString("dd/MM/yyyy HH:mm"),
+                    o.Status,
+                    o.TotalPrice,
+                    KitType = o.KitType.Name,
+                    o.KitType.KitCode
+                })
+                .FirstOrDefaultAsync(); // <-- solo uno
+
+            if (order is null)
+            {
+                // No hay orden pendiente para ese usuario/kit
+                return Ok(new { count = 0, order = (object?)null });
+            }
+
+            return Ok(new
+            {
+                count = 1,
+                order
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Error al obtener órdenes",
+                error = ex.Message
+            });
+        }
+    }
+
 
     // ============================
     // DETALLE DE ORDEN
@@ -175,8 +283,8 @@ public class OrdersController : ControllerBase
             var response = new
             {
                 order.OrderId,
-                fecha = order.DateOrder.ToString("yyyy-MM-dd"), // solo fecha
-                order.Estado,
+                fecha = order.DateOrder.ToString("dd/MM/yyyy HH:mm"), // solo fecha
+                order.Status,
                 order.TotalPrice,
                 KitType = order.KitType.Name,
                 Items = order.OrderKits.Select(i => new

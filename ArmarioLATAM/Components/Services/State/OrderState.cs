@@ -4,9 +4,9 @@ public class OrderState
 {
     private const string StorageKey = "lastOrder";
 
-    private readonly LocalStorageService _localStorage;
+    private readonly SessionStorageService _localStorage;
 
-    public OrderState(LocalStorageService localStorage)
+    public OrderState(SessionStorageService localStorage)
     {
         _localStorage = localStorage;
     }
