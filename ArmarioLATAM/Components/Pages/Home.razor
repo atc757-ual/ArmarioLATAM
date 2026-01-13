@@ -41,17 +41,33 @@
 
             <div class="latam-field">
                 <label for="contrasena">Contraseña</label>
-                <InputText id="contrasena"
-                           name="Contrasena"
-                           type="password"
-                           maxlength="50"
-                           class="latam-input"
-                           @bind-Value="loginModel.Contrasena"
-                           @onblur="OnContrasenaBlur"
-                           placeholder="Ingresa tu contraseña"
-                           disabled="@isLoading" />
+                <div class="latam-password-wrapper">
+                    <InputText id="contrasena"
+                               name="Contrasena"
+                               type="@(showPassword ? "text" : "password")"
+                               maxlength="50"
+                               class="latam-input"
+                               @bind-Value="loginModel.Contrasena"
+                               @onblur="OnContrasenaBlur"
+                               placeholder="Ingresa tu contraseña"
+                               disabled="@isLoading" />
+                    <button type="button"
+                            @onclick="TogglePasswordVisibility"
+                            class="latam-password-toggle"
+                            tabindex="-1">
+                        @if (showPassword)
+                        {
+                            <img src="images/ico_eye_show.svg" alt="Ocultar" />
+                        }
+                        else
+                        {
+                            <img src="images/ico_eye_hide.svg" alt="Mostrar" />
+                        }
+                    </button>
+                </div>
                 <ValidationMessage For="@(() => loginModel.Contrasena)" />
             </div>
+
 
             <div class="latam-remember-row">
                 <InputCheckbox id="recordarme"
@@ -97,15 +113,12 @@
     private bool isValidContrasena;
     private bool isLoading;
     private string errorMessage = string.Empty;
+    private bool showPassword = false;
 
-    private async Task HandleKeyDown(KeyboardEventArgs e)
+    private void TogglePasswordVisibility()
     {
-        if (e.Key == "Enter" && isValidContrasena && isValidCorreo)
-        {
-           await OnSubmit();
-        }
+        showPassword = !showPassword;
     }
-
     private async Task OnSubmit()
     {
         isLoading = true;
@@ -146,7 +159,6 @@
             StateHasChanged();
         }
     }
-
     private void OnCorreoBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
@@ -162,7 +174,6 @@
 
         StateHasChanged();
     }
-
     private void OnContrasenaBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
