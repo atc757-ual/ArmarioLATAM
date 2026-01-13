@@ -3,17 +3,7 @@
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-
-
-@if (showToast){
-    <Toast Visible=true 
-       Type="info" 
-       Title="Sesión expirada" 
-       Message="Tu sesión ha expirado. Por favor, inicia sesión de nuevo." />
-}
-
 @code {
-    private bool showToast = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
