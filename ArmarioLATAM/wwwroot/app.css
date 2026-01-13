@@ -164,13 +164,16 @@
 .padding-base {
     padding: var(--space-base);
 }
+
 .margin-base {
     margin: var(--space-base);
 }
-paddding-s{
+
+paddding-s {
     padding: var(--space-s);
 }
-margin-s{
+
+margin-s {
     margin: var(--space-s);
 }
 
@@ -597,12 +600,14 @@ margin-s{
 }
 
 /* Height utilities */
-.h-20{
+.h-20 {
     height: 1.25rem;
 }
+
 .h-22 {
     height: 1.375rem;
 }
+
 .h-24 {
     height: 1.5rem;
 }
@@ -869,6 +874,7 @@ html, body {
         align-items: flex-start;
         display: block;
     }
+
     .app-footer {
         flex-direction: column;
         text-align: center;
@@ -895,24 +901,52 @@ html, body {
 
 .latam-field {
     padding-bottom: var(--space-base);
-
 }
 
-.latam-field:last-of-type {
-    margin-bottom: var(--space-s);
-}
+    /* Asegúrate que estas clases estén al FINAL del archivo */
 
-.latam-field label {
-    display: block;
-    font-size: var(--fs-14);
-    margin-bottom: var(--space-xs);
-    color: var(--color-neutral-7);
-}
+    .latam-field .latam-password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
 
-.latam-field:focus-within label {
-    color: var(--color-secondary);
-}
+        .latam-field .latam-password-wrapper .latam-input {
+            width: 100%;
+            padding-right: var(--space-l);
+        }
 
+        .latam-field .latam-password-wrapper .latam-password-toggle {
+            position: absolute;
+            right: var(--space-ls);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-s);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .latam-field .latam-password-wrapper .latam-password-toggle img {
+                width: 1.8rem;
+                height: 1.8rem;
+            }
+
+    .latam-field:last-of-type {
+        margin-bottom: var(--space-s);
+    }
+
+    .latam-field label {
+        display: block;
+        font-size: var(--fs-14);
+        margin-bottom: var(--space-xs);
+        color: var(--color-neutral-7);
+    }
+
+    .latam-field:focus-within label {
+        color: var(--color-secondary);
+    }
 
 .latam-textarea::placeholder {
     color: var(--color-neutral-6);
@@ -946,18 +980,19 @@ html, body {
     width: 100%;
     min-height: 54px;
 }
-.latam-input-modal::placeholder {
-    color: var(--color-neutral-6);
-}
 
-.latam-input-modal:focus {
-    border-bottom-color: var(--gray-200);
-    outline: none;
-}
+    .latam-input-modal::placeholder {
+        color: var(--color-neutral-6);
+    }
+
+    .latam-input-modal:focus {
+        border-bottom-color: var(--gray-200);
+        outline: none;
+    }
 
 .latam-input {
     width: 100%;
-    height:54px;
+    height: 54px;
     padding: var(--space-ls) var(--space-ls);
     border-radius: var(--border-radius-soft);
     border: var(--border-width-2) solid var(--gray-200);
@@ -973,25 +1008,25 @@ html, body {
         background-color: var(--color-neutral-0) !important;
     }
 
-.latam-input::placeholder {
-    color: var(--color-neutral-6);
-}
+    .latam-input::placeholder {
+        color: var(--color-neutral-6);
+    }
 
- .latam-input:focus {
-    border:1px solid var(--color-secondary) !important;
-    outline: none;
-}
+    .latam-input:focus {
+        border: 1px solid var(--color-secondary) !important;
+        outline: none;
+    }
 
-/* error */
-
-.latam-input.modified.invalid, .latam-input.invalid {
-     border: 1px solid var(--color-error) !important;
-}
+    /* error */
+    .latam-input.modified.invalid, .latam-input.invalid {
+        border: 1px solid var(--color-error) !important;
+    }
 
 .latam-field:has(.latam-input.modified.invalid) label,
 .latam-field:has(.latam-input.invalid) label {
     color: var(--color-error);
 }
+
 /* éxito */
 .latam-input.modified.valid, .latam-input.valid {
     border: 1px solid var(--color-text-dropdown);
@@ -1021,23 +1056,23 @@ html, body {
     padding-top: var(--padding-bottom-base);
 }
 
-.latam-checkbox:checked {
-    background-color: #2316A6;
-    border-color: #2316A6;
-}
+    .latam-checkbox:checked {
+        background-color: #2316A6;
+        border-color: #2316A6;
+    }
 
-.latam-checkbox:checked::after {
-    content: "";
-    position: absolute;
-    left: 7px;
-    top: 1px;
-    width: 0.5rem;
-    height: 1.0rem;
-    border: var(--border-width-3) solid #FFFFFF;
-    border-top: 0;
-    border-left: 0;
-    transform: rotate(45deg);
-}
+        .latam-checkbox:checked::after {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 1px;
+            width: 0.5rem;
+            height: 1.0rem;
+            border: var(--border-width-3) solid #FFFFFF;
+            border-top: 0;
+            border-left: 0;
+            transform: rotate(45deg);
+        }
 
 /* Styles for the LATAM Airlines login page */
 .latam-login-wrapper {
@@ -1055,7 +1090,6 @@ html, body {
     padding: var(--space-l) var(--space-m);
     border-top: var(--border-width-4) solid var(--color-primary-blue);
 }
-
 
 /* Login button */
 .latam-btn-row {
@@ -1078,6 +1112,7 @@ html, body {
     color: var(--color-accent);
     -webkit-tap-highlight-color: transparent; /* Android / iOS */
 }
+
 .latam-:hover:not(:disabled) {
     filter: brightness(1.05);
 }
@@ -1097,10 +1132,11 @@ html, body {
 a, button {
     -webkit-tap-highlight-color: transparent;
 }
+
 .latam-btn--primary {
     background: var(--color-accent);
     color: var(--color-neutral-0);
-    border:none;
+    border: none;
 }
 
     .latam-btn--primary:hover:not(:disabled),
@@ -1130,7 +1166,6 @@ a, button {
     font-size: var(--fs-14);
     font-weight: var(--font-weight-medium);
 }
-
 
 .latam-link-danger {
     color: var(--color-accent); /* rojo de tu sistema */
@@ -1193,7 +1228,6 @@ a, button {
     min-width: 70%;
     margin-top: var(--space-m);
 }
-
 /* Responsive */
 @media (max-width: 600px) {
 
@@ -1240,13 +1274,12 @@ a, button {
         flex-direction: column;
     }
 }
+
 @media (min-width: 601px) {
     .latam-login-wrapper {
         padding: var(--space-xl) 0 var(--space-xl) 0;
     }
-
 }
-
 
 .latam-error-card {
     background: var(--color-neutral-0);
@@ -1281,10 +1314,12 @@ a, button {
     padding: 0 var(--space-base) var(--space-base);
     width: 70%;
     margin: 0 auto;
-}  
+}
+
 .latam-error-card--top {
     border-top: var(--border-width-4) solid var(--color-accent);
 }
+
 .full-width {
     width: 100%;
 }

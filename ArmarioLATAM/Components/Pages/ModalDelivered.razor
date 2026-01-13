@@ -1,6 +1,7 @@
 ﻿@rendermode InteractiveServer
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
+@inject NavigationManager Navigation
 @inject DetailDeliveredState DetailDeliveredState
 @if (isOpen)
 {
@@ -299,6 +300,7 @@
         await DetailDeliveredState.SaveAsync();
         await IsOpenModalChanged.InvokeAsync(true);
         isOpen = false;
+        Navigation.NavigateTo("/Garments");
         StateHasChanged();
     }
 }
