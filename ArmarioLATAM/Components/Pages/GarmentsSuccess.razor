@@ -1,4 +1,4 @@
-﻿@page "/NuevoIngresoComprobante"
+﻿@page "/GarmentsComprobante"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
@@ -29,7 +29,7 @@
             <div>
                 <div>
                     <span class="success-data-label">Número de orden:</span>
-                    <span class="success-data-value">@OrderState.OrderNumber</span>
+                    <span class="success-data-value">#@OrderState.OrderNumber</span>
                 </div>
                 <div class="margin-top-base">
                     <span class="success-data-label">Fecha de solicitud:</span>
@@ -47,6 +47,7 @@
     </div>
 
 </section>
+<ValidaSession />
 @code {
     void GoNext()
     {

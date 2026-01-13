@@ -4,109 +4,116 @@
 @using ArmarioLATAM.Services
 @using System.ComponentModel.DataAnnotations
 @inject ProtectedLocalStorageService ProtectedLocalStorage
-@inject NavigationManager NavigationManager
+@inject NavigationManager Navigation
 @inject IAuthService AuthService
 
-<div class="latam-login-wrapper">
-    <div class="latam-login-card">
+@if (isValidatingSession)
+{
+    <LoadPage />
+}
+else
+{
+    <div class="latam-login-wrapper">
+        <div class="latam-login-card">
 
-        <img src="images/logo_footer.svg" alt="LATAM" class="latam-login-logo" />
-        <h1 class="latam-login-title">Ingresar</h1>
+            <img src="images/logo_footer.svg" alt="LATAM" class="latam-login-logo" />
+            <h1 class="latam-login-title">Ingresar</h1>
 
-        @* Mensaje de error *@
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div style="background-color:#fee;border:1px solid #fcc;color:#c33;
-                                padding:10px;margin-bottom:15px;border-radius:4px;">
-                @errorMessage
-            </div>
-        }
+            @* Mensaje de error *@
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div style="background-color:#fee;border:1px solid #fcc;color:#c33;
+                                                            padding:10px;margin-bottom:15px;border-radius:4px;">
+                    @errorMessage
+                </div>
+            }
 
-        <EditForm FormName="loginForm"
-                  Model="@loginModel"
-                  OnValidSubmit="@OnSubmit">
-            <DataAnnotationsValidator />
+            <EditForm FormName="loginForm"
+                      Model="@loginModel"
+                      OnValidSubmit="@OnSubmit">
+                <DataAnnotationsValidator />
 
-            <div class="latam-field">
-                <label for="correo">Correo</label>
-                <InputText id="correo"
-                           name="Correo"
-                           class="latam-input"
-                           @bind-Value="loginModel.Correo"
-                           @onblur="OnCorreoBlur"
-                           placeholder="Ingresa tu correo"
-                           disabled="@isLoading" />
-                <ValidationMessage For="@(() => loginModel.Correo)" />
-            </div>
-
-            <div class="latam-field">
-                <label for="contrasena">Contraseña</label>
-                <div class="latam-password-wrapper">
-                    <InputText id="contrasena"
-                               name="Contrasena"
-                               type="@(showPassword ? "text" : "password")"
-                               maxlength="50"
+                <div class="latam-field">
+                    <label for="correo">Correo</label>
+                    <InputText id="correo"
+                               name="Correo"
                                class="latam-input"
-                               @bind-Value="loginModel.Contrasena"
-                               @onblur="OnContrasenaBlur"
-                               placeholder="Ingresa tu contraseña"
+                               @bind-Value="loginModel.Correo"
+                               @onblur="OnCorreoBlur"
+                               placeholder="Ingresa tu correo"
                                disabled="@isLoading" />
-                    <button type="button"
-                            @onclick="TogglePasswordVisibility"
-                            class="latam-password-toggle"
-                            tabindex="-1">
-                        @if (showPassword)
-                        {
-                            <img src="images/ico_eye_show.svg" alt="Ocultar" />
-                        }
-                        else
-                        {
-                            <img src="images/ico_eye_hide.svg" alt="Mostrar" />
-                        }
-                    </button>
+                    <ValidationMessage For="@(() => loginModel.Correo)" />
                 </div>
-                <ValidationMessage For="@(() => loginModel.Contrasena)" />
-            </div>
 
-
-            <div class="latam-remember-row">
-                <InputCheckbox id="recordarme"
-                               class="latam-checkbox"
-                               @bind-Value="loginModel.Recordarme"
-                               disabled="@isLoading" />
-                <label for="recordarme">¿Recordarme?</label>
-            </div>
-
-            @if (isValidCorreo && isValidContrasena)
-            {
-                <div class="latam-btn-row">
-                    <button type="submit"
-                            class="latam-btn latam-btn--primary"
-                            disabled="@isLoading">
-                        @(isLoading ? "Verificando..." : "Ingresar")
-                    </button>
+                <div class="latam-field">
+                    <label for="contrasena">Contraseña</label>
+                    <div class="latam-password-wrapper">
+                        <InputText id="contrasena"
+                                   name="Contrasena"
+                                   type="@(showPassword ? "text" : "password")"
+                                   maxlength="50"
+                                   class="latam-input"
+                                   @bind-Value="loginModel.Contrasena"
+                                   @onblur="OnContrasenaBlur"
+                                   placeholder="Ingresa tu contraseña"
+                                   disabled="@isLoading" />
+                        <button type="button"
+                                @onclick="TogglePasswordVisibility"
+                                class="latam-password-toggle"
+                                tabindex="-1">
+                            @if (showPassword)
+                            {
+                                <img src="images/ico_eye_show.svg" alt="Ocultar" />
+                            }
+                            else
+                            {
+                                <img src="images/ico_eye_hide.svg" alt="Mostrar" />
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => loginModel.Contrasena)" />
                 </div>
-            }
-            else
-            {
-                <div class="latam-btn-row">
-                    <button disabled type="button" class="latam-btn latam-btn--primary">
-                        Ingresar
-                    </button>
-                </div>
-            }
 
-        </EditForm>
+
+                <div class="latam-remember-row">
+                    <InputCheckbox id="recordarme"
+                                   class="latam-checkbox"
+                                   @bind-Value="loginModel.Recordarme"
+                                   disabled="@isLoading" />
+                    <label for="recordarme">¿Recordarme?</label>
+                </div>
+
+                @if (isValidCorreo && isValidContrasena)
+                {
+                    <div class="latam-btn-row">
+                        <button type="submit"
+                                class="latam-btn latam-btn--primary"
+                                disabled="@isLoading">
+                            @(isLoading ? "Verificando..." : "Ingresar")
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="latam-btn-row">
+                        <button disabled type="button" class="latam-btn latam-btn--primary">
+                            Ingresar
+                        </button>
+                    </div>
+                }
+
+            </EditForm>
+        </div>
+
+        <div class="latam-login-links">
+            <a href="/ResetPassword" class="latam-link-danger">
+                ¿Olvidaste tu contraseña?
+            </a>
+        </div>
     </div>
+    <ClearLocalData />
+}
 
-    <div class="latam-login-links">
-        <a href="/ResetPassword" class="latam-link-danger">
-            ¿Olvidaste tu contraseña?
-        </a>
-    </div>
-</div>
-
-<ClearLocalData />
 @code {
     private LoginModel loginModel = new();
     private bool isValidCorreo;
@@ -114,6 +121,7 @@
     private bool isLoading;
     private string errorMessage = string.Empty;
     private bool showPassword = false;
+    private bool isValidatingSession = true;
 
     private void TogglePasswordVisibility()
     {
@@ -140,7 +148,7 @@
                 {
                     await ProtectedLocalStorage.RemoveItemAsync("remember");
                 }
-                NavigationManager.NavigateTo("/Dashboard");
+                Navigation.NavigateTo("/Dashboard");
             }
             else
             {
@@ -191,17 +199,21 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
-            return; // solo ejecuta en el primer render
-
-        var savedEmail = await ProtectedLocalStorage.GetItemAsync<string>("remember");
-        if (!string.IsNullOrEmpty(savedEmail))
+        if (!firstRender) return;
+        var isValid = await AuthService.IsSessionValidAsync();
+        if (isValid)
         {
-            loginModel.Correo = savedEmail;
-            loginModel.Recordarme = true;
-
-            // Valida el email cargado
-            OnCorreoBlur(new FocusEventArgs());
+            Navigation.NavigateTo("/Dashboard");
+        }
+        else
+        {
+            var savedEmail = await ProtectedLocalStorage.GetItemAsync<string>("remember");
+            if (!string.IsNullOrEmpty(savedEmail))
+            {
+                loginModel.Correo = savedEmail;
+                loginModel.Recordarme = true;
+                OnCorreoBlur(new FocusEventArgs());
+            }
         }
     }
 }

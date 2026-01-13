@@ -1,10 +1,15 @@
 ﻿@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Pages
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 
-@if (isLogin)
+
+@if (HasSession & isLoaded)
 {
     <div class="header-right">
         <button class="latam-account-toggle" @onclick="ToggleMenu">
-            <img class="w-36"src="images/ico_burger.svg" alt="Menú" />
+            <img class="w-36" src="images/ico_burger.svg" alt="Menú" />
         </button>
     </div>
 }
@@ -25,7 +30,7 @@
             </div>
 
             <footer class="latam-account-footer">
-                <button class="latam-account-logout">
+                <button class="latam-account-logout" @onclick="CerrarSesion">
                     <span>
                         <img class="w-24" src="images/ico_logout.svg" />
                     </span>
@@ -35,19 +40,51 @@
         </div>
     </div>
 }
+
 @code {
-    private bool isLogin { get; set; } = false;
-    private bool IsLoading { get; set; } = false;
+    private bool HasSession { get; set; } = false;
     private bool isAccountOpen { get; set; } = false;
+    private bool isLoaded { get; set; } = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var isHome = string.IsNullOrEmpty(uri) || uri.Equals("home", StringComparison.OrdinalIgnoreCase);
+        var isValid = await AuthService.IsSessionValidAsync();
+
+        if (!isValid && !isHome)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            HasSession = true;
+        }
+        isLoaded = true;
+
+
+        StateHasChanged();
+    }
 
     private void ToggleMenu()
     {
         isAccountOpen = true;
     }
+
     private void CloseMenu()
     {
         isAccountOpen = false;
     }
 
-
+    private async Task CerrarSesion()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
 }
+
+
+
+
+

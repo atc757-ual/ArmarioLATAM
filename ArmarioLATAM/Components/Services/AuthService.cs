@@ -116,6 +116,9 @@ namespace ArmarioLATAM.Services
             await _sessionStorage.DeleteAsync("authTokenExpiration");
 
             await Task.CompletedTask;
+
+            _logger.LogInformation("=== SESIÓN CERRADA ===");
+            _logger.LogInformation("Token eliminado. Hash={Hash}", GetHashCode());
         }
 
         public string? GetToken() => _token;

@@ -383,14 +383,14 @@ else
             </div>
         }
 
-        <ModalDelivered @ref="modalRef" />
+        <GarmentsModal @ref="modalRef" />
   
 
     </section>
 }
 
 
-<ValidaSession></ValidaSession>
+<ValidaSession/>
 
 @code {
     private bool isEmpty = false;
@@ -398,7 +398,7 @@ else
     private bool isLoaded = false;
     private int selectedTab = 0;
 
-    private ModalDelivered? modalRef;
+    private GarmentsModal? modalRef;
     private List<KitType>? _kitTypes;
     List<MyOrderItem> historycOrders = new();
     PendingOrderItem pendingOrder = new();
