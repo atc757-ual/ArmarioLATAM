@@ -54,10 +54,10 @@ namespace ArmarioLATAM.Components.Models
 
     public class UsuarioModel
     {
-        public string Nombre { get; set; } = "";
-        public string Genero { get; set; } = "";
-        public string Correo { get; set; } = "";
-        public string Documento { get; set; } = "";
+        public string Nombre { get; set; } = string.Empty;
+        public string Genero { get; set; } = string.Empty;
+        public string Correo { get; set; } = string.Empty;
+        public string Documento { get; set; } = string.Empty;
     }
     public class SolicitudModel
     {
@@ -89,6 +89,8 @@ namespace ArmarioLATAM.Components.Models
     public class LoginResponse
     {
         public string Token { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
         public int ExpiresIn { get; set; }
     }
 
@@ -198,28 +200,28 @@ namespace ArmarioLATAM.Components.Models
     public class MyOrderItem
     {
         public int OrderId { get; set; }
-        public string Fecha { get; set; } = "";
-        public string Status { get; set; } = "";
+        public string Fecha { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public decimal TotalPrice { get; set; }
-        public string KitType { get; set; } = "";
-        public string KitCode { get; set; } = "";
+        public string KitType { get; set; } = string.Empty;
+        public string KitCode { get; set; } = string.Empty;
     }
 
     public class OrderDetailResponse
     {
         public int OrderId { get; set; }
-        public string Fecha { get; set; } = "";
-        public string Status { get; set; } = "";
+        public string Fecha { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public decimal TotalPrice { get; set; }
-        public string KitType { get; set; } = "";
-        public string KitCode { get; set; } = "";
+        public string KitType { get; set; } = string.Empty;
+        public string KitCode { get; set; } = string.Empty;
         public List<OrderDetailItem>? Items { get; set; }
     }
 
     public class OrderDetailItem
     {
-        public string Garment { get; set; } = "";
-        public string Size { get; set; } = "";
+        public string Garment { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public decimal Price { get; set; }
     }
@@ -232,11 +234,11 @@ namespace ArmarioLATAM.Components.Models
     public class PendingOrderItem
     {
         public int OrderId { get; set; }
-        public string Fecha { get; set; } = "";
-        public string Status { get; set; } = "";
+        public string Fecha { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public decimal TotalPrice { get; set; }
-        public string KitType { get; set; } = "";
-        public string KitCode { get; set; } = "";
+        public string KitType { get; set; } = string.Empty;
+        public string KitCode { get; set; } = string.Empty;
     }
 
     public class DetailDelivered
@@ -247,5 +249,18 @@ namespace ArmarioLATAM.Components.Models
         public string District { get; set; } = string.Empty; 
         public string Address { get; set; } = string.Empty;
         public string Reference { get; set; } = string.Empty;
+    }
+    public class AuthSessionData
+    {
+        public string? Token { get; set; } 
+        public DateTime? TokenExpiration { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
+    }
+    public class DataUserSession
+    {
+        public string Name { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
+        public bool IsValid { get; set; } = false;
     }
 }

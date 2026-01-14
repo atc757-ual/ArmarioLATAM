@@ -39,6 +39,7 @@ builder.Services.AddScoped<OrderState>();
 builder.Services.AddScoped<DetailDeliveredState>();
 builder.Services.AddScoped<ProtectedLocalStorageService>();
 builder.Services.AddScoped<SessionStorageService>();
+builder.Services.AddScoped<LocationService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

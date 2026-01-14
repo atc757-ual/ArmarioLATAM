@@ -22,7 +22,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _auth.Register(request.Email, request.Password);
+            var user = await _auth.Register(request.Email, request.Password, request.Name, request.BP);
 
             if (user == null)
                 return BadRequest(new
@@ -40,6 +40,8 @@ public class AuthController : ControllerBase
                 message = "Usuario registrado exitosamente",
                 userId = user.Id,
                 email = user.Email,
+                name = user.Name,        // ✅ NUEVO
+                bp = user.BP, // ✅ NUEVO
                 Result = new
                 {
                     Code = "200",
@@ -67,9 +69,9 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var token = await _auth.Login(request.Email, request.Password);
+            var user = await _auth.LoginAndGetUser(request.Email, request.Password);
 
-            if (token == null)
+            if (user == null)
                 return Unauthorized(new
                 {
                     message = "Credenciales inválidas",
@@ -80,9 +82,13 @@ public class AuthController : ControllerBase
                     }
                 });
 
+            var token = _auth.GenerateJwt(user); // Necesitas hacer público este método
+
             return Ok(new
             {
                 token,
+                name = user.Name,        // ✅ NUEVO
+                bp = user.BP, // ✅ NUEVO
                 expiresIn = 3600,
                 Result = new
                 {
