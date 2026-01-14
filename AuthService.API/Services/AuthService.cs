@@ -22,26 +22,27 @@ public class AuthService
     }
 
     // =========================
-    // REGISTRO DE USUARIOALmeria
+    // REGISTRO DE USUARIO
     // =========================
-    public async Task<User?> Register(string email, string password)
+    // AuthService.API.Services/AuthService.cs
+    public async Task<User?> Register(string email, string password, string name, string passport)
     {
-        // Verificar si el usuario ya existe
         if (await _context.Users.AnyAsync(x => x.Email == email))
         {
             Console.WriteLine($"❌ Usuario ya existe: {email}");
             return null;
         }
 
-        // Crear hash y salt
         CreatePasswordHash(password, out byte[] hash, out byte[] salt);
 
         var user = new User
         {
-            Id = Guid.NewGuid(), // ✅ OBLIGATORIO (BD NO genera GUID)
+            Id = Guid.NewGuid(),
             Email = email,
             PasswordHash = hash,
             PasswordSalt = salt,
+            Name = name,          // ✅ NUEVO
+            BP = passport,  // ✅ NUEVO
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -51,6 +52,34 @@ public class AuthService
 
         Console.WriteLine($"✅ Usuario registrado: {email}");
         Console.WriteLine($"🆔 UserId: {user.Id}");
+
+        return user;
+    }
+
+    // Modificar el método Login para retornar el User completo
+    public async Task<User?> LoginAndGetUser(string email, string password)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+
+        if (user == null)
+        {
+            Console.WriteLine("❌ Usuario no encontrado");
+            return null;
+        }
+
+        if (!user.IsActive)
+        {
+            Console.WriteLine("❌ Usuario inactivo");
+            return null;
+        }
+
+        var isValid = VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
+
+        if (!isValid)
+        {
+            Console.WriteLine("❌ Contraseña incorrecta");
+            return null;
+        }
 
         return user;
     }
@@ -105,7 +134,7 @@ public class AuthService
     // =========================
     // JWT
     // =========================
-    private string GenerateJwt(User user)
+    public string GenerateJwt(User user)
     {
         var claims = new[]
         {

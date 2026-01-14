@@ -207,6 +207,7 @@ else
         }
         else
         {
+            isValidatingSession = false;
             var savedEmail = await ProtectedLocalStorage.GetItemAsync<string>("remember");
             if (!string.IsNullOrEmpty(savedEmail))
             {

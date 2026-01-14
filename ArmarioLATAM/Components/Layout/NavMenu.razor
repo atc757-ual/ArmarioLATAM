@@ -1,72 +1,64 @@
 ﻿@rendermode InteractiveServer
 @using ArmarioLATAM.Services
-@using ArmarioLATAM.Components.Pages
+@using ArmarioLATAM.Components.Models
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
 
-@if (HasSession & isLoaded)
+@if (IsVisible)
 {
     <div class="header-right">
         <button class="latam-account-toggle" @onclick="ToggleMenu">
             <img class="w-36" src="images/ico_burger.svg" alt="Menú" />
         </button>
     </div>
-}
-@if (isAccountOpen)
-{
-    <div class="latam-account-overlay" @onclick="CloseMenu">
-        <div class="latam-account-panel" @onclick:stopPropagation>
-            <header class="latam-account-header">
-                <img src="images/logo_footer.svg" alt="LATAM" class="latam-account-logo" />
-                <button class="latam-account-close" @onclick="CloseMenu">
-                    <img class="w-28" src="images/ico_close.svg" />
-                </button>
-            </header>
+    @if (isAccountOpen)
+    {
+        <div class="latam-account-overlay" @onclick="CloseMenu">
+            <div class="latam-account-panel" @onclick:stopPropagation>
+                <header class="latam-account-header">
+                    <img src="images/logo_footer.svg" alt="LATAM" class="latam-account-logo" />
+                    <button class="latam-account-close" @onclick="CloseMenu">
+                        <img class="w-28" src="images/ico_close.svg" />
+                    </button>
+                </header>
 
-            <div class="latam-account-body">
-                <p class="fs-16 fw-semibold">Luisa Fernanda Cardenas</p>
-                <p class="fs-14">BP: 4673371</p>
+                <div class="latam-account-body">
+                    <p class="fs-16 fw-semibold">@sessionData?.Name</p>
+                    <p class="fs-14">BP: @sessionData?.BP</p>
+                </div>
+
+                <footer class="latam-account-footer">
+                    <button class="latam-account-logout" @onclick="CerrarSesion">
+                        <span>
+                            <img class="w-24" src="images/ico_logout.svg" />
+                        </span>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </footer>
             </div>
-
-            <footer class="latam-account-footer">
-                <button class="latam-account-logout" @onclick="CerrarSesion">
-                    <span>
-                        <img class="w-24" src="images/ico_logout.svg" />
-                    </span>
-                    <span>Cerrar sesión</span>
-                </button>
-            </footer>
         </div>
-    </div>
+    }
 }
+
 
 @code {
-    private bool HasSession { get; set; } = false;
+    private bool IsVisible { get; set; } = false;
     private bool isAccountOpen { get; set; } = false;
-    private bool isLoaded { get; set; } = false;
+    private bool _loaded = false;
+    private DataUserSession? sessionData = new();
+
+  
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender) return;
-
+        if (_loaded) return;
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
-        var isHome = string.IsNullOrEmpty(uri) || uri.Equals("home", StringComparison.OrdinalIgnoreCase);
-        var isValid = await AuthService.IsSessionValidAsync();
-
-        if (!isValid && !isHome)
-        {
-            Navigation.NavigateTo("/");
-        }
-        else
-        {
-            HasSession = true;
-        }
-        isLoaded = true;
-
-
+        IsVisible = !string.IsNullOrEmpty(uri);
+        sessionData = await AuthService.GetSessionDataAsync();
+        _loaded = IsVisible;
         StateHasChanged();
     }
-
+   
     private void ToggleMenu()
     {
         isAccountOpen = true;

@@ -1,8 +1,10 @@
 ﻿@rendermode InteractiveServer
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
+@using ArmarioLATAM.Services
 @inject NavigationManager Navigation
 @inject DetailDeliveredState DetailDeliveredState
+@inject LocationService LocationService
 
 @if (isOpen)
 {
@@ -165,21 +167,17 @@
     private bool isValidDetalleMotivo { get; set; } = false;
 
     // idiomas disponibles para los combos
-    private List<string> EmergencyType { get; set; } = new() { "Perdida o robo", "Rotura", "Cambio de talla" };
-    private List<string> Provinces { get; set; } = new() { "Lima Metropolitana" };
-    private List<string> LimaDistricts { get; set; } = new()
-    {
-            "Ancón","Ate","Barranco","Breña","Carabayllo","Chaclacayo",
-            "Chorrillos","Cieneguilla","Comas","El Agustino","Independencia",
-            "Jesús María","La Molina","La Victoria","Lima","Lince","Los Olivos",
-            "Lurigancho","Lurín","Magdalena del Mar","Miraflores","Pachacámac",
-            "Pucusana","Pueblo Libre","Puente Piedra","Punta Hermosa","Punta Negra",
-            "Rímac","San Bartolo","San Borja","San Isidro","San Juan de Lurigancho",
-            "San Juan de Miraflores","San Luis","San Martín de Porres","San Miguel",
-            "Santa Anita","Santa María del Mar","Santa Rosa","Santiago de Surco",
-            "Surquillo","Villa El Salvador","Villa María del Triunfo"
-     };
+    private List<string> EmergencyType { get; set; } = new();
+    private List<string> Provinces { get; set; } = new() ;
+    private List<string> LimaDistricts { get; set; } = new();
 
+    /*Obtener Combos*/
+    protected override void OnInitialized()
+    {
+        EmergencyType = LocationService.GetEmergencyTypes();
+        Provinces = LocationService.GetProvinces();
+        LimaDistricts = LocationService.GetLimaDistricts();
+    }
     /*Address*/
     private void OnProvinceChanged(string? value)
     {
@@ -211,8 +209,6 @@
             context,
             results);
     }
-
-
     private void OnAddressBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
@@ -245,7 +241,6 @@
             context,
             results);
     }
-
     private void OnDetalleMotivoBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
@@ -271,7 +266,6 @@
     {
         stepModal = 2;
     }
-
     public async Task OpenAsync()
     {
         // Limpiar states
@@ -292,10 +286,10 @@
     }
     public void CloseAsync()
     {
+        openSelectId = "";
         isOpen = false;
         StateHasChanged();
     }
-
     public async Task Continuar()
     {
         await DetailDeliveredState.SaveAsync();

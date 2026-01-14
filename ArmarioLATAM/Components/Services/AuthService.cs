@@ -1,8 +1,10 @@
 ﻿using ArmarioLATAM.Components.Models;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.NamedPipes;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Xml.Linq;
 using static System.Net.WebRequestMethods;
 
 namespace ArmarioLATAM.Services
@@ -14,7 +16,9 @@ namespace ArmarioLATAM.Services
         string? GetToken();
         Task<string?> GetTokenAsync();
         Task<bool> IsSessionValidAsync();
+        Task<DataUserSession?> GetSessionDataAsync();
         bool IsAuthenticated();
+        
 
     }
 
@@ -23,9 +27,7 @@ namespace ArmarioLATAM.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<AuthService> _logger;
         private readonly ProtectedSessionStorage _sessionStorage;
-
-        private string? _token;
-        private DateTime? _tokenExpiration;
+        private AuthSessionData _sessionData = new();
 
         public AuthService(HttpClient httpClient,
                            ILogger<AuthService> logger,
@@ -56,48 +58,49 @@ namespace ArmarioLATAM.Services
 
             if (!string.IsNullOrEmpty(loginResponse?.Token))
             {
-                _token = loginResponse.Token;
-                _tokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn);
+                _sessionData = new AuthSessionData
+                {
+                    Token = loginResponse.Token,
+                    Name = loginResponse.Name,
+                    BP = loginResponse.BP,
+                    TokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn)
+                };
 
+              
                 // ✅ LOGGEAR EL TOKEN
                 _logger.LogInformation("=== TOKEN GUARDADO ===");
-                _logger.LogInformation($"Token: {_token}");
+                _logger.LogInformation($"Token: {_sessionData.Token}");
                 _logger.LogInformation($"Expira en: {loginResponse.ExpiresIn} segundos");
-                _logger.LogInformation($"Expira el: {_tokenExpiration}");
+                _logger.LogInformation($"Expira el: {_sessionData.TokenExpiration}");
                 _logger.LogInformation("=====================");
 
                 _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionData.Token);
 
                 // ✅ Guardar en sesión protegida
-                await _sessionStorage.SetAsync("authToken", _token);
-                await _sessionStorage.SetAsync("authTokenExpiration", _tokenExpiration);
+                await _sessionStorage.SetAsync("authSession", _sessionData);
             }
 
             return loginResponse;
         }
 
-        // Inicializa _token/_tokenExpiration desde sesión si están vacíos
+        // Inicializa Token/TokenExpiration desde sesión si están vacíos
         private async Task EnsureTokenLoadedAsync()
         {
-            if (!string.IsNullOrWhiteSpace(_token))
+            if (!string.IsNullOrWhiteSpace(_sessionData.Token))
                 return;
 
-            var storedToken = await _sessionStorage.GetAsync<string>("authToken");
-            var storedExp = await _sessionStorage.GetAsync<DateTime?>("authTokenExpiration");
+            var stored = await _sessionStorage.GetAsync<AuthSessionData>("authSession");
+           
 
-            if (storedToken.Success &&
-                !string.IsNullOrWhiteSpace(storedToken.Value) &&
-                storedExp.Success &&
-                storedExp.Value.HasValue)
+            if (stored.Success && stored.Value is not null)
             {
-                _token = storedToken.Value;
-                _tokenExpiration = storedExp.Value.Value;
+                _sessionData = stored.Value;
 
                 _logger.LogInformation("Token recuperado de sesión. Hash={Hash}", GetHashCode());
 
                 _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionData.Token);
             }
             else
             {
@@ -107,13 +110,14 @@ namespace ArmarioLATAM.Services
 
         public async Task LogoutAsync()
         {
-            _token = null;
-            _tokenExpiration = null;
+            _sessionData.Token = null;
+            _sessionData.TokenExpiration = null;
+            _sessionData.Name = "";
+            _sessionData.BP = "";
             _httpClient.DefaultRequestHeaders.Authorization = null;
 
             // Limpiar sesión
-            await _sessionStorage.DeleteAsync("authToken");
-            await _sessionStorage.DeleteAsync("authTokenExpiration");
+            await _sessionStorage.DeleteAsync("authSession");
 
             await Task.CompletedTask;
 
@@ -121,17 +125,17 @@ namespace ArmarioLATAM.Services
             _logger.LogInformation("Token eliminado. Hash={Hash}", GetHashCode());
         }
 
-        public string? GetToken() => _token;
+        public string? GetToken() => _sessionData.Token;
 
         // Versión async para servicios que quieran forzar carga desde sesión
-        public async Task<string?> GetTokenAsync()
+        public async Task<string?>GetTokenAsync()
         {
-            if (string.IsNullOrWhiteSpace(_token))
+            if (string.IsNullOrWhiteSpace(_sessionData.Token))
             {
                 await EnsureTokenLoadedAsync();
             }
 
-            return _token;
+            return _sessionData.Token;
         }
 
         // 3) Método ASYNC que combina ambos (para usar cuando puedas hacer await)
@@ -139,21 +143,40 @@ namespace ArmarioLATAM.Services
         {
             await EnsureTokenLoadedAsync();
 
-            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
+            if (string.IsNullOrEmpty(_sessionData.Token) || !_sessionData.TokenExpiration.HasValue)
                 return false;
 
-            return DateTime.UtcNow < _tokenExpiration.Value;
+            return DateTime.UtcNow < _sessionData.TokenExpiration.Value;
         }
 
         // 2) Método SYNC que solo mira memoria (para layout, páginas, etc.)
         public bool IsAuthenticated()
         {
-            if (string.IsNullOrEmpty(_token) || !_tokenExpiration.HasValue)
+            if (string.IsNullOrEmpty(_sessionData.Token) || !_sessionData.TokenExpiration.HasValue)
                 return false;
 
-            return DateTime.UtcNow < _tokenExpiration.Value;
-        }
+            return DateTime.UtcNow < _sessionData.TokenExpiration.Value;
 
+        }
+        /* 4) Nuevo método para obtener todos los datos de sesión */
+        public async Task<DataUserSession?> GetSessionDataAsync()
+        {
+            var validSession = await IsSessionValidAsync();
+            if (!validSession)
+                return null;
+
+            await EnsureTokenLoadedAsync();
+
+            if (_sessionData == null)
+                return null;
+
+            return new DataUserSession
+            {
+                Name = _sessionData.Name,
+                BP = _sessionData.BP,
+                IsValid = true
+            };
+        }
 
     }
 }
