@@ -18,7 +18,8 @@ namespace ArmarioLATAM.Services
         Task<bool> IsSessionValidAsync();
         Task<DataUserSession?> GetSessionDataAsync();
         bool IsAuthenticated();
-        
+        Task<bool> SendResetEmailAsync(string email);
+        Task<bool> ResetPasswordAsync(string token, string newPassword);
 
     }
 
@@ -176,6 +177,33 @@ namespace ArmarioLATAM.Services
                 BP = _sessionData.BP,
                 IsValid = true
             };
+        }
+        public async Task<bool> SendResetEmailAsync(string email)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("auth/forgot-password", new
+                {
+                    Email = email
+                });
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando correo de recuperación");
+                return false;
+            }
+        }
+        public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+        {
+            var response = await _httpClient.PostAsJsonAsync("auth/reset-password", new
+            {
+                Token = token,
+                NewPassword = newPassword
+            });
+
+            return response.IsSuccessStatusCode;
         }
 
     }

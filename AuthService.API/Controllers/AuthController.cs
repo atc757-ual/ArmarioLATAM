@@ -111,4 +111,36 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    // POST api/auth/forgot-password
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest("Email requerido");
+
+        var ok = await _auth.SendPasswordResetAsync(request.Email);
+
+        // Por seguridad, no revelar si existe o no
+        if (!ok)
+            return Ok(new { success = true });
+
+        return Ok(new { success = true });
+    }
+
+    // POST api/auth/reset-password
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token) ||
+            string.IsNullOrWhiteSpace(request.NewPassword))
+            return BadRequest("Datos inválidos");
+
+        var ok = await _auth.ResetPasswordAsync(request.Token, request.NewPassword);
+
+        if (!ok)
+            return BadRequest("Token inválido o expirado");
+
+        return Ok(new { success = true });
+    }
 }
