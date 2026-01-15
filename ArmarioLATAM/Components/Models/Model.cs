@@ -188,7 +188,7 @@ namespace ArmarioLATAM.Components.Models
         public int OrderId { get; set; }
         public decimal Total { get; set; }
         public string? Status { get; set; }
-        public string? Fecha { get; set; }   
+        public string? Fecha { get; set; }
     }
 
     public class MyOrdersResponse
@@ -246,13 +246,13 @@ namespace ArmarioLATAM.Components.Models
         public string Motive { get; set; } = string.Empty;
         public string DetailMotive { get; set; } = string.Empty;
         public string Province { get; set; } = string.Empty;
-        public string District { get; set; } = string.Empty; 
+        public string District { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Reference { get; set; } = string.Empty;
     }
     public class AuthSessionData
     {
-        public string? Token { get; set; } 
+        public string? Token { get; set; }
         public DateTime? TokenExpiration { get; set; }
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
@@ -262,5 +262,17 @@ namespace ArmarioLATAM.Components.Models
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
         public bool IsValid { get; set; } = false;
+    }
+
+    public class ChangePassword
+    {
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 50 caracteres")]
+        public string Password { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 50 caracteres")]
+        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden.")]
+        public string PasswordConfirm { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
     }
 }

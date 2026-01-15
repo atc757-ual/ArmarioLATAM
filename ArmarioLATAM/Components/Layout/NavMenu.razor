@@ -53,7 +53,8 @@
     {
         if (_loaded) return;
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
-        IsVisible = !string.IsNullOrEmpty(uri);
+        IsVisible = !string.IsNullOrEmpty(uri) && !uri.Contains("Reset", StringComparison.OrdinalIgnoreCase);
+
         sessionData = await AuthService.GetSessionDataAsync();
         _loaded = IsVisible;
         StateHasChanged();
