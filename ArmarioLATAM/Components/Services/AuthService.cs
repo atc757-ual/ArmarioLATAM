@@ -78,6 +78,10 @@ namespace ArmarioLATAM.Services
                 _logger.LogInformation($"Token: {_sessionData.Token}");
                 _logger.LogInformation($"Expira en: {loginResponse.ExpiresIn} segundos");
                 _logger.LogInformation($"Expira el: {_sessionData.TokenExpiration}");
+                _logger.LogInformation($"Expira en: {loginResponse.ExpiresIn}");
+                _logger.LogInformation($"Gender: {loginResponse.Gender}");
+                _logger.LogInformation($"Role: {loginResponse.Role}");
+                _logger.LogInformation($"ActivationDate: {loginResponse.ActivationDate}");
                 _logger.LogInformation("=====================");
 
                 _httpClient.DefaultRequestHeaders.Authorization =

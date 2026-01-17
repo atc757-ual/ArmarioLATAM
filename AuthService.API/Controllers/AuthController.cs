@@ -92,10 +92,10 @@ public class AuthController : ControllerBase
                 name = user.Name,        
                 bp = user.BP, 
                 expiresIn = 3600,
-                rol = user.Role,
-                genero = user.Gender,
+                role = user.Role,
+                gender = user.Gender,
                 birthDate = user.BirthDate,
-                activateDate = user.ActivationDate,
+                activationDate = user.ActivationDate,
                 Result = new
                 {
                     Code = "200",

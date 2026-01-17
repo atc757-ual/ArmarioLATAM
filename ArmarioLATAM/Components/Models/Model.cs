@@ -74,9 +74,9 @@ namespace ArmarioLATAM.Components.Models
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
         public string Role { get; init; } = string.Empty;
-        public string? Gender { get; set; }
-        public DateTime? BirthDate { get; set; }
-        public DateTime? ActivationDate { get; set; }
+        public string Gender { get; set; } = string.Empty;
+        public DateTime BirthDate { get; set; } 
+        public DateTime ActivationDate { get; set; }
         public int ExpiresIn { get; set; }
     }
 
