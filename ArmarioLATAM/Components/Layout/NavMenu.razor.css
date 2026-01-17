@@ -74,6 +74,7 @@
     .latam-account-overlay {
         background: transparent;
         pointer-events: none;
+       
     }
 
     .latam-account-panel {
@@ -100,7 +101,8 @@
     }
 
     .latam-account-body {
-        padding: var(--space-l);
+        padding: var(--space-base);
+        /*padding-right: var(--space-m);*/
     }
 
     .latam-account-footer {

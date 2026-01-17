@@ -866,13 +866,18 @@ html, body {
     font-size: var(--fs-14) !important;
     color: var(--color-error) !important;
 }
-
+body.body-modal-open {
+    overflow: hidden !important;
+    height: 100vh;
+    touch-action: none;
+}
 /* Responsive */
 @media (max-width: 600px) {
 
     .app-main {
         align-items: flex-start;
         display: block;
+        /*padding-right: var(--space-m);*/
     }
 
     .app-footer {

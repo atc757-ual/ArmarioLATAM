@@ -1,0 +1,94 @@
+﻿@page "/GarmentsComprobante"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject GarmentSelectionState GarmentSelectionState
+@inject KitSelectionState KitSelectionState
+@inject DetailDeliveredState DetailDeliveredState
+@inject OrderState OrderState
+
+@if (isShow)
+{
+    <section class="latam-section">
+        <div class="page-title">@KitSelectionState.Name</div>
+        <Separator />
+        <div class="nuevo-ingreso-header">
+            <span class="label">Comprobante de solicitud:</span><br class="mobile-break" />
+            <span class="label">Kit @KitSelectionState.Description</span>
+        </div>
+        <div class="success-card">
+            <header class="success-card-header">
+                <img src="images\ico_check_success.svg" />
+                <div class="success-title">
+                    ¡Felicidades! Tu solicitud de uniforme se ha generado con éxito
+                </div>
+            </header>
+            <Separator />
+            <div class="success-card-body">
+                <p class="success-text">
+                    Tu pedido ha sido confirmado exitosamente y se encuentra en proceso de producción y despacho.
+                </p>
+
+                <div>
+                    <div>
+                        <span class="success-data-label">Número de orden:</span>
+                        <span class="success-data-value">#@OrderState.OrderNumber</span>
+                    </div>
+                    <div class="margin-top-base">
+                        <span class="success-data-label">Fecha de solicitud:</span>
+                        <span class="success-data-value">@OrderState.OrderDate</span>
+                    </div>
+                </div>
+
+                <p>
+                    Te notificaremos cuando el pedido se encuentre listo para ser retirado.
+                </p>
+            </div>
+        </div>
+        <div class="latam-btn-row">
+            <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Volver al inicio</button>
+        </div>
+
+    </section>
+}
+<ValidaSession />
+@code {
+
+    private bool isShow { get; set; }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // 1. Cargar selección desde localStorage
+        await KitSelectionState.LoadAsync();
+        await OrderState.LoadAsync();
+
+
+        if (OrderState.IsEmpty)
+        {
+            Navigation.NavigateTo("/Dashboard");
+            return;
+        }
+        isShow = true;
+        await GarmentSelectionState.ClearAsync();
+        await DetailDeliveredState.ClearAsync();
+        StateHasChanged(); 
+    }
+
+    [JSInvokable]
+    public async Task OnBrowserBack()
+    {
+        await KitSelectionState.ClearAsync();
+        await OrderState.ClearAsync();
+
+        _ = Task.CompletedTask;
+        return;
+    }
+
+    void GoNext()
+    {
+        Navigation.NavigateTo("/Dashboard");
+    }
+}

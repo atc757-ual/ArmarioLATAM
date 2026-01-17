@@ -13,18 +13,20 @@
 @if (!isLoaded)
 {
     <LoadPage />
-}else{
-<section class="latam-section">
+}
+else
+{
+    <section class="latam-section">
         <div class="page-title">@KitSelectionState.Name</div>
-    <Separator />
-    <div class="nuevo-ingreso-header">
-            <span class="label">Prendas asignadas para:</span><br class="mobile-break" /> 
+        <Separator />
+        <div class="nuevo-ingreso-header">
+            <span class="label">Prendas asignadas para:</span><br class="mobile-break" />
             <span class="label">@KitSelectionState.Description</span>
-    </div>
+        </div>
 
 
 
-  @if (isEmptyGarments)
+        @if (_garments.Count == 0)
         {
             <div class="latam-error-card">
                 <div class="latam-error-header">
@@ -46,24 +48,26 @@
                     </a>
                 </div>
             </div>
-    }
-    else
-    {
-        <div class="garment-list">
-            @foreach (var garment in _garments)
-            {
+        }
+        else
+        {
+            <div class="garment-list">
+                @foreach (var garment in _garments)
+                {
                     var sel = GarmentSelectionState.SelectedGarments
                     .FirstOrDefault(g => g.GarmentId == garment.GarmentId);
 
                     <GarmentCard garments=garment
                                  InitialQuantity="@(sel?.Quantity ?? 0)"
                                  InitialSize="@(sel?.Size)"
-                        OnChanged="OnGarmentChanged"
-                         />
-            }
+                                 InitialNativeLanguageCode="@(sel?.NativeLanguage)"
+                                 InitialSecondLanguageCode="@(sel?.SecondLanguage)"
+                                 InitialThridLanguageCode="@(sel?.ThirdLanguage)"
+                                 OnChanged="OnGarmentChanged" />
+                }
 
-        </div>
-    }
+            </div>
+        }
     <Separator />
     <div class="redirects-footer">
         <button type="button"
@@ -72,30 +76,48 @@
             <img src="images/ico_arrow_left.svg" />
             <span> Volver</span>
         </button>
+        <div class="latam-btn-row">
+            <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext" disabled="@(!CanContinue )">Continuar</button>
+        </div>
 
-            @if (_garments.Count > 0 )
-        {
-            <div class="latam-btn-row">
-                <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext">Continuar</button>
-            </div>
-        }
-        else
-        {
-            <div class="latam-btn-row">
-                <button type="button" class="latam-btn latam-btn--primary " disabled>
-                    Continuar
-                </button>
-            </div>
-        }
-    </div>
-</section>
+        </div>
+    </section>
+}   
 <ValidaSession />
-}
-@code {
 
+
+
+@code {
+  
     private List<Garment> _garments { get; set; } = new();
-    private bool isEmptyGarments;
     private bool isLoaded = false;
+
+    private bool RequiresSize(int garmentId)
+    {
+        var g = _garments.FirstOrDefault(x => x.GarmentId == garmentId);
+        // por ejemplo: las que no tienen Languages son de talla
+        return string.IsNullOrWhiteSpace(g?.Languages);
+    }
+    private bool IsLanguageGarment(GarmentSelection sel)
+    {
+        var g = _garments.FirstOrDefault(x => x.GarmentId == sel.GarmentId);
+        return !string.IsNullOrWhiteSpace(g?.Languages);
+    }
+
+    private readonly Dictionary<int, GarmentSelection> _selected = new();
+
+    private bool CanContinue =>
+    _selected.Values.Any() &&
+    _selected.Values.All(sel =>
+        sel.Quantity > 0
+        && (!RequiresSize(sel.GarmentId)
+            || !string.IsNullOrWhiteSpace(sel.Size))
+        && (!IsLanguageGarment(sel)
+            || (sel.Quantity == 1
+                && (!string.IsNullOrWhiteSpace(sel.NativeLanguage)
+                    || !string.IsNullOrWhiteSpace(sel.SecondLanguage)
+                    || !string.IsNullOrWhiteSpace(sel.ThirdLanguage)))));
+
 
     async Task GoBack()
     {
@@ -111,9 +133,9 @@
 
     void Reintentar()
     {
-        
+
     }
-   void  GoInicio()
+    void GoInicio()
     {
         Navigation.NavigateTo("/");
     }
@@ -138,6 +160,14 @@
         // 2. Cargar selección de GARMENTS desde localStorage
         await GarmentSelectionState.LoadAsync();
 
+
+        // Sincronizar el diccionario local con lo que hay en el estado
+        _selected.Clear();
+        foreach (var sel in GarmentSelectionState.SelectedGarments)
+        {
+            _selected[sel.GarmentId] = sel;
+        }
+
         // 3. Cargar garments solo una vez
         try
         {
@@ -149,15 +179,6 @@
                 return;
             }
 
-            isEmptyGarments = !_garments.Any();
-
-            // (opcional) limpiar selecciones que ya no existan
-            GarmentSelectionState.SelectedGarments.RemoveAll(
-                sg => !_garments.Any(g => g.GarmentId == sg.GarmentId));
-        }
-        catch
-        {
-            isEmptyGarments = false;
         }
         finally
         {
@@ -167,17 +188,19 @@
         StateHasChanged();
     }
 
-    private readonly Dictionary<int, GarmentSelection> _selected = new();
+
+
 
     private void OnGarmentChanged(GarmentSelection sel)
     {
         // Solo guardamos si Quantity > 0
         if (sel.Quantity > 0)
             _selected[sel.GarmentId] = sel;
+
         else
             _selected.Remove(sel.GarmentId);
     }
-   
+
 
 
     // Cuando necesites los seleccionados:

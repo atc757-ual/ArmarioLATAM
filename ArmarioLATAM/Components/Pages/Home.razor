@@ -148,7 +148,13 @@ else
                 {
                     await ProtectedLocalStorage.RemoveItemAsync("remember");
                 }
-                Navigation.NavigateTo("/Dashboard");
+
+                if(response.Rol == "admin"){
+                    Navigation.NavigateTo("/Administrador", forceLoad: true);
+                }else
+                {
+                    Navigation.NavigateTo("/Dashboard", forceLoad: true);
+                }
             }
             else
             {
@@ -203,7 +209,7 @@ else
         var isValid = await AuthService.IsSessionValidAsync();
         if (isValid)
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("/Dashboard", forceLoad: true);
         }
         else
         {

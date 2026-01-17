@@ -1,6 +1,7 @@
 ﻿using AuthService.API.Data;
 using AuthService.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,7 +28,7 @@ public class AuthService
     // REGISTRO DE USUARIO
     // =========================
     // AuthService.API.Services/AuthService.cs
-    public async Task<User?> Register(string email, string password, string name, string passport)
+    public async Task<User?> Register(string email, string password, string name, string bp,string rol, string genero, string dni, DateOnly birthdate, DateOnly dateactivation)
     {
         if (await _context.Users.AnyAsync(x => x.Email == email))
         {
@@ -43,10 +44,15 @@ public class AuthService
             Email = email,
             PasswordHash = hash,
             PasswordSalt = salt,
-            Name = name,          // ✅ NUEVO
-            BP = passport,  // ✅ NUEVO
+            Name = name,          
+            BP = bp,  
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Rol = rol   ,
+            Genero = genero,
+            DNI = dni,
+            ActivationDate = dateactivation,
+            BirthDate = birthdate
         };
 
         _context.Users.Add(user);
@@ -57,7 +63,6 @@ public class AuthService
 
         return user;
     }
-
     // Modificar el método Login para retornar el User completo
     public async Task<User?> LoginAndGetUser(string email, string password)
     {
@@ -85,7 +90,6 @@ public class AuthService
 
         return user;
     }
-
     // =========================
     // LOGIN
     // =========================
@@ -115,7 +119,6 @@ public class AuthService
 
         return GenerateJwt(user);
     }
-
     // =========================
     // PASSWORD HASHING
     // =========================
@@ -125,14 +128,12 @@ public class AuthService
         salt = hmac.Key;
         hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
     }
-
     private bool VerifyPassword(string password, byte[] hash, byte[] salt)
     {
         using var hmac = new HMACSHA512(salt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         return computedHash.SequenceEqual(hash);
     }
-
     // =========================
     // JWT
     // =========================
@@ -141,7 +142,8 @@ public class AuthService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+            new Claim(ClaimTypes.Role, user.Rol ?? "user")
         };
 
         var key = new SymmetricSecurityKey(
@@ -327,6 +329,10 @@ public class AuthService
         client.Credentials = new NetworkCredential(senderEmail, password);
 
         await client.SendMailAsync(message);
+    }
+    public async Task<User?> GetUserByBpAsync(string bp)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.BP == bp && u.IsActive);
     }
 
 }

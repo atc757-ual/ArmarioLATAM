@@ -41,6 +41,7 @@ namespace ArmarioLATAM.Services
             _logger.LogInformation("AuthService creado. Hash={Hash}", GetHashCode());
         }
 
+
         public async Task<LoginResponse?> LoginAsync(string email, string password)
         {
             var response = await _httpClient.PostAsJsonAsync("auth/login", new
@@ -64,6 +65,7 @@ namespace ArmarioLATAM.Services
                     Token = loginResponse.Token,
                     Name = loginResponse.Name,
                     BP = loginResponse.BP,
+                    Rol = loginResponse.Rol,
                     TokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn)
                 };
 
@@ -175,7 +177,8 @@ namespace ArmarioLATAM.Services
             {
                 Name = _sessionData.Name,
                 BP = _sessionData.BP,
-                IsValid = true
+                IsValid = true,
+                Rol = _sessionData.Rol,
             };
         }
         public async Task<bool> SendResetEmailAsync(string email)

@@ -90,6 +90,33 @@ public class OrdersController : ControllerBase
             order.TotalPrice = totalPrice;
             await _context.SaveChangesAsync();
 
+            order.TotalPrice = totalPrice;
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"Motive={dto.Motive}, Detail={dto.DetailMotive}, Prov={dto.Province}, Dist={dto.District}, Addr={dto.Address}");
+
+            // usar dto.*, que viene del front
+            if (!string.IsNullOrWhiteSpace(dto.Motive) ||
+                !string.IsNullOrWhiteSpace(dto.DetailMotive) ||
+                !string.IsNullOrWhiteSpace(dto.Province) ||
+                !string.IsNullOrWhiteSpace(dto.District) ||
+                !string.IsNullOrWhiteSpace(dto.Address))
+            {
+                var extra = new AddInfoOrder
+                {
+                    OrderId = order.OrderId,
+                    Motive = dto.Motive,
+                    DetailMotive = dto.DetailMotive,
+                    Province = dto.Province,
+                    District = dto.District,
+                    Address = dto.Address,
+                    AddressReference = dto.AddressReference
+                };
+
+                _context.AddInfoOrders.Add(extra);
+                await _context.SaveChangesAsync();
+            }
+
             return Ok(new
             {
                 message = "Orden creada exitosamente",

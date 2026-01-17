@@ -151,7 +151,7 @@
 }
 
 @code {
-    [Parameter] public EventCallback<bool> IsOpenModalChanged { get; set; }
+
     public bool isOpen { get; set; }
     private AddressModel addressModel = new();
     private EmergencyModel emergencyModel = new();
@@ -292,8 +292,17 @@
     }
     public async Task Continuar()
     {
+        var detail = new DetailDelivered
+        {
+            Motive = emergencyModel.EmergencyType,
+            DetailMotive = emergencyModel.DetalleMotivo,
+            Province = addressModel.Province,
+            District = addressModel.District,
+            Address = addressModel.Address,
+            Reference = addressModel.Reference
+        };
+        DetailDeliveredState.SetDetail(detail);
         await DetailDeliveredState.SaveAsync();
-        await IsOpenModalChanged.InvokeAsync(true);
         isOpen = false;
         Navigation.NavigateTo("/Garments");
         StateHasChanged();
