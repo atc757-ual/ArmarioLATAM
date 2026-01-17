@@ -24,43 +24,125 @@
                 </header>
 
                 <div class="latam-account-body">
-                    <div>
-                        <span class="fw-semibold">@sessionData?.Name</span>
-                    </div>
-                    <div>
-                        <span class="margin-top-xs">BP: @sessionData?.BP</span>
-                    </div>
+                    <!-- Mostrar información según el estado -->
+                    @if (_isActingAsUser)
+                    {
+                        <!-- Cuando está actuando como usuario -->
+                        <div class="acting-as-user-info">
+                            <div class="user-info-header">
+                                <span class="fw-semibold text-primary-blue">Actuando como:</span>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">@_actingAsUserName</span>
+                            </div>
+                            <div>
+                                <span class="margin-top-xs">BP: @_actingAsUserBP</span>
+                            </div>
+                            <div class="admin-original-info margin-top-sm">
+                                <span class="text-sm text-neutral-600">
+                                    Admin original: @_adminOriginalName (@_adminOriginalBP)
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Sesión normal -->
+                        <div>
+                            <span class="fw-semibold">@sessionData?.Name</span>
+                        </div>
+                        <div>
+                            <span class="margin-top-xs">BP: @sessionData?.BP</span>
+                        </div>
+                        @if (sessionData?.Role == "admin")
+                        {
+                            <div class="margin-top-xs">
+                                <span class="badge-admin">Administrador</span>
+                            </div>
+                        }
+                    }
                 </div>
 
                 <footer class="latam-account-footer">
-                    <button class="latam-account-logout" @onclick="CerrarSesion">
-                        <span>
-                            <img class="w-24" src="images/ico_logout.svg" />
-                        </span>
-                        <span>Cerrar sesión</span>
-                    </button>
+                    <!-- Botón diferente según el estado -->
+                    @if (_isActingAsUser)
+                    {
+                        <div class="acting-as-user-actions">
+                            <button class="latam-btn latam-btn--primary latam-btn--full"
+                                    @onclick="VolverAdmin">
+                                <span>
+                                    <img class="w-24" src="images/ico_admin.svg" />
+                                </span>
+                                <span>Volver a Administrador</span>
+                            </button>
+                            <button class="latam-account-logout margin-top-sm" @onclick="CerrarSesion">
+                                <span>
+                                    <img class="w-24" src="images/ico_logout.svg" />
+                                </span>
+                                <span>Cerrar sesión como usuario</span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="latam-account-logout" @onclick="CerrarSesion">
+                            <span>
+                                <img class="w-24" src="images/ico_logout.svg" />
+                            </span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    }
                 </footer>
             </div>
         </div>
     }
 }
 
-
 @code {
     private bool IsVisible { get; set; } = false;
     private bool isAccountOpen { get; set; } = false;
     private DataUserSession? sessionData = new();
+    private bool _isActingAsUser = false;
+    private string? _actingAsUserName;
+    private string? _actingAsUserBP;
+    private string? _adminOriginalName;
+    private string? _adminOriginalBP;
 
-  
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
+
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
         IsVisible = !string.IsNullOrEmpty(uri) && !uri.Contains("Reset", StringComparison.OrdinalIgnoreCase);
+
         sessionData = await AuthService.GetSessionDataAsync();
+
+        // Verificar si está actuando como usuario
+        _isActingAsUser = await AuthService.IsActingAsUserAsync();
+
+        if (_isActingAsUser)
+        {
+            // Obtener información completa de la sesión de admin
+            var adminSessionInfo = await AuthService.GetAdminSessionInfoAsync();
+            if (adminSessionInfo != null)  // Cambiado de HasValue a != null
+            {
+                _adminOriginalName = adminSessionInfo.AdminName;
+                _adminOriginalBP = adminSessionInfo.AdminBP;
+                _actingAsUserName = adminSessionInfo.ActingAsUserName;
+                _actingAsUserBP = adminSessionInfo.ActingAsUserBP;
+            }
+        }
+
         StateHasChanged();
     }
-   
+
+    // Este método no se usa, puedes eliminarlo o hacerlo async correctamente
+    private async Task LoadAdminOriginalNameAsync()
+    {
+        // Si decides mantener este método, hazlo async
+        await Task.CompletedTask; // Solo para evitar el warning CS1998
+    }
+
     private void ToggleMenu()
     {
         isAccountOpen = true;
@@ -76,9 +158,29 @@
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("/", forceLoad: true);
     }
+
+    private async Task VolverAdmin()
+    {
+        try
+        {
+            // Restaurar sesión del administrador
+            var restored = await AuthService.RestoreAdminSessionAsync();
+
+            if (restored)
+            {
+                // Navegar a la página de administrador
+                Navigation.NavigateTo("/Administrador", forceLoad: true);
+            }
+            else
+            {
+                // Si no se pudo restaurar, cerrar sesión
+                await CerrarSesion();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al volver a admin: {ex.Message}");
+            await CerrarSesion();
+        }
+    }
 }
-
-
-
-
-

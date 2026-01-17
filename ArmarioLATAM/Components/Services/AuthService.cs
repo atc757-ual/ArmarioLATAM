@@ -26,11 +26,13 @@ namespace ArmarioLATAM.Services
         Task<LoginResponse?> LoginAsUserAsync(string bp, IAdminService adminService);
 
         Task<bool> HasAdminSessionAsync();
-        Task<string> GetActingAsUserNameAsync();
+        Task<string?> GetActingAsUserNameAsync();
 
         // ✅ NUEVOS
         Task<bool> IsActingAsUserAsync();
         Task InitializeSessionAsync();
+
+        Task<AdminSessionInfo?> GetAdminSessionInfoAsync();
     }
 
     public class AuthService : IAuthService
@@ -231,6 +233,7 @@ namespace ArmarioLATAM.Services
             if (adminSession.Success && adminSession.Value != null)
             {
                 adminSession.Value.ActingAsUserName = userData.Name;
+                adminSession.Value.ActingAsUserBP = userData.BP;
                 await _sessionStorage.SetAsync("adminSession", adminSession.Value);
             }
 
@@ -271,13 +274,48 @@ namespace ArmarioLATAM.Services
 
             return userLoginResponse;
         }
+        public async Task<AdminSessionInfo?> GetAdminSessionInfoAsync()
+        {
+            try
+            {
+                var stored = await _sessionStorage.GetAsync<AdminSessionData>("adminSession");
+
+                if (!stored.Success || stored.Value is null)
+                    return null;
+
+                var adminData = stored.Value;
+
+                return new AdminSessionInfo
+                {
+                    AdminName = adminData.AdminName,
+                    AdminBP = adminData.AdminBP,
+                    AdminToken = adminData.AdminToken,
+                    ActingAsUserName = adminData.ActingAsUserName,
+                    ActingAsUserBP = adminData.ActingAsUserBP,
+                    TokenExpiration = adminData.TokenExpiration
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo información de sesión admin");
+                return null;
+            }
+        }
         public async Task<string?> GetActingAsUserNameAsync()
         {
-            var stored = await _sessionStorage.GetAsync<AdminSessionData>("adminSession");
-            if (stored.Success && stored.Value != null)
+            try
             {
-                return stored.Value.ActingAsUserName;
+                var stored = await _sessionStorage.GetAsync<AdminSessionData>("adminSession");
+                if (stored.Success && stored.Value != null)
+                {
+                    return stored.Value.ActingAsUserName;
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo nombre de usuario 'actuando como'");
+            }
+
             return null;
         }
 

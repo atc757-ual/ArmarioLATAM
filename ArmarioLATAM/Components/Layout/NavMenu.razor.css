@@ -115,3 +115,60 @@
         justify-content: center;
     }
 }
+
+/* Agrega esto a tu archivo NavMenu.css o al archivo CSS principal */
+
+.acting-as-user-info {
+    padding: var(--space-xs) 0;
+}
+
+.user-info-header {
+    margin-bottom: var(--space-xs);
+}
+
+.acting-as-user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    width: 100%;
+}
+
+.latam-btn--full {
+    width: 100%;
+    justify-content: center;
+}
+
+.text-primary-blue {
+    color: var(--color-primary-blue);
+}
+
+.text-neutral-600 {
+    color: var(--color-neutral-600);
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.margin-top-sm {
+    margin-top: var(--space-xs);
+}
+
+/* Estilos para el botón de volver a admin */
+.latam-btn.latam-btn--primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background-color: var(--color-primary-blue);
+    color: white;
+    border: none;
+    padding: var(--space-xs) var(--space-base);
+    border-radius: var(--border-radius-soft);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .latam-btn.latam-btn--primary:hover {
+        background-color: var(--color-primary-blue-dark);
+    }

@@ -306,6 +306,7 @@ namespace ArmarioLATAM.Components.Models
         public string Genero { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public string Documento { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
     }
     public class PendingOrderDto
     {
@@ -328,11 +329,22 @@ namespace ArmarioLATAM.Components.Models
     }
 
     public class AdminSessionData
+{
+    public string AdminToken { get; set; } = string.Empty;
+    public string AdminName { get; set; } = string.Empty;
+    public string AdminBP { get; set; } = string.Empty;
+    public DateTime? TokenExpiration { get; set; }
+    public string? ActingAsUserName { get; set; }
+    public string? ActingAsUserBP { get; set; } // Agregar para más información
+}
+
+    public class AdminSessionInfo
     {
-        public string AdminToken { get; set; } = string.Empty;
-        public string AdminName { get; set; } = string.Empty;
-        public string AdminBP { get; set; } = string.Empty;
+        public string? AdminName { get; set; }
+        public string? AdminBP { get; set; }
+        public string? AdminToken { get; set; }
         public string? ActingAsUserName { get; set; }
+        public string? ActingAsUserBP { get; set; }
         public DateTime? TokenExpiration { get; set; }
     }
 
