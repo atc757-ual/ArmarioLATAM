@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.API.Services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
     private readonly AuthDbContext _context;
     private readonly IConfiguration _config;
