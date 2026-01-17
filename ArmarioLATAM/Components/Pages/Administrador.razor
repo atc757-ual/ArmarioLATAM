@@ -9,6 +9,7 @@
 @inject IAdminService AdminService
 @inject IKitService kitService
 @inject IJSRuntime JS
+@inject ILogger<Administrador> Logger
 
 <section class="latam-section">
     <div class="title-dashboard">
@@ -396,16 +397,38 @@
     private DataUserSession? _session;
     private ModalDetalle? modalRef;
     private Toast? toastRef;
+    private bool _isActingAsUser = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
+        // Inicializar sesión primero
+        await AuthService.InitializeSessionAsync();
+
+        // Verificar si está actuando como usuario
+        _isActingAsUser = await AuthService.HasAdminSessionAsync();
+
+        if (_isActingAsUser)
+        {
+            Logger.LogInformation("Usuario está actuando como otro usuario");
+            step = 2; // Establecer paso 2 automáticamente
+            // Puedes cargar el nombre del usuario si lo tienes guardado
+            await LoadActingAsUserName();
+            StateHasChanged();
+            return;
+        }
+
+        // Si no está actuando como usuario, verificar sesión normal
         _session = await AuthService.GetSessionDataAsync();
+
         if (_session is null || !_session.IsValid || _session.Role != "admin")
         {
             Navigation.NavigateTo("/", forceLoad: true);
+            return;
         }
+
+        
     }
 
     // =========================================================
@@ -471,9 +494,109 @@
     }
 
 
-    private void ActuarComo()
+    private async Task ActuarComo()
     {
-        step = 2;
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await AuthService.LoginAsUserAsync(adminModel.BPSearch, AdminService);
+
+            if (response != null && !string.IsNullOrEmpty(response.Token))
+            {
+                step = 2;
+                _isActingAsUser = true;
+
+                
+
+                title = "Sesión iniciada";
+                message = $"Ahora estás actuando como {usuarioModel.Name}";
+                type = "success";
+                toastRef!.OnOpen();
+            }
+            else
+            {
+                title = "Error";
+                message = "No se pudo iniciar sesión como el usuario";
+                type = "error";
+                toastRef!.OnOpen();
+                step = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error en ActuarComo");
+            title = "Error";
+            message = "Ocurrió un error al iniciar sesión como usuario";
+            type = "error";
+            toastRef!.OnOpen();
+            step = 1;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Recuperar()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var restored = await AuthService.RestoreAdminSessionAsync();
+
+            if (restored)
+            {
+                _isActingAsUser = false;
+                // Ya no necesitamos limpiar SessionStorage porque AuthService maneja todo internamente
+                Limpiar();
+                title = "Sesión restaurada";
+                message = "Has vuelto a tu sesión de administrador";
+                type = "success";
+                toastRef!.OnOpen();
+
+                // Recargar la página para actualizar completamente
+                Navigation.NavigateTo("/Administrador", forceLoad: true);
+            }
+            else
+            {
+                title = "Error";
+                message = "No se pudo restaurar la sesión de administrador";
+                type = "error";
+                toastRef!.OnOpen();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error en Recuperar");
+            title = "Error";
+            message = "Ocurrió un error al restaurar la sesión";
+            type = "error";
+            toastRef!.OnOpen();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadActingAsUserName()
+    {
+        if (_isActingAsUser)
+        {
+            // Obtener el nombre desde AuthService
+            var userName = await AuthService.GetActingAsUserNameAsync();
+            if (!string.IsNullOrEmpty(userName))
+            {
+                usuarioModel.Name = userName;
+                StateHasChanged();
+            }
+        }
     }
 
     private void Limpiar()
@@ -483,10 +606,6 @@
         step = 0;
     }
 
-    private void Recuperar()
-    {
-        Limpiar();
-    }
 
     // =========================================================
     // 4) Solicitudes pendientes (TAB 2)

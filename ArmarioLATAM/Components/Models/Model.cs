@@ -327,4 +327,13 @@ namespace ArmarioLATAM.Components.Models
         public decimal Total { get; set; }
     }
 
+    public class AdminSessionData
+    {
+        public string AdminToken { get; set; } = string.Empty;
+        public string AdminName { get; set; } = string.Empty;
+        public string AdminBP { get; set; } = string.Empty;
+        public string? ActingAsUserName { get; set; }
+        public DateTime? TokenExpiration { get; set; }
+    }
+
 }
