@@ -19,27 +19,7 @@
 else
 {
     <section class="latam-section">
-        <div class="title-dashboard">Kits</div>
-        <!--<div class="latam-kit-wrapper full-width margin-top-base">
-                <div class="latam-error-card">
-                    <div class="latam-error-header">
-                        <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
-                        <span>No podemos cargar los kit</span>
-                    </div>
-                    <Separator></Separator>
-                    <div class="latam-error-body">
-                        En estos momentos no es posible mostrar los kit de uniforme.<br />
-                        Por favor, inténtalo nuevamente.
-                    </div>
-                    <Separator></Separator>
-                    <div class="latam-error-footer">
-                        <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
-                            Reintentar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        -->
+        <div class="title-dashboard">Kits</div>  
         @if (_kitTypes is not null && _kitTypes.Any())
         {
             <div class="latam-kits-row">
@@ -65,14 +45,14 @@ else
                             <div class="latam-kit-panel--mobile">
                                 <table class="latam-kit-table latam-kit-table--details">
                                     <tbody>
-                                        @if (isError)
+                                        @if (!menosDeUnMes)
                                         {
                                             <tr class="latam-kit-table-empty">
                                                 <td colspan="2">
                                                     <img src="images/ico_bloqueo.svg" />
                                                     <p>
-                                                        Ha ocurrido un problema al cargar el kit,<br />
-                                                        por favor vuelve a intentarlo.
+                                                        Este kit es exclusivo para usuarios nuevos,<br />
+                                                        por favor, verifica las otras opciones y encontra la que se adapta a tu requerimiento..
                                                     </p>
                                                     <div class="margin-top-base">
                                                         <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
@@ -605,6 +585,10 @@ else
   
 
     </section>
+
+    <span>@_sessionData.ActivationDate</span>
+    <span>@_sessionData?.ActivationDate</span>
+    <span>@_sessionData?.Gender</span>
 }
 
 
