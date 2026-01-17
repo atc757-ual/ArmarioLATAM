@@ -5,6 +5,7 @@
 @inject NavigationManager Navigation
 @inject IKitService KitService
 @inject IOrderService OrderService
+@inject IAuthService AuthService
 @inject DetailDeliveredState DetailDeliveredState
 @inject ProtectedLocalStorageService LocalStorage
 @inject KitSelectionState KitSelectionState
@@ -676,7 +677,7 @@ else
         if (tab <= 0)
             return;
         if (tab == selectedTab) 
-        return;
+            return;
 
         selectedTab = tab;
         try
@@ -737,13 +738,31 @@ else
         }
     }
 
-
+    private DataUserSession? _sessionData = new();
+    private bool esMujer;
+    private bool menosDeUnMes;
+    private bool masDeUnAnio;
+    private bool masDeCincoAnios;
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(500);
         try
         {
+
+            _sessionData = await AuthService.GetSessionDataAsync();
             _kitTypes = await KitService.GetKitTypesAsync();
+
+            if(_sessionData is not null)
+            {
+                var today = DateTime.Today;
+                var act = _sessionData.ActivationDate ?? today;
+
+                esMujer = string.Equals(_sessionData.Gender, "Femenino", StringComparison.OrdinalIgnoreCase);
+
+                menosDeUnMes = act >= today.AddMonths(-1);
+                masDeUnAnio = act <= today.AddYears(-1);
+                masDeCincoAnios = act <= today.AddYears(-5);
+            }
 
             if (_kitTypes is null)
             {

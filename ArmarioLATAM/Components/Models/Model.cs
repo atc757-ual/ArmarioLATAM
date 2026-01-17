@@ -73,7 +73,10 @@ namespace ArmarioLATAM.Components.Models
         public string Token { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
-        public string Rol { get; init; } = string.Empty;
+        public string Role { get; init; } = string.Empty;
+        public string? Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime? ActivationDate { get; set; }
         public int ExpiresIn { get; set; }
     }
 
@@ -262,14 +265,20 @@ namespace ArmarioLATAM.Components.Models
         public DateTime? TokenExpiration { get; set; }
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
-        public string Rol { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime? ActivationDate { get; set; }
     }
     public class DataUserSession
     {
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime? ActivationDate { get; set; }
         public bool IsValid { get; set; }
-        public string Rol { get; set; } = string.Empty;
     }
 
     public class ChangePassword

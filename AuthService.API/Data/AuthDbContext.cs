@@ -39,10 +39,10 @@ public class AuthDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                   .IsRequired();
 
-            entity.Property(e => e.Rol)        
+            entity.Property(e => e.Role)        
               .HasMaxLength(20);
 
-            entity.Property(e => e.Genero)
+            entity.Property(e => e.Gender)
                   .HasMaxLength(12);
 
             entity.Property(e => e.DNI)

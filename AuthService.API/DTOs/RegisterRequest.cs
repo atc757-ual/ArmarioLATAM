@@ -13,8 +13,8 @@ public class RegisterRequest
     public string Password { get; set; } = default!;
     public string Name { get; set; } = default!;     
     public string BP { get; set; } = default!;
-    public string Rol { get; set; } = string.Empty;          
-    public string Genero { get; set; } = string.Empty;    
+    public string Role { get; set; } = string.Empty;          
+    public string Gender { get; set; } = string.Empty;    
     public string DNI { get; set; } = string.Empty;
     public DateOnly BirthDate { get; set; }    
     public DateOnly ActivationDate { get; set; }

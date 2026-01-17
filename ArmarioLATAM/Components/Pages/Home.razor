@@ -149,7 +149,7 @@ else
                     await ProtectedLocalStorage.RemoveItemAsync("remember");
                 }
 
-                if(response.Rol == "admin"){
+                if(response.Role == "admin"){
                     Navigation.NavigateTo("/Administrador", forceLoad: true);
                 }else
                 {

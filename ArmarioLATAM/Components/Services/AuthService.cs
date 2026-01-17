@@ -65,7 +65,10 @@ namespace ArmarioLATAM.Services
                     Token = loginResponse.Token,
                     Name = loginResponse.Name,
                     BP = loginResponse.BP,
-                    Rol = loginResponse.Rol,
+                    Role = loginResponse.Role,
+                    Gender = loginResponse.Gender,
+                    ActivationDate = loginResponse.ActivationDate,
+                    BirthDate = loginResponse.BirthDate,
                     TokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn)
                 };
 
@@ -178,7 +181,10 @@ namespace ArmarioLATAM.Services
                 Name = _sessionData.Name,
                 BP = _sessionData.BP,
                 IsValid = true,
-                Rol = _sessionData.Rol,
+                Role = _sessionData.Role,
+                Gender = _sessionData.Gender,
+                BirthDate = _sessionData.BirthDate,
+                ActivationDate = _sessionData.ActivationDate
             };
         }
         public async Task<bool> SendResetEmailAsync(string email)
