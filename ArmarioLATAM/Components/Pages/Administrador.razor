@@ -1,0 +1,694 @@
+﻿@page "/Administrador"
+@rendermode InteractiveServer
+
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+@using ArmarioLATAM.Services
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject IAdminService AdminService
+@inject IKitService kitService
+@inject IJSRuntime JS
+
+<section class="latam-section">
+    <div class="title-dashboard">
+        Administrador
+    </div>
+
+    <!-- FILA DE TABS (MÓVIL + DESKTOP) -->
+    <div class="latam-kits-row">
+
+        <!-- TAB 1 -->
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 1 ? "active" : "")"
+                    @onclick="() => SelectTab(1)">
+                @if (selectedTab == 1)
+                {
+                    <img src="images/typeKits/ico_new_blue.svg" alt="" />
+                }
+                else
+                {
+                    <img src="images/typeKits/ico_new.svg" alt="" />
+                }
+                <span class="latam-kit-label">Actuar como otro usuario</span>
+            </button>
+
+            <!-- PANEL MÓVIL TAB 1 -->
+            <div class="latam-kit-panel latam-kit-panel--mobile">
+                @if (selectedTab == 1)
+                {
+                    @* contenido móvil tab 1 *@
+                    <EditForm FormName="fomBP"
+                              Model="@adminModel"
+                              OnValidSubmit="@Search">
+                        <DataAnnotationsValidator />
+                        @if (step == 1 || step == 0)
+                        {
+                            <div class="admin-desktop">
+                                <div class="admin-desktop-field">
+                                    <label for="inputbp">BP usuario</label>
+                                    <InputText id="inputbp"
+                                               name="BP"
+                                               class="latam-input"
+                                               @onblur="OnBPBlur"
+                                               @bind-Value="adminModel.BPSearch"
+                                               placeholder="Ingresa BP" />
+                                    <ValidationMessage For="@(() => adminModel.BPSearch)"
+                                                       class="validation-message" />
+                                </div>
+                                @if (step == 0)
+                                {
+                                    <div class="admin-desktop-button">
+                                        <div></div>
+                                        @if (isValidBP)
+                                        {
+                                            <button class="latam-btn latam-btn--primary" type="submit" disabled="@isLoading">
+                                                @((isLoading ? "Buscando..." : "Buscar"))
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="latam-btn latam-btn--primary" disabled>
+                                                Buscar
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </EditForm>
+
+                    @if (step == 1 && isSuccess)
+                    {
+                        <div class="latam-user-summary">
+                            <div class="user-row">
+                                <span class="user-label">Nombre</span>
+                                <span class="user-value">@usuarioModel.Name</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Género</span>
+                                <span class="user-value">@usuarioModel.Genero</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Correo</span>
+                                <span class="user-value">@usuarioModel.Correo</span>
+                            </div>
+                            <div class="user-row">
+                                <span class="user-label">Documento</span>
+                                <span class="user-value">@usuarioModel.Documento</span>
+                            </div>
+                            <div class="latam-modal-footer">
+                                <button class="latam-btn latam-btn--primary"
+                                        type="button"
+                                        disabled="@isLoading"
+                                        @onclick="ActuarComo">
+                                    @((isLoading ? "Inicianco sesión como usuario..." : "Actuar como este usuario"))
+                                </button>
+                                <a class="latam-link-primary" @onclick="Limpiar">
+                                    Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    else if (step == 2)
+                    {
+                        <div class="userselect-row">
+                            <div>
+                                <p><strong>Actuando como</strong></p>
+                                <p>@usuarioModel.Name</p>
+                            </div>
+                            <span class="display-flex">
+                                <a class="latam-link-danger" @onclick="Recuperar">
+                                    Recuperar mi sesión
+                                </a>
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- TAB 2 -->
+        <div class="latam-kit-wrapper">
+            <button class="latam-kit @(selectedTab == 2 ? "active" : "")"
+                    @onclick="() => SelectTab(2)">
+                @if (selectedTab == 2)
+                {
+                    <img src="images/ico_solicitud_blue.svg" alt="" />
+                }
+                else
+                {
+                    <img src="images/ico_solicitud.svg" alt="" />
+                }
+                <span class="latam-kit-label">Solicitudes pendientes</span>
+            </button>
+
+            <!-- PANEL MÓVIL TAB 2 -->
+            @if (selectedTab == 2)
+            {
+                <div class="latam-kit-panel latam-kit-panel--mobile">
+                    <div class="solicitudes-list mobile-only">
+                        @if (isLoadingSolicitudes)
+                        {
+                            <Spinner></Spinner>
+                        }
+                        else if (Solicitudes.Count == 0)
+                        {
+                            <div class="container-childtab">
+                                <span class="content">No se encontraron solicitudes pendientes</span>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var s in SolicitudesVisibles)
+                            {
+                                <div class="solicitud-card">
+                                    <input type="radio" class="radio-form"
+                                           name="solicitud-mobile" value="@s.check"
+                                           @onchange="(e => OnRadioChange(s))" />
+                                    <div>
+                                        <span>@s.Nombre</span>
+                                        <div class="solicitud-meta">
+                                            <div>
+                                                <span class="label">BP</span>
+                                                <span class="value">@s.BP</span>
+                                            </div>
+                                            <div class="padding-left-base">
+                                                <span class="label">OrderId</span>
+                                                <span class="value">#@s.OrderId.ToString("D5")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="icon-btn" @onclick="() => VerDetalle(s)">
+                                        <img src="images/ico_vermas.svg" />
+                                    </button>
+                                </div>
+                            }
+                            @if (CantidadVisible < Solicitudes.Count)
+                            {
+                                <div class="mas-solicitudes mobile-only">
+                                    <a class="mas-solicitudes-link" @onclick="VerMas">
+                                        <span>Más solicitudes</span>
+                                        <img src="images/ico_add_circle.svg" />
+                                    </a>
+                                </div>
+                            }
+                            <div class="buttons-solicitudes">
+                                <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar" disabled="@(hasCheck == false || isLoadingAprobar)">@(isLoadingAprobar ? "Aprobando..." : "Aprobar")</button>
+                                <a class="latam-link-danger @(hasCheck || isLoadingRechazar ? "" : " latam-link-danger--disabled")" @onclick="Rechazar">@(isLoadingRechazar ? "Rechazando..." : "Rechazar")</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div> @* fin latam-kits-row *@
+
+    <!-- PANEL DESKTOP GENERAL (debajo de los tabs) -->
+    <div class="latam-kit-panel latam-kit-panel--desktop">
+        @if (selectedTab == 1)
+        {
+            <div class="container-childtab">
+                @* contenido desktop tab 1 *@
+                <EditForm FormName="fomBP"
+                          Model="@adminModel"
+                          OnValidSubmit="@Search">
+                    <DataAnnotationsValidator />
+                    @if (step == 1 || step == 0)
+                    {
+                        <div class="admin-desktop">
+                            <div class="admin-desktop-field">
+                                <label for="inputbp">BP usuario</label>
+                                <InputText id="inputbp"
+                                           name="BP"
+                                           class="latam-input"
+                                           @onblur="OnBPBlur"
+                                           @bind-Value="adminModel.BPSearch"
+                                           placeholder="Ingresa BP" />
+                                <ValidationMessage For="@(() => adminModel.BPSearch)"
+                                                   class="validation-message" />
+                            </div>
+                            @if (step == 0)
+                            {
+                                <div class="admin-desktop-button">
+                                    <div></div>
+                                    @if (isValidBP)
+                                    {
+                                        <button class="latam-btn latam-btn--primary" type="submit" disabled="@isLoading">
+                                            @((isLoading ? "Buscando..." : "Buscar"))
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="latam-btn latam-btn--primary" disabled>
+                                            Buscar
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </EditForm>
+
+                @if (step == 1 && isSuccess)
+                {
+                    <div class="latam-user-summary">
+                        <div class="latam-user-summary-row">
+                            <div>
+                                <p><strong>Nombre</strong></p>
+                                <p>@usuarioModel.Name</p>
+                            </div>
+                            <div>
+                                <p><strong>Género</strong></p>
+                                <p>@usuarioModel.Genero</p>
+                            </div>
+                            <div>
+                                <p><strong>Correo</strong></p>
+                                <p>@usuarioModel.Correo</p>
+                            </div>
+                            <div>
+                                <p><strong>Documento</strong></p>
+                                <p>@usuarioModel.Documento</p>
+                            </div>
+                        </div>
+                        <Separator />
+                        <div class="latam-modal-footer">
+                            <button class="latam-btn latam-btn--primary"
+                                    type="button"
+                                    disabled="@isLoading"
+                                    @onclick="ActuarComo">
+                                @((isLoading ? "Inicianco sesión como usuario..." : "Actuar como este usuario"))
+                            </button>
+                            <a class="latam-link-primary" @onclick="Limpiar">
+                                Limpiar
+                            </a>
+                        </div>
+                    </div>
+                }
+                else if (step == 2)
+                {
+                    <div class="padding-base">
+                        <div class="userselect-row">
+                            <p><strong>Actuando como</strong></p>
+                            <p>@usuarioModel.Name</p>
+                            <a class="latam-link-danger" @onclick="Recuperar">
+                                Recuperar mi sesión
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+
+        }
+        @if (selectedTab == 2)
+        {
+            @* contenido desktop tab 2 *@
+            @if (isLoadingSolicitudes)
+            {
+                <div class="container-childtab">
+                    <div class="content">
+                        <Spinner></Spinner>
+                    </div>
+                </div>
+            }
+            else if (Solicitudes.Count == 0)
+            {
+                <div class="container-childtab">
+                    <span class="content">No se encontraron solicitudes pendientes</span>
+                </div>
+            }
+            else
+            {
+                <table class="solicitudes-table desktop-only">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nombre</th>
+                            <th>BP</th>
+                            <th>OrderId</th>
+                            <th>Precio (US)</th>
+                            <th>Kit</th>
+                            <th>Ver detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in SolicitudesVisibles)
+                        {
+                            <tr>
+                                <td>
+                                    <input class="radio-form" type="radio" name="solicitud"
+                                           value="@s.check"
+                                           @onchange="(e => OnRadioChange(s))" />
+                                </td>
+                                <td>@s.Nombre</td>
+                                <td>@s.BP</td>
+                                <td>#@s.OrderId.ToString("D5")</td>
+                                <td>$@s.Precio</td>
+                                <td>@s.Kit</td>
+                                <td>
+                                    <button type="button" class="icon-btn" @onclick="() => VerDetalle(s)">
+                                        <img src="images/ico_vermas.svg" />
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+
+
+                    </tbody>
+                </table>
+
+
+                @if (CantidadVisible < Solicitudes.Count)
+                {
+                    <div class="mas-solicitudes desktop-only">
+                        <a class="mas-solicitudes-link" @onclick="VerMas">
+                            <span>Más solicitudes</span>
+                            <img src="images/ico_add_circle.svg" />
+                        </a>
+                    </div>
+                }
+
+                <div class="buttons-solicitudes">
+                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar" disabled="@(hasCheck == false || isLoadingAprobar)">@(isLoadingAprobar ? "Aprobando..." : "Aprobar")</button>
+                    <a class="latam-link-danger @(hasCheck || isLoadingRechazar ? "" : " latam-link-danger--disabled")" @onclick="Rechazar">@(isLoadingRechazar ? "Rechazando..." : "Rechazar")</a>
+                </div>
+            }
+        }
+    </div>
+
+    @if (step == 2)
+    {
+        <Dashboard />
+    }
+
+
+    <ModalDetalle @ref="modalRef" OrderId=selectedOrderId items="KitDetail" Kit="Kit" />
+    <Toast @ref="toastRef" Title="@title" Message="@message" Type="@type" />
+</section>
+
+@code {
+
+    // =========================================================
+    // 1) Sesión y servicios
+    // =========================================================
+    private DataUserSession? _session;
+    private ModalDetalle? modalRef;
+    private Toast? toastRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _session = await AuthService.GetSessionDataAsync();
+        if (_session is null || !_session.IsValid || _session.Rol != "admin")
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+    }
+
+    // =========================================================
+    // 2) Estado general de la página
+    // =========================================================
+    private int selectedTab = 0;           // 1: Actuar como usuario, 2: Solicitudes
+    private int step { get; set; } = 0;    // flujo de actuar como usuario
+    private bool isLoading { get; set; } = false;
+    private bool isSuccess { get; set; } = false;
+
+    // =========================================================
+    // 3) Modelo admin: actuar como otro usuario (TAB 1)
+    // =========================================================
+    public AdminModel adminModel = new();
+    public AdminUser usuarioModel = new();
+    private bool isValidBP = false;
+
+    private void OnBPBlur(FocusEventArgs e)
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(adminModel)
+        {
+            MemberName = nameof(AdminModel.BPSearch)
+        };
+
+        isValidBP = Validator.TryValidateProperty(
+            adminModel.BPSearch,
+            context,
+            results);
+
+        StateHasChanged();
+    }
+
+    private async Task Search()
+    {
+        if (!isValidBP)
+            return;
+
+        isLoading = true;
+
+        await Task.Delay(1000);
+        var user = await AdminService.GetUserByBpAsync(adminModel.BPSearch);
+
+        if (user is not null)
+        {
+            usuarioModel = user;
+            isSuccess = true;
+            step = 1;
+        }
+        else
+        {
+            title = "No encontrado";
+            message = $"No se encontró usuario con BP {adminModel.BPSearch}";
+            type = "error";
+            StateHasChanged();
+            toastRef!.OnOpen();
+            usuarioModel = new();
+            step = 0;
+            isSuccess = false;
+        }
+        isLoading = false;
+        StateHasChanged();
+    }
+
+
+    private void ActuarComo()
+    {
+        step = 2;
+    }
+
+    private void Limpiar()
+    {
+        adminModel = new();
+        usuarioModel = new();
+        step = 0;
+    }
+
+    private void Recuperar()
+    {
+        Limpiar();
+    }
+
+    // =========================================================
+    // 4) Solicitudes pendientes (TAB 2)
+    // =========================================================
+    private bool isLoadingSolicitudes { get; set; } = false;
+
+    private List<PendingOrderDto> Solicitudes = new();
+    private List<PendingOrderDto> SolicitudesVisibles = new();
+    private int CantidadVisible = 5;
+
+    private bool hasCheck { get; set; } = false;
+
+    private void OnRadioChange(PendingOrderDto s)
+    {
+        var estabaSeleccionado = s.check;
+
+        foreach (var item in Solicitudes)
+            item.check = false;
+
+        if (estabaSeleccionado)
+        {
+            s.check = false;
+            hasCheck = false;
+        }
+        else
+        {
+            s.check = true;
+            hasCheck = true;
+        }
+        StateHasChanged();
+    }
+
+
+    private void VerMas()
+    {
+        if (CantidadVisible < Solicitudes.Count)
+        {
+            CantidadVisible = Math.Min(CantidadVisible + 5, Solicitudes.Count);
+            SolicitudesVisibles = Solicitudes
+                .Take(CantidadVisible)
+                .ToList();
+        }
+        StateHasChanged();
+    }
+
+    private async Task SelectTab(int tab)
+    {
+        if (selectedTab == tab) return;
+
+        selectedTab = tab;
+        if (tab == 2)
+        {
+            adminModel.BPSearch = "";
+            isLoadingSolicitudes = true;
+            StateHasChanged();
+
+            await Task.Delay(500);
+            var pendientes = await AdminService.GetPendingOrdersAsync();
+
+            Solicitudes = pendientes
+                .Select(x => new PendingOrderDto
+                {
+                    check = false,
+                    OrderId = x.OrderId,
+                    Nombre = x.Nombre,
+                    BP = x.BP,
+                    Precio = x.Precio,
+                    Kit = x.Kit
+                })
+                .ToList();
+
+            CantidadVisible = Math.Min(5, Solicitudes.Count);
+            SolicitudesVisibles = Solicitudes
+                .Take(CantidadVisible)
+                .ToList();
+
+            hasCheck = false;
+            isLoadingSolicitudes = false;
+            ClearSelection();
+            StateHasChanged();
+        }
+    }
+
+    private void ClearSelection()
+    {
+        foreach (var item in Solicitudes)
+            item.check = false;
+
+        hasCheck = false;
+    }
+    // =========================================================
+    // 5) Detalle de orden (modal Ver detalle)
+    // =========================================================
+    private int selectedOrderId;
+
+    private List<KitDetailModel> KitDetail = new();
+    private KitModel Kit = new();
+
+    private async Task VerDetalle(PendingOrderDto selected)
+    {
+        selectedOrderId = selected.OrderId;
+
+        var detalle = await AdminService.GetOrderDetailAsync(selected.OrderId)
+                       ?? new List<OrderDetailItemDto>();
+
+        KitDetail = detalle.Select(x => new KitDetailModel
+        {
+            Name = x.Nombre,
+            Size = x.Size,
+            Quantity = x.Cantidad,
+            Languages = x.Languages,
+            UnitPrice = $"{x.PrecioUnitario:0.00} US",
+            Total = $"{x.Total:0.00} US"
+        }).ToList();
+
+        Kit = new KitModel
+        {
+            Precio = $"{selected.Precio:0.00}",
+            KitName = selected.Kit,
+            Motivo = "Pendiente"
+        };
+
+        if (modalRef is not null)
+        {
+            await modalRef.OnOpenAsync();
+        }
+
+        await JS.InvokeVoidAsync("document.body.classList.add", "body-modal-open");
+        StateHasChanged();
+    }
+
+
+    // =========================================================
+    // 6) Aprobar / Rechazar + Toast
+    // =========================================================
+    private bool success { get; set; } = true;
+    private string? title { get; set; }
+    private string? message { get; set; }
+    private string? type { get; set; }
+    private bool isLoadingAprobar{ get; set;}
+    private bool isLoadingRechazar { get; set;}
+    private async Task Aprobar()
+    {
+        var selected = Solicitudes.FirstOrDefault(x => x.check);
+        if (selected is null) return;
+        isLoadingAprobar = true;
+        var ok = await AdminService.UpdateOrderStatusAsync(selected.OrderId, "aprobar");
+
+        if (ok)
+        {
+            title = "¡Solicitud aprobada!";
+            message = $"OrderId #{@selected.OrderId.ToString("D5")} aprobada con éxito";
+            type = "success";
+
+            Solicitudes.Remove(selected);
+            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
+            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
+            hasCheck = false;
+        }
+        else
+        {
+            title = "¡Ha ocurrido un error!";
+            message = $"No hemos podido aprobar la OrderId #{@selected.OrderId.ToString("D5")}";
+            type = "error";
+        }
+        ClearSelection();
+        isLoadingAprobar = false;
+        StateHasChanged();
+        toastRef!.OnOpen();
+    }
+
+    private async void Rechazar()
+    {
+        var selected = Solicitudes.FirstOrDefault(x => x.check);
+        if (selected is null) return;
+        isLoadingRechazar = true;
+        var ok = await AdminService.UpdateOrderStatusAsync(selected.OrderId, "rechazar");
+
+        if (ok)
+        {
+            title = "¡Solicitud rechazada!";
+            message = $"OrderId #{@selected.OrderId.ToString("D5")} rechazada con éxito";
+            type = "success";
+
+            Solicitudes.Remove(selected);
+            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
+            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
+            hasCheck = false;
+        }
+        else
+        {
+            title = "¡Ha ocurrido un error!";
+            message = $"No hemos podido rechazar la OrderId #{@selected.OrderId.ToString("D5")}";
+            type = "error";
+        }
+        isLoadingRechazar = false;
+        StateHasChanged();
+        toastRef!.OnOpen();
+    }
+
+    // =========================================================
+    // 7) Dashboard (cuando step == 2)
+    // =========================================================
+    private string OrdernAprobada { get; set; } = "";
+}

@@ -1,0 +1,20 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-shell">
+    <header class="app-header">
+        <div class="header-left">
+            <img src="images/logo.svg" alt="Logo" class="header-logo" />
+        </div>
+        <NavMenu />
+    </header>
+    <main class="app-main">
+            @Body
+    </main>
+    <footer class="app-footer">
+        <img src="images/logo_footer.svg" alt="MiApp" class="footer-logo-img" />
+        <span class="footer-text">
+            Si tienes alguna duda o requieres soporte técnico por favor escríbenos a
+            armariolatam@mail.com
+        </span>
+    </footer>
+</div>

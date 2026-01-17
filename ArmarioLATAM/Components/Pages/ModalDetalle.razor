@@ -1,0 +1,165 @@
+﻿@rendermode InteractiveServer
+
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+@inject IJSRuntime JS
+@if (isOpen)
+{
+    <div class="kit-detail">
+        <div class="kit-detail__panel">
+
+
+            <div class="kit-detail-mobile">
+                <div class="kit-detail__header">
+                    <span>Orden #@OrderId.ToString("D5")</span>
+                </div>
+                <Separator></Separator>
+                <!-- fichas móviles -->
+                <div class="kit-card-header">
+                    <div class="label">Precio</div><span>$@Kit.Precio</span>
+                    <div class="label">Kit</div><span>@Kit.KitName</span>
+                    <div class="label">Motivo</div><span>@Kit.Motivo</span>
+                </div>
+
+                @foreach (var item in Items)
+                {
+                    <div class="kit-card">
+                        <Separator></Separator>
+                        <div class="kit-card__name">@item.Name</div>
+                        <div class="kit-card__rows">
+                            <div class="kit-card__row">
+                                <div class="kit-card__pair">
+                                    <div class="label">Talla/Idiomas</div>
+                                    @if (!string.IsNullOrEmpty(item.Size))
+                                    {
+                                        <div>@item.Size</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="flags-row">
+                                            @foreach (var flag in GetFlagPaths(item.Languages))
+                                            {
+                                                <img src="@flag" class="flag-icon" />
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="kit-card__pair">
+                                    <div class="label">Cantidad</div>
+                                    <div>@item.Quantity</div>
+                                </div>
+                            </div>
+
+                            <div class="kit-card__row">
+                                <div class="kit-card__pair">
+                                    <div class="label">Precio (US)</div>
+                                    <div>$@item.UnitPrice</div>
+                                </div>
+                                <div class="kit-card__pair">
+                                    <div class="label">Total (US)</div>
+                                    <div>$@item.Total</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                }
+                <Separator></Separator>
+                <div class="kit-detail__close">
+                    <a class="latam-link-danger" @onclick="OnClose">Cerrar</a>
+                </div>
+            </div>
+
+
+
+
+            <div class="kit-detail-desktop">
+                <div class="kit-detail__body">
+                    <table class="kit-detail__table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Talla/Idiomas</th>
+                                <th>Cantidad</th>
+                                <th>Precio ($)</th>
+                                <th>Total ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Items)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.Size))
+                                        {
+                                            @item.Size
+                                        }
+                                        else
+                                        {
+                                            <div class="flags-row">
+                                                @foreach (var flag in GetFlagPaths(item.Languages))
+                                                {
+                                                    <img src="@flag" class="flag-icon" />
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>@item.Quantity</td>
+                                    <td>$@item.UnitPrice</td>
+                                    <td>@item.Total</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="kit-detail__close">
+                    <a class="latam-link-danger" @onclick="OnClose">
+                        Cerrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    public bool isOpen { get; set; }
+    [Parameter] public int OrderId { get; set; }
+    [Parameter] public List<KitDetailModel> Items { get; set; } = new();
+    [Parameter] public KitModel Kit { get; set; } = new();
+
+    private readonly Dictionary<string, string> LanguageFlagMap =
+    new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ES"] = "images/flags/ES.svg",
+        ["EN"] = "images/flags/EN.svg",
+        ["IT"] = "images/flags/IT.svg",
+        ["PT"] = "images/flags/PT.svg",
+        ["DE"] = "images/flags/DE.svg",
+        ["FR"] = "images/flags/FR.svg"
+    };
+
+    private IEnumerable<string> GetFlagPaths(string? languages)
+    {
+        if (string.IsNullOrWhiteSpace(languages))
+            return Enumerable.Empty<string>();
+
+        return languages
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(code => LanguageFlagMap.TryGetValue(code, out var path) ? path : null)
+            .Where(path => path is not null)!;
+    }
+    private async Task OnClose()
+    {
+        isOpen = false;
+        await JS.InvokeVoidAsync("document.body.classList.remove", "body-modal-open");
+    }
+    public Task OnOpenAsync()
+    {
+        isOpen = true;
+        StateHasChanged();
+        return Task.CompletedTask; // o async si dentro haces awaits reales
+    }
+}

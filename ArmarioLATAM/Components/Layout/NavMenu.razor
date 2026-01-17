@@ -1,0 +1,84 @@
+﻿@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Models
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+
+@if (IsVisible)
+{
+    <div class="header-right">
+        <button class="latam-account-toggle" @onclick="ToggleMenu">
+            <img class="w-36" src="images/ico_burger.svg" alt="Menú" />
+        </button>
+    </div>
+    @if (isAccountOpen)
+    {
+        <div class="latam-account-overlay" @onclick="CloseMenu">
+            <div class="latam-account-panel" @onclick:stopPropagation>
+                <header class="latam-account-header">
+                    <img src="images/logo_footer.svg" alt="LATAM" class="latam-account-logo" />
+                    <button class="latam-account-close" @onclick="CloseMenu">
+                        <img class="w-32" src="images/ico_close.svg" />
+                    </button>
+                </header>
+
+                <div class="latam-account-body">
+                    <div>
+                        <span class="fw-semibold">@sessionData?.Name</span>
+                    </div>
+                    <div>
+                        <span class="margin-top-xs">BP: @sessionData?.BP</span>
+                    </div>
+                </div>
+
+                <footer class="latam-account-footer">
+                    <button class="latam-account-logout" @onclick="CerrarSesion">
+                        <span>
+                            <img class="w-24" src="images/ico_logout.svg" />
+                        </span>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+    }
+}
+
+
+@code {
+    private bool IsVisible { get; set; } = false;
+    private bool isAccountOpen { get; set; } = false;
+    private DataUserSession? sessionData = new();
+
+  
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
+        IsVisible = !string.IsNullOrEmpty(uri) && !uri.Contains("Reset", StringComparison.OrdinalIgnoreCase);
+        sessionData = await AuthService.GetSessionDataAsync();
+        StateHasChanged();
+    }
+   
+    private void ToggleMenu()
+    {
+        isAccountOpen = true;
+    }
+
+    private void CloseMenu()
+    {
+        isAccountOpen = false;
+    }
+
+    private async Task CerrarSesion()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
+
+
+
+
+

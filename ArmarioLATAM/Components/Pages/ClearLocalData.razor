@@ -1,0 +1,17 @@
+﻿@using ArmarioLATAM.Services
+@inject KitSelectionState KitSelectionState
+@inject GarmentSelectionState GarmentSelectionState
+@inject OrderState OrderState
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await KitSelectionState.ClearAsync();
+            await GarmentSelectionState.ClearAsync();
+            await OrderState.ClearAsync();
+            StateHasChanged(); 
+        }
+    }
+}

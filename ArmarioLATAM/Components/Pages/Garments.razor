@@ -1,0 +1,210 @@
+﻿@page "/Garments"
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Models
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject IGarmentService GarmentService
+@inject GarmentSelectionState GarmentSelectionState
+@inject KitSelectionState KitSelectionState
+@rendermode InteractiveServer
+
+
+@if (!isLoaded)
+{
+    <LoadPage />
+}
+else
+{
+    <section class="latam-section">
+        <div class="page-title">@KitSelectionState.Name</div>
+        <Separator />
+        <div class="nuevo-ingreso-header">
+            <span class="label">Prendas asignadas para:</span><br class="mobile-break" />
+            <span class="label">@KitSelectionState.Description</span>
+        </div>
+
+
+
+        @if (_garments.Count == 0)
+        {
+            <div class="latam-error-card">
+                <div class="latam-error-header">
+                    <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
+                    <span>No podemos mostrar las prendas del kit</span>
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-body">
+                    En estos momentos no es posible mostrar las prendas asignadas a este Kit.<br />
+                    Por favor, inténtalo nuevamente
+                </div>
+                <Separator></Separator>
+                <div class="latam-error-footer">
+                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
+                        Reintentar
+                    </button>
+                    <a class="latam-link-danger" @onclick="GoInicio">
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="garment-list">
+                @foreach (var garment in _garments)
+                {
+                    var sel = GarmentSelectionState.SelectedGarments
+                    .FirstOrDefault(g => g.GarmentId == garment.GarmentId);
+
+                    <GarmentCard garments=garment
+                                 InitialQuantity="@(sel?.Quantity ?? 0)"
+                                 InitialSize="@(sel?.Size)"
+                                 InitialNativeLanguageCode="@(sel?.NativeLanguage)"
+                                 InitialSecondLanguageCode="@(sel?.SecondLanguage)"
+                                 InitialThridLanguageCode="@(sel?.ThirdLanguage)"
+                                 OnChanged="OnGarmentChanged" />
+                }
+
+            </div>
+        }
+    <Separator />
+    <div class="redirects-footer">
+        <button type="button"
+                class="latam-back-link"
+                @onclick="GoBack">
+            <img src="images/ico_arrow_left.svg" />
+            <span> Volver</span>
+        </button>
+        <div class="latam-btn-row">
+            <button type="button" class="latam-btn latam-btn--primary " @onclick="GoNext" disabled="@(!CanContinue )">Continuar</button>
+        </div>
+
+        </div>
+    </section>
+}   
+<ValidaSession />
+
+
+
+@code {
+  
+    private List<Garment> _garments { get; set; } = new();
+    private bool isLoaded = false;
+
+    private bool RequiresSize(int garmentId)
+    {
+        var g = _garments.FirstOrDefault(x => x.GarmentId == garmentId);
+        // por ejemplo: las que no tienen Languages son de talla
+        return string.IsNullOrWhiteSpace(g?.Languages);
+    }
+    private bool IsLanguageGarment(GarmentSelection sel)
+    {
+        var g = _garments.FirstOrDefault(x => x.GarmentId == sel.GarmentId);
+        return !string.IsNullOrWhiteSpace(g?.Languages);
+    }
+
+    private readonly Dictionary<int, GarmentSelection> _selected = new();
+
+    private bool CanContinue =>
+    _selected.Values.Any() &&
+    _selected.Values.All(sel =>
+        sel.Quantity > 0
+        && (!RequiresSize(sel.GarmentId)
+            || !string.IsNullOrWhiteSpace(sel.Size))
+        && (!IsLanguageGarment(sel)
+            || (sel.Quantity == 1
+                && (!string.IsNullOrWhiteSpace(sel.NativeLanguage)
+                    || !string.IsNullOrWhiteSpace(sel.SecondLanguage)
+                    || !string.IsNullOrWhiteSpace(sel.ThirdLanguage)))));
+
+
+    async Task GoBack()
+    {
+        await JS.InvokeVoidAsync("history.back");
+    }
+
+    async Task GoNext()
+    {
+        GarmentSelectionState.SetSelections(_selected.Values);
+        await GarmentSelectionState.SaveAsync();
+        Navigation.NavigateTo("/GarmentsResumen");
+    }
+
+    void Reintentar()
+    {
+
+    }
+    void GoInicio()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // 1. Cargar selección de KIT desde localStorage
+        if (KitSelectionState.IsEmpty)
+        {
+            await KitSelectionState.LoadAsync();
+        }
+
+        if (KitSelectionState.IsEmpty)
+        {
+            Navigation.NavigateTo("/Dashboard");
+            return;
+        }
+
+        // 2. Cargar selección de GARMENTS desde localStorage
+        await GarmentSelectionState.LoadAsync();
+
+
+        // Sincronizar el diccionario local con lo que hay en el estado
+        _selected.Clear();
+        foreach (var sel in GarmentSelectionState.SelectedGarments)
+        {
+            _selected[sel.GarmentId] = sel;
+        }
+
+        // 3. Cargar garments solo una vez
+        try
+        {
+            _garments = await GarmentService.GetGarmentsAsync() ?? new List<Garment>();
+
+            if (_garments is null)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+
+        }
+        finally
+        {
+            isLoaded = true;
+        }
+
+        StateHasChanged();
+    }
+
+
+
+
+    private void OnGarmentChanged(GarmentSelection sel)
+    {
+        // Solo guardamos si Quantity > 0
+        if (sel.Quantity > 0)
+            _selected[sel.GarmentId] = sel;
+
+        else
+            _selected.Remove(sel.GarmentId);
+    }
+
+
+
+    // Cuando necesites los seleccionados:
+    private IEnumerable<GarmentSelection> GetSelectedGarments()
+        => _selected.Values;
+}
+

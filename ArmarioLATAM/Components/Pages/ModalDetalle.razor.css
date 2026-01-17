@@ -1,0 +1,167 @@
+﻿
+/* Fondo semitransparente centrando el panel */
+.kit-detail {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.kit-detail__header{
+    display:none;
+}
+/* Panel blanco con borde redondeado */
+.kit-detail__panel {
+    background-color: var(--color-neutral-0);
+    color: var(--color-navbar);
+    border-radius: var(--space-s);
+    width: 80%;
+    max-width: 676px;
+    max-height: 80vh;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+/* Tabla */
+.kit-detail__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-16);
+}
+
+    .kit-detail__table thead th {
+        text-align: left;
+        padding: var(--space-s) var(--space-base);
+        font-weight: var(--font-weight-semibold);
+        background-color: var(--color-neutral-0);
+        border-bottom: 1px solid var(--color-separator);
+    }
+
+    .kit-detail__table tbody td {
+        padding: var(--space-s) var(--space-base);
+        border-bottom: 1px solid var(--color-separator);
+    }
+
+
+.kit-detail__close {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-base);
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: var(--space-base);
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+
+@media (max-width:600px) {
+    .kit-detail {
+        align-items: unset;
+        overflow-y: hidden;
+        overscroll-behavior-y: none;
+    }
+    .kit-detail__panel{
+        border-radius: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height:100%;
+    }
+    .kit-detail__header {
+        padding: var(--space-base) var(--space-base) 0 var(--space-base);
+        font-size: var(--fs-18);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-blue);
+        display: block;
+    }
+
+}
+
+.flags-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.flag-icon {
+    width: 20px;
+    height: 14px;
+    object-fit: contain;
+}
+/* Contenedor general (puedes reutilizar los que ya tienes) */
+.kit-detail-mobile {
+    padding: 0;
+}
+
+/* Cada item como ficha */
+.kit-card {
+    font-size: var(--fs-16);
+    color:var(--color-tabla);
+}
+
+/* Nombre arriba ocupando todo */
+.kit-card__name {
+    padding: 0 var(--space-base);
+    margin-bottom: var(--space-xs);
+}
+.kit-card-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: var(--space-s);
+    column-gap: var(--space-s);
+    padding: 0 var(--space-base);
+}
+    .kit-card-header .label {
+        font-weight: var(--font-weight-semibold);
+    }
+
+.kit-card__rows {
+    padding: 0 var(--space-base);
+}
+/* Filas Talla/Cantidad y Precio/Total en 2x2 */
+.kit-card__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* dos columnas: izquierda y derecha */
+    column-gap: var(--space-base);
+    row-gap: var(--space-xs);
+}
+
+/* Cada celda es un flex label+valor alineado al centro vertical */
+.kit-card__pair {
+    display: inline-flex;
+    align-items: center;
+    column-gap: var(--space-base);
+    white-space: nowrap;
+}
+.kit-card__pair div {
+    width:100%;
+}
+    .kit-card__pair .label {
+        font-weight: var(--font-weight-semibold);
+    }    
+
+
+/* Por defecto: desktop */
+.kit-detail-desktop {
+    display: block;
+}
+
+.kit-detail-mobile {
+    display: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .kit-detail-desktop {
+        display: none;
+    }
+
+    .kit-detail-mobile {
+        display: block;
+    }
+}

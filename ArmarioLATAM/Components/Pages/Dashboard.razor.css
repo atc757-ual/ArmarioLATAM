@@ -1,0 +1,381 @@
+﻿
+
+/* FILA DE TABS */
+.latam-kits-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-base);
+    margin-top: var(--space-base);
+    margin-bottom: var(--space-s);
+}
+
+/* wrapper de cada tab + panel móvil */
+.latam-kit-wrapper {
+    min-width: 195px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TAB */
+.latam-kit {
+    position: relative;
+    min-width: 0;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: 0 var(--space-base);
+    border-radius: var(--border-radius-soft);
+    border: none;
+    background: var(--color-neutral-0);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    /* TAB activo */
+    .latam-kit:active,
+    .latam-kit.active {
+        border-top: var(--border-width-2) solid var(--color-accent);
+        border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+        color: var(--color-title);
+        font-weight: var(--font-weight-semibold);
+        box-shadow: none;
+    }
+
+    /* foco accesible */
+    .latam-kit:focus-visible {
+        outline: var(--border-width-2) solid var(--color-neutral-3);
+        outline-offset: 2px;
+    }
+
+    .latam-kit:focus {
+        outline: none;
+    }
+
+
+
+/* PANEL DESKTOP (debajo de los tabs) */
+.latam-kit-panel--desktop {
+    background: var(--color-neutral-0);
+    border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* PANEL MÓVIL (pegado al tab activo) */
+.latam-kit-panel--mobile {
+    display: none;
+}
+
+/* TABLA HORIZONTAL (desktop) */
+.latam-kit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+}
+
+    .latam-kit-table thead th {
+        text-align: left;
+        padding: var(--space-ls) var(--space-base);
+        font-weight: var(--font-weight-semibold);
+        background: var(--color-neutral-0);
+        border-bottom: var(--border-width-1) solid var(--color-neutral-2);
+    }
+
+    .latam-kit-table tbody td {
+        padding: var(--space-base);
+        border-bottom: var(--border-width-1) solid var(--color-neutral-2);
+    }
+
+/* fila del botón */
+.latam-kit-table-footer td {
+    margin-top: var(--space-base);
+    border-bottom: none;
+    padding: var(--space-m) 0 var(--space-m);
+    text-align: center;
+}
+
+/* botón en tabla desktop */
+.latam-kit-table-footer .latam-btn {
+    width: 240px;
+    max-width: 100%;
+    margin: var(--space-s);
+}
+
+/* TABLA DETALLE (para mobile) */
+.latam-kit-table--details {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-16);
+    color: var(--color-navbar);
+}
+
+    .latam-kit-table--details tbody td:first-child {
+        width: 120px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-navbar);
+        padding: var(--space-s) var(--space-base);
+        padding-right: var(--space-base);
+        white-space: nowrap;
+    }
+
+    .latam-kit-table--details tbody td:last-child {
+        padding: var(--space-s) var(--space-s);
+        color: var(--color-navbar);
+    }
+
+/* separador opcional */
+.separator {
+    border-bottom: 1px solid var(--color-separator);
+    height: var(--space-s);
+}
+
+/* estilo tabla vacía desktop */
+.latam-kit-table-empty {
+    text-align: center;
+    height: 150px;
+    font-weight: var(--font-weight-normal);
+}
+
+.card-history {
+    margin-top: var(--space-xxl);
+    background: var(--color-neutral-0);
+    -moz-border-radius: var(--space-s);
+    -webkit-border-radius: var(--space-s);
+    border-radius: var(--space-s);
+    box-shadow: var(--shadow-lg);
+    border-top: 2px solid var(--color-title);
+}
+
+.card-history-title {
+    padding: var(--space-base);
+    font-size: var(--fs-16);
+    border-bottom: 1px solid var(--color-neutral-2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-title);
+}
+
+.card-history .no-shadow {
+    box-shadow: none;
+}
+
+/*Navigation page*/
+.latam-kit-table-footer--pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--fs-12);
+    padding: var(--space-m) var(--space-base);
+}
+
+.pager-arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-neutral-5);
+    background-color: var(--color-neutral-0);
+    display: flex;
+    align-items: center;
+    background-image: url('file:///C:\Users\Alex\Downloads\arrow-left (2).svg');
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+    .pager-arrow img {
+        width: var(--fs-14);
+        height: var(--fs-14);
+    }
+
+    .pager-arrow:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+.latam-kit-table-footer__page {
+    font-size: var(--fs-14);
+    color: var(--color-neutral-6);
+}
+
+@media (min-width: 768px) {
+    .latam-kit-table th,
+    .latam-kit-table td {
+        white-space: nowrap;
+    }
+
+        /* Ejemplo de anchos fijos por columna */
+        .latam-kit-table th:nth-child(1),
+        .latam-kit-table td:nth-child(1) {
+            width: 12%;
+        }
+        /* Código */
+        .latam-kit-table th:nth-child(2),
+        .latam-kit-table td:nth-child(2) {
+            width: 26%;
+        }
+        /* Nombre kit */
+        .latam-kit-table th:nth-child(3),
+        .latam-kit-table td:nth-child(3) {
+            width: 24%;
+        }
+        /* Orden */
+        .latam-kit-table th:nth-child(4),
+        .latam-kit-table td:nth-child(4) {
+            width: 24%;
+        }
+        /* Fecha */
+        .latam-kit-table th:nth-child(5),
+        .latam-kit-table td:nth-child(5) {
+            width: 14%;
+        }
+}
+
+    /* ---------- MOBILE ---------- */
+    @media (max-width: 600px) {
+        .latam-kits-row {
+            flex-direction: column;
+            flex-wrap: nowrap;
+            gap: var(--space-base);
+            margin-bottom: 0;
+        }
+        .latam-kit-table-footer--pager {
+            padding: var(--space-base) var(--space-s);
+        }
+        .card-history-title {
+            border-bottom: 2px solid var(--color-neutral-2);
+        }
+        .card-history {
+            margin-top: var(--space-m);
+        }
+        .latam-kit-wrapper {
+            min-width: 100%;
+        }
+
+        .latam-kit {
+            flex: 0 0 auto;
+            width: 100%;
+            border-radius: var(--border-radius-soft);
+            border-top-width: var(--border-width-1);
+            height: 48px;
+        }
+
+            .latam-kit.active {
+                border-radius: var(--border-radius-soft) var(--border-radius-soft) 0 0;
+                height: 56px;
+            }
+
+
+        /* Oculta panel horizontal en mobile */
+        .latam-kit-panel--desktop {
+            display: none;
+        }
+
+        /* Muestra panel pegado al tab activo */
+        .latam-kit-panel--mobile {
+            display: block;
+            background: var(--color-neutral-0);
+            border-radius: 0 0 var(--border-radius-soft) var(--border-radius-soft);
+            box-shadow: var(--shadow-lg);
+            margin-top: -1px;
+            box-sizing: border-box;
+        }
+
+            /* en mobile no se usa cabecera en tabla de detalles */
+            .latam-kit-panel--mobile .latam-kit-table--details thead {
+                display: none;
+            }
+
+            /* celdas de la tabla normal dentro del panel móvil sin borde extra */
+            .latam-kit-panel--mobile .latam-kit-table tbody td {
+                padding: var(--space-s) var(--space-base);
+                border-bottom: none;
+            }
+
+            /* celda del footer ocupa todo el ancho sin padding lateral */
+            .latam-kit-panel--mobile .latam-kit-table-footer td {
+                padding: var(--space-base) !important;
+                text-align: center;
+            }
+
+            /* botón full width sin desbordar */
+            .latam-kit-panel--mobile .latam-kit-table-footer .latam-btn {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                box-sizing: border-box;
+            }
+
+        .latam-kit-table--details tbody td {
+            vertical-align: top;
+        }
+
+        /* estilo tabla vacía mobile */
+
+        .latam-kit-table-empty {
+            height: 120px;
+        }
+
+            .latam-kit-table-empty td p {
+                font-weight: var(--font-weight-normal);
+            }
+    }
+
+    @media (min-width: 601px) {
+
+        /* asegúrate de tener este gap gris general */
+        .latam-kits-row {
+            margin-bottom: var(--space-s);
+        }
+        /* franja blanca bajo el tab activo */
+        .latam-kit.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: calc(-1 * var(--space-s)); /* misma altura que el margin-bottom */
+            height: var(--space-s);
+            background: var(--color-neutral-0); /* blanco del panel */
+        }
+    }
+    /* El panel móvil nunca más ancho que la pantalla */
+    .latam-kit-panel--mobile {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+        /* La tabla de detalles no puede crecer más que su contenedor */
+        .latam-kit-panel--mobile .latam-kit-table--details {
+            width: 100%;
+            max-width: 100%;
+            table-layout: fixed;
+        }
+
+            /* Las celdas largas rompen línea en vez de ensanchar la tabla */
+            .latam-kit-panel--mobile .latam-kit-table--details td,
+            .latam-kit-panel--mobile .latam-kit-table--details th {
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+
+    @media (max-width: 600px) {
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .latam-kit-table--details tbody td:first-child {
+            white-space: normal; /* antes tenías nowrap */
+        }
+
+        /* Por si acaso, fuerza el wrap en todas las celdas */
+        .latam-kit-table--details td {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+    }

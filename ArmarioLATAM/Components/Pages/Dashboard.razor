@@ -1,0 +1,780 @@
+﻿@page "/Dashboard"
+@rendermode InteractiveServer
+@using ArmarioLATAM.Components.Models
+@using ArmarioLATAM.Services
+@inject NavigationManager Navigation
+@inject IKitService KitService
+@inject IOrderService OrderService
+@inject DetailDeliveredState DetailDeliveredState
+@inject ProtectedLocalStorageService LocalStorage
+@inject KitSelectionState KitSelectionState
+
+
+@if (!isLoaded)
+{
+    <LoadPage></LoadPage>
+    <ClearLocalData></ClearLocalData>
+}
+else
+{
+    <section class="latam-section">
+        <div class="title-dashboard">Kits</div>
+        <!--<div class="latam-kit-wrapper full-width margin-top-base">
+                <div class="latam-error-card">
+                    <div class="latam-error-header">
+                        <img src="images/ico_bloqueo_accent.svg" alt="alert" class="" />
+                        <span>No podemos cargar los kit</span>
+                    </div>
+                    <Separator></Separator>
+                    <div class="latam-error-body">
+                        En estos momentos no es posible mostrar los kit de uniforme.<br />
+                        Por favor, inténtalo nuevamente.
+                    </div>
+                    <Separator></Separator>
+                    <div class="latam-error-footer">
+                        <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
+                            Reintentar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        -->
+        @if (_kitTypes is not null && _kitTypes.Any())
+        {
+            <div class="latam-kits-row">
+                @foreach (var kit in _kitTypes!)
+                {
+
+                    <div class="latam-kit-wrapper">
+                        <button class="latam-kit @(kit.KitTypeId == selectedTab ? "active" : "")"
+                                @onclick="() => SelectTab(kit.KitTypeId)">
+                            @if (kit.KitTypeId == selectedTab)
+                            {
+                                <img src="@kit.ImageURLSelect" alt="" />
+                            }
+                            else
+                            {
+                                <img src="@kit.ImageURL" alt="" />
+                            }
+                            <span class="latam-kit-label">@kit.Name</span>
+                        </button>
+                        <!-- TAB Mobile con botones -->
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 1)
+                        {
+                            <div class="latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isError)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (pendingOrder is null)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                                </td>
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="() => GoGarments(kit)" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>@pendingOrder?.KitCode</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>@pendingOrder?.KitType</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>@pendingOrder?.Fecha</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>@pendingOrder?.Status</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                                        Solicitud en proceso
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 2)
+                        {
+                            <div class="latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isError)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (pendingOrder is null)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                                </td>
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="() => GoGarments(kit)" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>@pendingOrder?.KitCode</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>@pendingOrder?.KitType</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>@pendingOrder?.Fecha</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>@pendingOrder?.Status</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                                        Solicitud en proceso
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 3)
+                        {
+                            <div class="latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isError)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (pendingOrder is null)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                                </td>
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="() => GoGarments(kit)" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>@pendingOrder?.KitCode</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>@pendingOrder?.KitType</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>@pendingOrder?.Fecha</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>@pendingOrder?.Status</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                                        Solicitud en proceso
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 4)
+                        {
+                            <div class="latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isError)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (pendingOrder is null)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                                </td>
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="() => GoGarments(kit)" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>@pendingOrder?.KitCode</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>@pendingOrder?.KitType</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>@pendingOrder?.Fecha</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>@pendingOrder?.Status</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                                        Solicitud en proceso
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        
+                        @if (selectedTab == kit.KitTypeId && kit.KitTypeId == 5)
+                        {
+                            <div class="latam-kit-panel--mobile">
+                                <table class="latam-kit-table latam-kit-table--details">
+                                    <tbody>
+                                        @if (isError)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <img src="images/ico_bloqueo.svg" />
+                                                    <p>
+                                                        Ha ocurrido un problema al cargar el kit,<br />
+                                                        por favor vuelve a intentarlo.
+                                                    </p>
+                                                    <div class="margin-top-base">
+                                                        <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (pendingOrder is null)
+                                        {
+                                            <tr class="latam-kit-table-empty">
+                                                <td colspan="2">
+                                                    <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                                </td>
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button @onclick="() => GoGarments(kit)" type="button" class="latam-btn latam-btn--primary">
+                                                        Solicitar uniforme
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>Código</td>
+                                                <td>@pendingOrder?.KitCode</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nombre kit</td>
+                                                <td>@pendingOrder?.KitType</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Orden</td>
+                                                <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha de creación</td>
+                                                <td>@pendingOrder?.Fecha</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estado</td>
+                                                <td>@pendingOrder?.Status</td>
+                                            </tr>
+                                            <tr class="separator">
+                                            </tr>
+                                            <tr class="latam-kit-table-footer">
+                                                <td colspan="2">
+                                                    <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                                        Solicitud en proceso
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                }
+
+            </div>
+            <!--TAB DESKTOP con botones-->
+            <div class="latam-kit-panel--desktop">
+                @if (selectedTab > 0)
+                {
+                    <table class="latam-kit-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre kit</th>
+                                <th>Orden</th>
+                                <th>Fecha de creación</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (isError)
+                            {
+                                <tr class="latam-kit-table-empty">
+                                    <td colspan="5">
+                                        <img src="images/ico_bloqueo.svg" />
+                                        <p>
+                                            Ha ocurrido un problema al cargar el kit,<br />
+                                            por favor vuelve a intentarlo.
+                                        </p>
+                                        <div class="margin-top-base">
+                                            <button @onclick="Reintentar" type="button" class="latam-btn latam-btn--primary">Reintentar </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else if (pendingOrder is null)
+                            {
+                                <tr class="latam-kit-table-empty">
+                                    <td colspan="5">
+                                        <p>No tienes solicitudes pendientes de uniformes. <br />Crea una nueva solicitud para comenzar.</p>
+                                    </td>
+                                </tr>
+                                <tr class="latam-kit-table-footer">
+                                    <td colspan="5">
+                                        <button type="button" @onclick="GoGarmentsDesktop" class="latam-btn latam-btn--primary">
+                                            Solicitar uniforme
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                    <tr>
+                                        <td>@pendingOrder?.KitCode</td>
+                                        <td>@pendingOrder?.KitType</td>
+                                        <td>#@pendingOrder?.OrderId.ToString("D5")</td>
+                                        <td>@pendingOrder?.Fecha</td>
+                                    <td>@pendingOrder?.Status</td>
+                                    </tr>
+                                <tr class="latam-kit-table-footer">
+                                    <td colspan="5">
+                                        <button type="button" class="latam-btn latam-btn--primary" disabled>
+                                            Solicitud en proceso
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <div class="card-history">
+                <div class="card-history-title">Historial de solicitudes de kits</div>
+                <div class="latam-kit-panel--desktop no-shadow">
+                    <table class="latam-kit-table">
+                        @if (historycOrders is null || !historycOrders.Any())
+                        {
+                            <tr class="latam-kit-table-empty">
+                                <td colspan="5">
+                                    <img src="images/ico_bag_cross.svg" />
+                                    <p>No se encontraron solicitudes históricas de kits registradas en tu cuenta.</p>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre kit</th>
+                                    <th>Orden</th>
+                                    <th>Fecha de creación</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in PagedDesktop)
+                                {
+                                    <tr>
+                                        <td>@a.KitCode</td>
+                                        <td>@a.KitType</td>
+                                        <td>#@a.OrderId.ToString("D5")</td>
+                                        <td>@a.Fecha</td>
+                                        <td>@a.Status</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        }
+                    </table>
+                </div>
+                <div class="latam-kit-panel--mobile no-shadow">
+                    <table class="latam-kit-table latam-kit-table--details">
+                        <tbody>
+                            @if (historycOrders is null || !historycOrders.Any())
+                            {
+                                <tr class="latam-kit-table-empty">
+                                    <td colspan="2">
+                                        <img src="images/ico_bag_cross.svg" />
+                                        <p>No se encontraron solicitudes históricas de kits registradas en tu cuenta.</p>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var a in PagedMobile)
+                                {
+                                    <tr>
+                                        <td>Código</td>
+                                        <td>@a.KitCode</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nombre kit</td>
+                                        <td>@a.KitType</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Orden</td>
+                                        <td>#@a.OrderId.ToString("D5")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fecha de creación</td>
+                                        <td>@a.Fecha</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Estado</td>
+                                        <td>@a.Status</td>
+                                    </tr>
+                                    <tr class="separator"></tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                   
+                </div>
+                @if (historycOrders is not null && historycOrders.Count > pageSizeDesktop)
+                {
+                    <div class="latam-kit-table-footer latam-kit-table-footer--pager">
+                        <button type="button"
+                                class="pager-arrow"
+                                @onclick="PrevDesktop"
+                                disabled="@(currentPageDesktop == 1)">
+                            <img src="images/ico_arrow_left_grey.svg" alt="Anterior" />
+                        </button>
+
+                        <span class="latam-kit-table-footer__page">
+                            Página @currentPageDesktop de @TotalPagesDesktop
+                        </span>
+
+                        <button type="button"
+                                class="pager-arrow"
+                                @onclick="NextDesktop"
+                                disabled="@(currentPageDesktop == TotalPagesDesktop)">
+                            <img src="images/ico_arrow_right_grey.svg" alt="Siguiente" />
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+
+        <GarmentsModal @ref="modalRef" />
+  
+
+    </section>
+}
+
+
+<ValidaSession/>
+
+@code {
+    private bool isEmpty = false;
+    private bool isError = false;
+    private bool isLoaded = false;
+    private int selectedTab = 0;
+
+    private GarmentsModal? modalRef;
+    private List<KitType>? _kitTypes;
+    List<MyOrderItem> historycOrders = new();
+    PendingOrderItem pendingOrder = new();
+    /*Navigation*/
+    int currentPageDesktop = 1;
+    int pageSizeDesktop = 3;
+
+    int currentPageMobile = 1;
+    int pageSizeMobile = 1;
+
+    IEnumerable<MyOrderItem> PagedDesktop =>
+    historycOrders
+        .Skip((currentPageDesktop - 1) * pageSizeDesktop)
+        .Take(pageSizeDesktop);
+
+    IEnumerable<MyOrderItem> PagedMobile =>
+        historycOrders
+            .Skip((currentPageMobile - 1) * pageSizeMobile)
+            .Take(pageSizeMobile);
+
+    int TotalPagesDesktop =>
+        historycOrders.Count == 0
+            ? 1
+            : (int)Math.Ceiling(historycOrders.Count / (double)pageSizeDesktop);
+
+    int TotalPagesMobile =>
+        historycOrders.Count == 0
+            ? 1
+            : (int)Math.Ceiling(historycOrders.Count / (double)pageSizeMobile);
+
+    void NextDesktop()
+    {
+        if (currentPageDesktop < TotalPagesDesktop)
+            currentPageDesktop++;
+    }
+
+    void PrevDesktop()
+    {
+        if (currentPageDesktop > 1)
+            currentPageDesktop--;
+    }
+
+    void NextMobile()
+    {
+        if (currentPageMobile < TotalPagesMobile)
+            currentPageMobile++;
+    }
+
+    void PrevMobile()
+    {
+        if (currentPageMobile > 1)
+            currentPageMobile--;
+    }
+
+    /*Task y Voids*/
+    private async Task SelectTab(int tab)
+    {
+        if (tab <= 0)
+            return;
+        if (tab == selectedTab) 
+        return;
+
+        selectedTab = tab;
+        try
+        {
+            var result = await OrderService.GetMyPendingOrderAsync(kitTypeId: tab);
+
+            if (result is null)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+            pendingOrder = result.Order;
+        }
+        catch
+        {
+            isError = true;
+        }
+
+        StateHasChanged();
+    }
+
+    async Task GoGarments(KitType kit)
+    {
+        KitSelectionState.Set(kit);
+        await KitSelectionState.SaveAsync();
+        if(selectedTab == 2)
+        {
+            if (modalRef is not null)
+            {
+                await modalRef.OpenAsync();
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            Navigation.NavigateTo("/Garments");
+        }
+    }
+
+    async Task GoGarmentsDesktop()
+    {
+        var kit = _kitTypes?.FirstOrDefault(k => k.KitTypeId == selectedTab);
+        if (kit is null)
+            return;
+
+        KitSelectionState.Set(kit);
+        await KitSelectionState.SaveAsync();
+        if (selectedTab == 2)
+        {
+            if (modalRef is not null)
+            {
+                await modalRef.OpenAsync();
+            }
+        }
+        else
+        {
+            Navigation.NavigateTo("/Garments");
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+        try
+        {
+            _kitTypes = await KitService.GetKitTypesAsync();
+
+            if (_kitTypes is null)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+            isEmpty = _kitTypes == null || !_kitTypes.Any();
+
+            var result = await OrderService.GetMyOrdersHistoryAsync();
+
+            if (result is null)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+
+            historycOrders = result.Orders;
+        }
+        catch
+        {
+            isError = true;
+        }
+        finally
+        {
+            isLoaded = true;
+        }
+    }
+
+   
+    private void Reintentar()
+    {
+
+    }
+}

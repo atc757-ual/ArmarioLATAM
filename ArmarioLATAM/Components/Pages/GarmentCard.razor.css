@@ -1,0 +1,135 @@
+﻿
+/* tarjeta */
+.garment-card {
+    background: var(--color-neutral-0);
+    border-radius: var(--border-radius-soft);
+    box-shadow: 0 12px 16px rgba(0,0,0,0.06);
+    padding: var(--space-base);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 328px;
+}
+
+.garment-image {
+    width: 100%;
+    border-radius: var(--border-radius-soft);
+    object-fit: cover;
+    margin-bottom: var(--space-m);
+}
+
+.garment-title {
+    font-size: var(--fs-16);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--space-xs);
+    color: var(--color-navbar);
+    
+}
+
+.garment-subtitle {
+    font-size:  var(--fs-12);
+    color: var(--color-title);
+    margin: 0 0 var(--space-m);
+    font-style: italic; 
+}
+
+/* cantidad */
+.garment-qty {
+    color: var(--color-navbar);
+    font-weight: var(--font-weight-semibold);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-m);
+    font-size: var(--fs-14);
+}
+
+.garment-qty-controls {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-light);
+    font-size: var(--fs-14);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+}
+
+    .garment-qty-controls button {
+        border: none;
+        background: var(--color-neutral-0);
+        cursor: pointer;
+    }
+/* nota */
+.garment-language-note ul li {
+    font-size: var(--fs-12);
+    font-style: italic;
+    color: var(--color-note);
+}
+.garment-language-note ul{
+    margin-left:-20px;
+}
+
+.garment-qty-count {
+    color: var(--color-primary-blue);
+}
+/* idiomas */
+.garment-languages {
+    margin-top: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+}
+
+/* tallas */
+.garment-sizes > span {
+    display: block;
+    margin-bottom: var(--space-s);
+    font-size: var(--fs-14);
+    color: var(--color-navbar);
+    font-weight: var(--font-weight-semibold);
+}
+
+.garment-size-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-m);
+}
+
+.garment-size {
+    color: var(--color-primary-blue);
+    width: var(--space-xl);
+    height: var(--space-xl);
+    border-radius: var(--border-radius-soft);
+    border: 1px solid var(--color-primary-blue);
+    background: var(--color-neutral-0);
+    font-size: var(--fs-16);
+    padding:0;
+}
+
+    .garment-size.is-selected {
+        background: var(--color-primary-blue);
+        color: var(--color-neutral-0);
+    }
+    .garment-size--disable {
+    background: var(--color-neutral-3);
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    }
+.garment-note {
+    margin-top: var(--space-m);
+    font-size: var(--fs-14);
+    color: var(--color-title);
+    font-style: italic;
+}
+    .garment-note .text-accent {
+        color: var(--color-accent);
+        font-weight: var(--font-weight-semibold);
+    }
+
+@media (max-width: 600px) {
+    /* tarjeta */
+    .garment-card {
+        max-width: 100%;
+    }
+}
+

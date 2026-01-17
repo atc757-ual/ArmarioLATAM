@@ -1,0 +1,310 @@
+﻿@rendermode InteractiveServer
+@using ArmarioLATAM.Components.Models
+@using System.ComponentModel.DataAnnotations
+@using ArmarioLATAM.Services
+@inject NavigationManager Navigation
+@inject DetailDeliveredState DetailDeliveredState
+@inject LocationService LocationService
+
+@if (isOpen)
+{
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <div class="latam-modal-overlay">
+        <div class="latam-modal-panel" @onclick:stopPropagation>
+            @if (stepModal == 1)
+            {
+                <header class="latam-modal-header">
+                    <img src="images/typeKits/ico_alert_blue.svg" alt="alert" class="" />
+                    <p class="card-title">Motivo de la solicitud</p>
+                </header>
+                <Separator></Separator>
+                 <EditForm FormName="formEmergency"
+                              Model="@emergencyModel">
+                <DataAnnotationsValidator />
+                <div class="latam-modal-body">
+                    <div class="margin-bottom-base">
+                        <DropdownSelect 
+                            Id="type" 
+                            Placeholder="Tipo de emergencia"        
+                            Options="EmergencyType"
+                            @bind-OpenId="openSelectId"
+                            @bind-Value="emergencyModel.EmergencyType"
+                            Changed="OnEmergencyTypeChanged"
+                            />
+                        <ValidationMessage For="@(() => emergencyModel.EmergencyType)" />
+                    </div>
+                    <div>
+                        <label for="textarea" class="label-description">Descripción</label>
+                        <InputTextArea rows="4"
+                            @bind-Value="emergencyModel.DetalleMotivo"
+                            @onblur="OnDetalleMotivoBlur"
+                            id="textarea" 
+                            class="latam-textarea" 
+                            placeholder="Describe el motivo.">
+                        </InputTextArea>
+                        <ValidationMessage For="@(() => emergencyModel.DetalleMotivo)" />
+                        
+                    </div>
+                </div>
+                <Separator></Separator>
+                <footer class="latam-modal-footer">
+                        @if (@isValidEmergencyType & @isValidDetalleMotivo)
+                    {
+                            <button class="latam-btn latam-btn--primary" type="button" @onclick="NextStep">
+                            Continuar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="latam-btn latam-btn--primary" disabled >
+                            Continuar
+                        </button>
+                    }
+                        <a class="latam-link-danger" @onclick="CloseAsync">
+                            Cancelar
+                        </a>
+                </footer>
+                </EditForm>
+            }else if(stepModal == 2)
+            {
+                <header class="latam-modal-header">
+                    <img src="images/typeKits/ico_alert_blue.svg" alt="alert" class="" />
+                    <p class="card-title">Dirección de envío</p>
+                </header>
+                <Separator></Separator>
+                <EditForm FormName="formAddress"
+                          Model="@addressModel"
+                          OnValidSubmit="@Continuar">
+                    <DataAnnotationsValidator />
+                    <div class="latam-modal-body">
+                        <div class="margin-bottom-base">
+                            <DropdownSelect id="province"
+                                            Placeholder="Provincia"
+                                            Options="Provinces"
+                                            @bind-OpenId="openSelectId"
+                                            Changed="OnProvinceChanged"
+                                            @bind-Value="addressModel.Province" />
+
+                        </div>
+                        @if (!isValidProvince)
+                        {
+                            <div class="margin-bottom-base disable-element">
+                                <DropdownSelect  id="district" Placeholder="Distrito"
+                                                @bind-OpenId="openSelectId" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="margin-bottom-base">
+                                <DropdownSelect id="district" Placeholder="Distrito"
+                                                Options="LimaDistricts"
+                                                @bind-OpenId="openSelectId"
+                                                Changed="OnDistrictChanged"
+                                                @bind-Value="addressModel.District" />
+                            </div>
+                        }
+
+
+                        <div class="latam-field">
+                            <label for="direccion">Dirección donde quieres recibir el uniforme</label>
+                            <InputText id="direccion"
+                                       name="Direccion"
+                                       class="latam-input-modal"
+                                       @onblur="OnAddressBlur"
+                                       @bind-Value="addressModel.Address"
+                                       placeholder="Ingresa tu dirección">
+                            </InputText>
+                            <ValidationMessage For="@(() => addressModel.Address)" />
+                        </div>
+                        <div class="latam-field">
+                            <label for="complemento">Referencia (Opcional)</label>
+                            <InputTextArea rows="2" id="complemento"
+                                           class="latam-textarea"
+                                       @bind-Value="addressModel.Reference"
+                                           placeholder="Ejemplo: Apto / Depto 401, Torra A">
+                            </InputTextArea>
+                        </div>
+                        <Separator></Separator>
+                        <footer class="latam-modal-footer">
+                        @if (isValidProvince & isValidDistrict & isValidAddress)
+                        {
+                            <button class="latam-btn latam-btn--primary" type="submit">
+                                Continuar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="latam-btn latam-btn--primary" disabled>
+                                Continuar
+                            </button>
+                        }
+                       
+                            <a class="latam-link-danger" @onclick="BeforeStep">
+                                Volver al Inicio
+                            </a>
+                        </footer>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+}
+
+@code {
+
+    public bool isOpen { get; set; }
+    private AddressModel addressModel = new();
+    private EmergencyModel emergencyModel = new();
+    private int stepModal { get; set; } = 1;
+    string? openSelectId;
+
+    /*valid address*/
+    private bool isValidAddress { get; set; } = false;
+    private bool isValidProvince { get; set; } = false;
+    private bool isValidDistrict{ get; set; } = false;
+    /*valid Emergency*/
+    private bool isValidEmergencyType { get; set; } = false;
+    private bool isValidDetalleMotivo { get; set; } = false;
+
+    // idiomas disponibles para los combos
+    private List<string> EmergencyType { get; set; } = new();
+    private List<string> Provinces { get; set; } = new() ;
+    private List<string> LimaDistricts { get; set; } = new();
+
+    /*Obtener Combos*/
+    protected override void OnInitialized()
+    {
+        EmergencyType = LocationService.GetEmergencyTypes();
+        Provinces = LocationService.GetProvinces();
+        LimaDistricts = LocationService.GetLimaDistricts();
+    }
+    /*Address*/
+    private void OnProvinceChanged(string? value)
+    {
+        addressModel.Province = value ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(addressModel)
+        {
+            MemberName = nameof(AddressModel.Province)
+        };
+
+        isValidProvince = Validator.TryValidateProperty(
+            addressModel.Province,
+            context,
+            results);
+    }
+    private void OnDistrictChanged(string? value)
+    {
+        addressModel.District = value ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(addressModel)
+        {
+            MemberName = nameof(AddressModel.District)
+        };
+
+        isValidDistrict = Validator.TryValidateProperty(
+            addressModel.District,
+            context,
+            results);
+    }
+    private void OnAddressBlur(FocusEventArgs e)
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(addressModel)
+        {
+            MemberName = nameof(AddressModel.Address)
+        };
+
+        isValidAddress = Validator.TryValidateProperty(
+            addressModel.Address,
+            context,
+            results);
+
+        StateHasChanged();
+    }
+
+    /*Emergency*/
+    private void OnEmergencyTypeChanged(string? value)
+    {
+        emergencyModel.EmergencyType = value ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(emergencyModel)
+        {
+            MemberName = nameof(EmergencyModel.EmergencyType)
+        };
+
+        isValidEmergencyType = Validator.TryValidateProperty(
+            emergencyModel.EmergencyType,
+            context,
+            results);
+    }
+    private void OnDetalleMotivoBlur(FocusEventArgs e)
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(emergencyModel)
+        {
+            MemberName = nameof(EmergencyModel.DetalleMotivo)
+        };
+
+        isValidDetalleMotivo = Validator.TryValidateProperty(
+            emergencyModel.DetalleMotivo,
+            context,
+            results);
+
+        StateHasChanged();
+    }
+
+    /*Actions button*/
+    private void BeforeStep()
+    {
+        stepModal = 1;
+    }
+    private void NextStep()
+    {
+        stepModal = 2;
+    }
+    public async Task OpenAsync()
+    {
+        // Limpiar states
+        await DetailDeliveredState.ClearAsync();
+        // Limpiar modelos locales
+        emergencyModel = new();
+        addressModel = new();
+
+        // Reiniciar paso y validaciones
+        stepModal = 1;
+        isValidEmergencyType = false;
+        isValidDetalleMotivo = false;
+        isValidAddress = false;
+        isValidProvince = false;
+        isValidDistrict = false;
+        isOpen = true;
+        StateHasChanged();
+    }
+    public void CloseAsync()
+    {
+        openSelectId = "";
+        isOpen = false;
+        StateHasChanged();
+    }
+    public async Task Continuar()
+    {
+        var detail = new DetailDelivered
+        {
+            Motive = emergencyModel.EmergencyType,
+            DetailMotive = emergencyModel.DetalleMotivo,
+            Province = addressModel.Province,
+            District = addressModel.District,
+            Address = addressModel.Address,
+            Reference = addressModel.Reference
+        };
+        DetailDeliveredState.SetDetail(detail);
+        await DetailDeliveredState.SaveAsync();
+        isOpen = false;
+        Navigation.NavigateTo("/Garments");
+        StateHasChanged();
+    }
+}
