@@ -59,9 +59,12 @@
     margin: 0 auto;
 }
 
+
 @media (max-width:600px) {
     .kit-detail {
         align-items: unset;
+        overflow-y: hidden;
+        overscroll-behavior-y: none;
     }
     .kit-detail__panel{
         border-radius: 0;
@@ -77,6 +80,18 @@
         display: block;
     }
 
+}
+
+.flags-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.flag-icon {
+    width: 20px;
+    height: 14px;
+    object-fit: contain;
 }
 /* Contenedor general (puedes reutilizar los que ya tienes) */
 .kit-detail-mobile {

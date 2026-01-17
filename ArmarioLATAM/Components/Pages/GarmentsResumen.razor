@@ -3,6 +3,7 @@
 @using ArmarioLATAM.Components.Models
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject DetailDeliveredState DetailDeliveredState
 @inject GarmentSelectionState GarmentSelectionState
 @inject KitSelectionState KitSelectionState
 @inject OrderState OrderState
@@ -15,6 +16,7 @@
 }
 else
 {
+
     <section class="latam-section">
         <div class="page-title">@KitSelectionState.Name</div>
         <Separator />
@@ -35,17 +37,71 @@ else
                             <span class="summary-data-value">@item.Name</span>
                         </div>
                         <div class="summary-data--mobile">
-                            <span class="summary-data-label">Talla</span>
-                            <span class="summary-data-value">@item.Size</span>
-                            <span class="summary-data-label">Cantidad</span>
-                            <span class="summary-data-value">@item.Quantity</span>
+
+                            @if (string.IsNullOrEmpty(item.NativeLanguage) && string.IsNullOrEmpty(item.SecondLanguage) && string.IsNullOrEmpty(item.ThirdLanguage))
+                            {
+                                <span class="summary-data-label">Talla</span>
+                                <span class="summary-data-value">@item.Size</span>
+                            }
+                            else
+                            {
+
+                                var nativeFlag = GetFlagPath(item.NativeLanguage);
+                                var secondFlag = GetFlagPath(item.SecondLanguage);
+                                var thirdFlag = GetFlagPath(item.ThirdLanguage);
+
+                                <div class="flag-language">
+                                    <span class="summary-data-label">
+                                        @if (nativeFlag is not null)
+                                        {
+                                            <img src="@nativeFlag" class="flag-language-icon" />
+                                        }
+                                        @if (secondFlag is not null)
+                                        {
+                                            <img src="@secondFlag" class="flag-language-icon" />
+                                        }
+                                        @if (thirdFlag is not null)
+                                        {
+                                            <img src="@thirdFlag" class="flag-language-icon" />
+                                        }
+                                    </span>
+                                </div>
+                            }
                         </div>
                     </div>
 
                     <div class="summary-data--desktop">
                         <div class="summary-size-block">
-                            <span class="summary-data-label">Talla</span>
-                            <span class="summary-data-value">@item.Size</span>
+
+                            @if (string.IsNullOrEmpty(item.NativeLanguage) && string.IsNullOrEmpty(item.SecondLanguage) && string.IsNullOrEmpty(item.ThirdLanguage))
+                            {
+                                <span class="summary-data-label">Talla</span>
+                                <span class="summary-data-value">@item.Size</span>
+                            }
+                            else
+                            {
+                                var nativeFlag = GetFlagPath(item.NativeLanguage);
+                                var secondFlag = GetFlagPath(item.SecondLanguage);
+                                var thirdFlag = GetFlagPath(item.ThirdLanguage);
+
+                                <div>
+                                    <span class="summary-data-label">Idiomas</span>
+                                    <span class="summary-data-value">
+                                        @if (nativeFlag is not null)
+                                        {
+                                            <img src="@nativeFlag" class="flag-language-icon" />
+                                        }
+                                        @if (secondFlag is not null)
+                                        {
+                                            <img src="@secondFlag" class="flag-language-icon" />
+                                        }
+                                        @if (thirdFlag is not null)
+                                        {
+                                            <img src="@thirdFlag" class="flag-language-icon" />
+                                        }
+                                    </span>
+                                </div>
+                            }
                         </div>
                         <div class="summary-qty-block">
                             <span class="summary-data-label">Cantidad</span>
@@ -65,13 +121,13 @@ else
                 <img src="images/ico_arrow_left.svg" />
                 <span> Volver</span>
             </button>
-                <div class="latam-btn-row">
-                    <button type="button"
+            <div class="latam-btn-row">
+                <button type="button"
                         class="latam-btn latam-btn--primary" disabled="@isLoadingButton"
-                            @onclick="CreateOrder">
-                        @(isLoadingButton ? "Enviando solicitud..." : "Confirmar solicitud")
-                    </button>
-                </div>
+                        @onclick="CreateOrder">
+                    @(isLoadingButton ? "Enviando solicitud..." : "Confirmar solicitud")
+                </button>
+            </div>
 
         </div>
     </section>
@@ -81,6 +137,26 @@ else
 @code {
     private bool isLoaded = false;
     private bool isLoadingButton = false;
+
+
+    private readonly Dictionary<string, string> LanguageFlagMap =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ES"] = "images/flags/ES.svg",
+            ["EN"] = "images/flags/EN.svg",
+            ["FR"] = "images/flags/FR.svg",
+            ["IT"] = "images/flags/IT.svg",
+            ["DE"] = "images/flags/DE.svg",
+            ["PT"] = "images/flags/PT.svg"
+        };
+
+    string? GetFlagPath(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return null;
+        return LanguageFlagMap.TryGetValue(code, out var path)
+            ? path
+            : null; // o una imagen por defecto
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -114,19 +190,30 @@ else
 
         isLoadingButton = true;
         await Task.Delay(500); // Simula tiempo de espera
+
+        await DetailDeliveredState.LoadAsync();
+
         var dto = new CreateOrder
-            {
-                KitTypeId = KitSelectionState.KitTypeId.Value,
-                Items = GarmentSelectionState.SelectedGarments
+        {
+            KitTypeId = KitSelectionState.KitTypeId.Value,
+            Items = GarmentSelectionState.SelectedGarments
                     .Select(g => new CreateOrderItem
                     {
                         GarmentId = g.GarmentId,
                         Size = g.Size,
-                        Quantity = g.Quantity
+                        Quantity = g.Quantity,
+                        Languages = string.Join(",",
+                        new[] { g.NativeLanguage, g.SecondLanguage, g.ThirdLanguage }
+                            .Where(code => !string.IsNullOrWhiteSpace(code)))
                     })
-                    .ToList()
-            };
-
+                    .ToList(),
+                    Motive = DetailDeliveredState.Detail.Motive,
+                    DetailMotive = DetailDeliveredState.Detail.DetailMotive,
+                    Province = DetailDeliveredState.Detail.Province,
+                    District = DetailDeliveredState.Detail.District,
+                    Address = DetailDeliveredState.Detail.Address,
+                    AddressReference = DetailDeliveredState.Detail.Reference
+        };
         var response = await OrderService.CreateOrderAsync(dto);
 
         if (response is null)
@@ -147,14 +234,16 @@ else
             Navigation.NavigateTo("/GarmentsError");
             return;
         }
-        string orderNumber = result.OrderId.ToString("D5"); 
-        var fecha = DateTime.ParseExact(result.Fecha!, "yyyy-MM-dd", null); 
+        string orderNumber = result.OrderId.ToString("D5");
+        var fecha = DateTime.ParseExact(result.Fecha!, "yyyy-MM-dd", null);
         string orderDate = fecha.ToString("dd/MM/yyyy");
+
         OrderState.Set(orderNumber, orderDate);
         await OrderState.SaveAsync();
+
         Navigation.NavigateTo("/GarmentsComprobante");
     }
-    
+
     void GoBack()
     {
         JS.InvokeVoidAsync("history.back");

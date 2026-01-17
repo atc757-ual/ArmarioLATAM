@@ -18,7 +18,8 @@ namespace ArmarioLATAM.Services
         Task<bool> IsSessionValidAsync();
         Task<DataUserSession?> GetSessionDataAsync();
         bool IsAuthenticated();
-        
+        Task<bool> SendResetEmailAsync(string email);
+        Task<bool> ResetPasswordAsync(string token, string newPassword);
 
     }
 
@@ -39,6 +40,7 @@ namespace ArmarioLATAM.Services
 
             _logger.LogInformation("AuthService creado. Hash={Hash}", GetHashCode());
         }
+
 
         public async Task<LoginResponse?> LoginAsync(string email, string password)
         {
@@ -63,6 +65,7 @@ namespace ArmarioLATAM.Services
                     Token = loginResponse.Token,
                     Name = loginResponse.Name,
                     BP = loginResponse.BP,
+                    Rol = loginResponse.Rol,
                     TokenExpiration = DateTime.UtcNow.AddSeconds(loginResponse.ExpiresIn)
                 };
 
@@ -174,8 +177,36 @@ namespace ArmarioLATAM.Services
             {
                 Name = _sessionData.Name,
                 BP = _sessionData.BP,
-                IsValid = true
+                IsValid = true,
+                Rol = _sessionData.Rol,
             };
+        }
+        public async Task<bool> SendResetEmailAsync(string email)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("auth/forgot-password", new
+                {
+                    Email = email
+                });
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando correo de recuperación");
+                return false;
+            }
+        }
+        public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+        {
+            var response = await _httpClient.PostAsJsonAsync("auth/reset-password", new
+            {
+                Token = token,
+                NewPassword = newPassword
+            });
+
+            return response.IsSuccessStatusCode;
         }
 
     }

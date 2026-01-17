@@ -23,7 +23,7 @@ else
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div style="background-color:#fee;border:1px solid #fcc;color:#c33;
-                                                            padding:10px;margin-bottom:15px;border-radius:4px;">
+                                                                            padding:10px;margin-bottom:15px;border-radius:4px;">
                     @errorMessage
                 </div>
             }
@@ -106,7 +106,7 @@ else
         </div>
 
         <div class="latam-login-links">
-            <a href="/ResetPassword" class="latam-link-danger">
+            <a href="/ForgotPassword" class="latam-link-danger">
                 ¿Olvidaste tu contraseña?
             </a>
         </div>
@@ -148,7 +148,13 @@ else
                 {
                     await ProtectedLocalStorage.RemoveItemAsync("remember");
                 }
-                Navigation.NavigateTo("/Dashboard");
+
+                if(response.Rol == "admin"){
+                    Navigation.NavigateTo("/Administrador", forceLoad: true);
+                }else
+                {
+                    Navigation.NavigateTo("/Dashboard", forceLoad: true);
+                }
             }
             else
             {
@@ -203,7 +209,7 @@ else
         var isValid = await AuthService.IsSessionValidAsync();
         if (isValid)
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("/Dashboard", forceLoad: true);
         }
         else
         {
@@ -215,6 +221,7 @@ else
                 loginModel.Recordarme = true;
                 OnCorreoBlur(new FocusEventArgs());
             }
+            StateHasChanged();
         }
     }
 }

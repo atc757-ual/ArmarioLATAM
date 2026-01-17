@@ -1,8 +1,8 @@
 ﻿@if (_show)
 {
-    <div class="latam-toast @Type latam-toast--enter" @onclick="Hide">
+    <div class="latam-toast @Type latam-toast--enter" @onclick="CloseAsync">
         <div class="latam-toast__icon">
-            <img src="@icon"/>
+            <img class="w-32" src="@icon"/>
         </div>
         <div class="latam-toast__content">
             <p class="latam-toast__title">@Title</p>
@@ -13,7 +13,6 @@
 
 @code {
 
-    [Parameter] public bool Visible { get; set; }
     [Parameter] public string? Type { get; set; }
     [Parameter] public string? Title { get; set; }
     [Parameter] public string? Message { get; set; }
@@ -23,27 +22,50 @@
     private string? PositionClass { get; set; }
     private bool _show;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Visible)
-        {
-            if (Type == "success") { icon = "images/ico_check_circle_white.svg"; }
-            else if (Type == "info") { icon = "images/ico_info_circle.svg"; }
-            else if (Type == "warning") { icon = "images/ico_warning_circle.svg"; }
-            else if (Type == "error") { icon = "images/ico_error_circle.svg"; }
-            _show = true;
-            StateHasChanged();
-            await Task.Delay(7000);
-            _show = false;
-            StateHasChanged();
-            await OnClosed.InvokeAsync();
-        }
-    }
-
-    private void Hide()
+    private void OnClose()
     {
         _show = false;
-        OnClosed.InvokeAsync();
+        StateHasChanged();
+    }
+
+    // 1) Solo abre y arranca el temporizador
+    public void OnOpen()
+    {
+        // seleccionar icono según Type
+        icon = Type switch
+        {
+            "success" => "images/ico_check_circle_white.svg",
+            "info" => "images/ico_info_circle.svg",
+            "warning" => "images/ico_warning_circle.svg",
+            "error" => "images/ico_error_circle.svg",
+            _ => null
+        };
+
+        _show = true;
+        StateHasChanged();
+
+        // lanzar auto-cierre sin bloquear al padre
+        _ = AutoCloseAsync();
+    }
+
+    // 2) Auto-cierre tras 7 segundos
+    private async Task AutoCloseAsync()
+    {
+        await Task.Delay(7000);
+        await CloseAsync();
+    }
+
+    // 3) Cerrar (clic o auto)
+    public async Task CloseAsync()
+    {
+        if (!_show)
+            return;
+
+        _show = false;
+        StateHasChanged();
+
+        if (OnClosed.HasDelegate)
+            await OnClosed.InvokeAsync();
     }
 }
 

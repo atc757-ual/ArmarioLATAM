@@ -7,7 +7,7 @@ namespace AuthService.API.Data;
 public class AuthDbContext : DbContext
 {
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
-
+    public DbSet<ResetPassword> ResetPassword { get; set; } = null!;
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,11 +25,11 @@ public class AuthDbContext : DbContext
                   .IsRequired()
                   .HasMaxLength(256);
 
-            entity.Property(e => e.Name)          // ✅ NUEVO
+            entity.Property(e => e.Name)          
                   .IsRequired()
                   .HasMaxLength(250);
 
-            entity.Property(e => e.BP)      // ✅ NUEVO
+            entity.Property(e => e.BP)      
                   .IsRequired()
                   .HasMaxLength(10);
 
@@ -38,6 +38,21 @@ public class AuthDbContext : DbContext
 
             entity.Property(e => e.CreatedAt)
                   .IsRequired();
+
+            entity.Property(e => e.Rol)        
+              .HasMaxLength(20);
+
+            entity.Property(e => e.Genero)
+                  .HasMaxLength(12);
+
+            entity.Property(e => e.DNI)
+                  .HasMaxLength(20);
+
+            entity.Property(e => e.CreatedAt)
+                  .IsRequired();
+
+            entity.Property(e => e.BirthDate);      
+            entity.Property(e => e.ActivationDate); 
         });
     }
 }

@@ -30,7 +30,11 @@ builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
     client.BaseAddress = new Uri("http://localhost:5215/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
-
+builder.Services.AddHttpClient<IAdminService, AdminService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5215/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 // Registrar ProtectedSessionStorage
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<GarmentSelectionState>();
@@ -40,6 +44,7 @@ builder.Services.AddScoped<DetailDeliveredState>();
 builder.Services.AddScoped<ProtectedLocalStorageService>();
 builder.Services.AddScoped<SessionStorageService>();
 builder.Services.AddScoped<LocationService>();
+builder.Services.AddScoped<AdminService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
