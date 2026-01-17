@@ -23,11 +23,6 @@ namespace ArmarioLATAM.Components.Models
         public string Correo { get; set; } = string.Empty;
     }
 
-    public class AdminModel
-    {
-        [Required(ErrorMessage = "El campo no puede estar vacío.")]
-        public string BPSearch { get; set; } = string.Empty;
-    }
 
     public class EmergencyModel
     {
@@ -52,29 +47,16 @@ namespace ArmarioLATAM.Components.Models
         public string Reference { get; set; } = string.Empty;
     }
 
-    public class UsuarioModel
-    {
-        public string Nombre { get; set; } = string.Empty;
-        public string Genero { get; set; } = string.Empty;
-        public string Correo { get; set; } = string.Empty;
-        public string Documento { get; set; } = string.Empty;
-    }
-    public class SolicitudModel
-    {
-        public bool check { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public string BP { get; set; } = string.Empty;
-        public string Orden { get; set; } = string.Empty;
-        public string Precio { get; set; } = string.Empty;
-        public string Kit { get; set; } = string.Empty;
-    }
+
+
 
     public class KitDetailModel
     {
-        public string Nombre { get; set; } = string.Empty;
-        public string Talla { get; set; } = string.Empty;
-        public int Cantidad { get; set; }
-        public string PrecioUnitario { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public string Languages { get; set; } = string.Empty;
+        public string UnitPrice { get; set; } = string.Empty;
         public string Total { get; set; } = string.Empty;
 
     }
@@ -91,6 +73,7 @@ namespace ArmarioLATAM.Components.Models
         public string Token { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
+        public string Rol { get; init; } = string.Empty;
         public int ExpiresIn { get; set; }
     }
 
@@ -139,6 +122,13 @@ namespace ArmarioLATAM.Components.Models
 
         public string? ImageURL { get; set; }
         public string? Languages { get; set; }
+        public List<string> LanguageList =>
+            string.IsNullOrWhiteSpace(Languages)
+                ? new List<string>()
+                : Languages.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                       .Select(s => s.Trim())
+                       .ToList();
+
     }
     public class GarmentSelection
     {
@@ -148,7 +138,16 @@ namespace ArmarioLATAM.Components.Models
         public string? Size { get; set; }
         public string? ImageURL { get; set; }
         public string? Languages { get; set; }
-
+        public string? NativeLanguage { get; set; }
+        public string? SecondLanguage{ get; set; }
+        public string? ThirdLanguage { get; set; }
+    
+    }
+    public class LanguageInfo
+    {
+        public string Code { get; set; } = string.Empty;   
+        public string Name { get; set; } = string.Empty;   
+        public string IconUrl { get; set; } = string.Empty; 
     }
     public class KitTypeSelection
     {
@@ -174,12 +173,19 @@ namespace ArmarioLATAM.Components.Models
         public int GarmentId { get; set; }
         public string? Size { get; set; }
         public int Quantity { get; set; }
+        public string? Languages { get; set; }
     }
 
     public class CreateOrder
     {
         public int KitTypeId { get; set; }
         public List<CreateOrderItem> Items { get; set; } = new();
+        public string? Motive { get; set; }
+        public string? DetailMotive { get; set; }
+        public string? Province { get; set; }
+        public string? District { get; set; }
+        public string? Address { get; set; }
+        public string? AddressReference { get; set; }
     }
 
     public class CreateOrderResponse
@@ -256,12 +262,14 @@ namespace ArmarioLATAM.Components.Models
         public DateTime? TokenExpiration { get; set; }
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
+        public string Rol { get; set; } = string.Empty;
     }
     public class DataUserSession
     {
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
-        public bool IsValid { get; set; } = false;
+        public bool IsValid { get; set; }
+        public string Rol { get; set; } = string.Empty;
     }
 
     public class ChangePassword
@@ -275,4 +283,39 @@ namespace ArmarioLATAM.Components.Models
         public string PasswordConfirm { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
     }
+
+    // Models/AdminUser.cs
+    public class AdminModel
+    {
+        [Required(ErrorMessage = "El campo no puede estar vacío.")]
+        public string BPSearch { get; set; } = string.Empty;
+    }
+
+    public class AdminUser
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Genero { get; set; } = string.Empty;
+        public string Correo { get; set; } = string.Empty;
+        public string Documento { get; set; } = string.Empty;
+    }
+    public class PendingOrderDto
+    {
+        public bool check { get; set; }
+        public int OrderId { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
+        public decimal Precio { get; set; }
+        public string Kit { get; set; } = string.Empty;
+    }
+
+    public class OrderDetailItemDto
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
+        public string Languages {  get; set; } = string.Empty;
+        public int Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
+        public decimal Total { get; set; }
+    }
+
 }

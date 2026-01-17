@@ -19,6 +19,18 @@
 .mobile-break {
     display: none;
 }
+.flag-language {
+    display: flex;
+    align-items: flex-end; 
+}
+
+.flag-language-icon {
+    width: 24px;
+    margin-right:var(--space-s);
+    object-fit: contain;
+}
+
+
 
 @media (max-width: 600px) {
     .mobile-break {
@@ -101,12 +113,14 @@
 }
 
 .summary-data-label {
+    padding:var(--space-xs) var(--space-s);
     display: block;
     font-size: var(--fs-16);
     font-weight: var(--font-weight-semibold);
 }
 
 .summary-data-value {
+    padding: var(--space-xs) var(--space-s);
     font-size: var(--fs-16);
 }
 

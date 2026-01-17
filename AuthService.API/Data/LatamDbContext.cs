@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+using AuthService.API.Dtos;
 using AuthService.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.API.Data;
 
@@ -12,7 +13,7 @@ public class LatamDbContext : DbContext
     public DbSet<KitType> KitTypes => Set<KitType>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderKit> OrderKits => Set<OrderKit>();
-
+    public DbSet<AddInfoOrder> AddInfoOrders => Set<AddInfoOrder>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // ========================
@@ -22,7 +23,7 @@ public class LatamDbContext : DbContext
         modelBuilder.Entity<KitType>().ToTable("KitTypes");
         modelBuilder.Entity<Order>().ToTable("Orders");
         modelBuilder.Entity<OrderKit>().ToTable("OrderKits");
-
+        modelBuilder.Entity<AddInfoOrder>().ToTable("AddInfoOrder");
         // ========================
         // PRECISIÓN DECIMAL
         // ========================
@@ -55,5 +56,10 @@ public class LatamDbContext : DbContext
             .WithMany()
             .HasForeignKey(ok => ok.GarmentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AddInfoOrder>()
+           .HasOne(a => a.Order)
+           .WithOne()
+           .HasForeignKey<AddInfoOrder>(a => a.OrderId);
     }
 }

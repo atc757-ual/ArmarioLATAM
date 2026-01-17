@@ -1,0 +1,88 @@
+﻿@using ArmarioLATAM.Components.Models
+@rendermode InteractiveServer
+
+<div class="lang-select @(disabled ? "lang-select--disabled" : "")">
+
+    <div class="lang-select-header" @onclick="OnHeaderClick">
+        <span class="lang-select-value">
+            @if (string.IsNullOrWhiteSpace(Value?.Code))
+            {
+                @Placeholder
+            }
+            else
+            {
+                <div class="lang-select-value-inner">
+                    <img src="@Value?.IconUrl" alt="@Value?.Name" class="lang-select-flag" />
+                    <span>@Value?.Name</span>
+                </div>
+            }
+        </span>
+        <span class="lang-select-icon">
+            @if (_open)
+            {
+                <img src="images/ico_arrow_up.svg" alt="Cerrar" />
+            }
+            else
+            {
+                <img src="images/ico_arrow_down.svg" alt="Abrir" />
+            }
+        </span>
+    </div>
+
+    @if (_open)
+    {
+        <ul class="lang-select-list">
+            @foreach (var opt in Options)
+            {
+                var active = opt.Code == Value?.Code;
+                <li class="lang-select-item @(active ? "is-active" : "")" @onclick="() => Select(opt)">
+                    <img src="@opt.IconUrl" alt="@opt.Name" class="lang-select-flag" />
+                    <span>@opt.Name</span>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+
+@code {
+    [Parameter] public IEnumerable<LanguageInfo> Options { get; set; } = Enumerable.Empty<LanguageInfo>();
+    [Parameter] public LanguageInfo? Value { get; set; }
+    [Parameter] public EventCallback<LanguageInfo?> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public EventCallback<LanguageInfo?> Changed { get; set; }
+    [Parameter] public bool disabled { get; set; }
+
+    /* id único del combo */
+    [Parameter] public string Id { get; set; } = "";
+
+    /* cuál está abierto según el padre */
+    [Parameter] public string? OpenId { get; set; }
+    [Parameter] public EventCallback<string?> OpenIdChanged { get; set; }
+
+    bool _open => OpenId == Id;
+
+  
+
+    async Task Toggle()
+    {
+        var newId = _open ? null : Id;
+        await OpenIdChanged.InvokeAsync(newId);
+        StateHasChanged();
+    }
+
+    async Task Select(LanguageInfo value)
+    {
+        await ValueChanged.InvokeAsync(value);
+        await Changed.InvokeAsync(value);
+        await OpenIdChanged.InvokeAsync(null);
+    }
+    async Task OnHeaderClick()
+    {
+        if (disabled)
+            return;
+
+        await Toggle();
+    }
+}
+

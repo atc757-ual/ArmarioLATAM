@@ -1,5 +1,6 @@
 ﻿@using ArmarioLATAM.Components.Models
 @using ArmarioLATAM.Services
+@using System.ComponentModel.DataAnnotations
 @inject GarmentSelectionState GarmentSelectionState
 @rendermode InteractiveServer
 
@@ -43,23 +44,32 @@
 
             </div>
         </div>
-        @if (garments.Languages == "")
+        @if (!string.IsNullOrWhiteSpace(garments.Languages))
         {
             <div class="garment-languages">
-                <DropdownSelect Id="native" Placeholder="Lengua materna"
-                                Options="LanguageOptions"
-                                @bind-OpenId="openSelectId"
-                                @bind-Value="NativeLanguage" />
+                <DropdownSelectWithIcon Id="native"
+                                        Placeholder="Lengua materna"
+                                        Options="OptionsNative "
+                                        @bind-OpenId="openSelectId"
+                                        @bind-Value="NativeLanguage"
+                                        Changed="OnNativeLanguageChanged"
+                                        disabled="@(Quantity < 1)" />
 
-                <DropdownSelect Id="second" Placeholder="Idioma 2"
-                                Options="LanguageOptions"
-                                @bind-OpenId="openSelectId"
-                                @bind-Value="SecondLanguage" />
+                <DropdownSelectWithIcon Id="second"
+                                        Placeholder="Idioma 2"
+                                        Options="OptionsSecond "
+                                        @bind-OpenId="openSelectId"
+                                        @bind-Value="SecondLanguage"
+                                        Changed="OnSecondLanguageChanged"
+                                        disabled="@(Quantity < 1 || NativeLanguage is null)" />
 
-                <DropdownSelect Id="third" Placeholder="Idioma 3"
-                                Options="LanguageOptions"
-                                @bind-OpenId="openSelectId"
-                                @bind-Value="ThirdLanguage" />
+                <DropdownSelectWithIcon Id="third"
+                                        Placeholder="Idioma 3"
+                                        Options="OptionsThird "
+                                        @bind-OpenId="openSelectId"
+                                        @bind-Value="ThirdLanguage"
+                                        Changed="OnThirdLanguageChanged"
+                                        disabled="@(Quantity < 1 || SecondLanguage is null)" />
             </div>
         }
         else
@@ -91,7 +101,7 @@
         }
 
         
-        @if (garments.Languages == "")
+        @if (!string.IsNullOrWhiteSpace(garments.Languages))
         {
             <div class="garment-language-note">
                <ul>
@@ -113,22 +123,68 @@
     [Parameter] public Garment garments { get; set; } = new Garment();
     [Parameter] public int InitialQuantity { get; set; }
     [Parameter] public string? InitialSize { get; set; }
+    [Parameter] public string? InitialNativeLanguageCode { get; set; }
+    [Parameter] public string? InitialSecondLanguageCode { get; set; }
+    [Parameter] public string? InitialThridLanguageCode { get; set; }
     [Parameter] public EventCallback<GarmentSelection> OnChanged { get; set; }
+
+    public LanguageInfo? NativeLanguage { get; set; }
+    public LanguageInfo? SecondLanguage { get; set; }
+    public LanguageInfo? ThirdLanguage { get; set; }
+
+    List<LanguageInfo> Languages = new();
+
     public int Quantity { get; set; } = 0;
     public string? SelectedSize { get; set; }
-    string? openSelectId; 
-    // idiomas disponibles para los combos
-    public List<string> LanguageOptions { get; set; } = new() { "Español", "Inglés", "Portugués" };
+    string? openSelectId;
 
-    public string? NativeLanguage { get; set; }
-    public string? SecondLanguage { get; set; }
-    public string? ThirdLanguage { get; set; }
+    // Opcional: si quieres validar idiomas, define este modelo y flags
+    private GarmentSelection garmentSelection = new();
+    private bool isValidNativeLanguage;
+    private bool isValidSecondLanguage;
+    private bool isValidThirdLanguage;
 
-    
+    IEnumerable<string> UsedCodesFor(LanguageInfo? self)
+    {
+        var all = new[]
+        {
+        NativeLanguage?.Code,
+        SecondLanguage?.Code,
+        ThirdLanguage?.Code
+    }
+        .Where(c => !string.IsNullOrWhiteSpace(c))!; // aquí ya no hay null
+
+        if (self?.Code is null)
+            return all!;
+
+        return all.Where(c => c != self.Code)!;
+    }
+    // listas filtradas para evitar repetidos
+    IEnumerable<LanguageInfo> OptionsNative =>
+       Languages.Where(l => !UsedCodesFor(NativeLanguage).Contains(l.Code));
+
+    IEnumerable<LanguageInfo> OptionsSecond =>
+        Languages.Where(l => !UsedCodesFor(SecondLanguage).Contains(l.Code));
+
+    IEnumerable<LanguageInfo> OptionsThird =>
+        Languages.Where(l => !UsedCodesFor(ThirdLanguage).Contains(l.Code));
+
+
+    private static readonly Dictionary<string, LanguageInfo> LanguageMap = new()
+    {
+        ["EN"] = new LanguageInfo { Code = "EN", Name = "Inglés", IconUrl = "images/flags/EN.svg" },
+        ["ES"] = new LanguageInfo { Code = "ES", Name = "Español", IconUrl = "images/flags/ES.svg" },
+        ["PT"] = new LanguageInfo { Code = "PT", Name = "Portugués", IconUrl = "images/flags/PT.svg" },
+        ["IT"] = new LanguageInfo { Code = "IT", Name = "Italiano", IconUrl = "images/flags/IT.svg" },
+        ["FR"] = new LanguageInfo { Code = "FR", Name = "Francés", IconUrl = "images/flags/FR.svg" },
+        ["DE"] = new LanguageInfo { Code = "DE", Name = "Alemán", IconUrl = "images/flags/DE.svg" }
+    };
+
     async Task Increment()
     {
         if (Quantity < garments.QuantityAuth)
             Quantity++;
+
         await NotifyParent();
     }
 
@@ -136,6 +192,7 @@
     {
         if (Quantity >= 1)
             Quantity--;
+
         await NotifyParent();
     }
 
@@ -145,19 +202,89 @@
         await NotifyParent();
     }
 
-    protected override async Task OnParametersSetAsync()
+    // Handlers de idioma (si quieres validar con DataAnnotations)
+    private async Task OnNativeLanguageChanged(LanguageInfo? value)
     {
-        if (Quantity == 0 && SelectedSize == null)
+        NativeLanguage = value;
+        garmentSelection.NativeLanguage = value?.Code ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(garmentSelection)
         {
+            MemberName = nameof(GarmentSelection.NativeLanguage)
+        };
+
+        isValidNativeLanguage = Validator.TryValidateProperty(
+            garmentSelection.NativeLanguage, context, results);
+        await NotifyParent();
+    }
+
+    private async Task OnSecondLanguageChanged(LanguageInfo? value)
+    {
+        SecondLanguage = value;
+        garmentSelection.SecondLanguage = value?.Code ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(garmentSelection)
+        {
+            MemberName = nameof(GarmentSelection.SecondLanguage)
+        };
+
+        isValidSecondLanguage = Validator.TryValidateProperty(
+            garmentSelection.SecondLanguage, context, results);
+        await NotifyParent();
+    }
+
+    private async Task OnThirdLanguageChanged(LanguageInfo? value)
+    {
+        ThirdLanguage = value;
+        garmentSelection.ThirdLanguage = value?.Code ?? string.Empty;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(garmentSelection)
+        {
+            MemberName = nameof(GarmentSelection.ThirdLanguage)
+        };
+
+        isValidThirdLanguage = Validator.TryValidateProperty(
+            garmentSelection.ThirdLanguage, context, results);
+        await NotifyParent();
+    }
+
+    protected override void OnParametersSet()
+    {
+
+        // cantidad
+        if (Quantity == 0 && InitialQuantity > 0)
             Quantity = InitialQuantity;
+
+        // talla
+        if (SelectedSize is null && !string.IsNullOrEmpty(InitialSize))
             SelectedSize = InitialSize;
 
-            if (Quantity > 0 || !string.IsNullOrEmpty(SelectedSize))
-            {
-                await NotifyParent();
-            }
-        }
+        // construir Languages desde garments.Languages (ej: "EN,ES,PT")
+        var codes = (garments.Languages ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct()
+            .ToList();
+
+        Languages = codes
+            .Select(code => LanguageMap.TryGetValue(code, out var info)
+                ? info
+                : new LanguageInfo { Code = code, Name = code })
+            .ToList();
+
+        // inicializar seleccionados por code
+        if (NativeLanguage is null && !string.IsNullOrEmpty(InitialNativeLanguageCode))
+            NativeLanguage = Languages.FirstOrDefault(l => l.Code == InitialNativeLanguageCode);
+
+        if (SecondLanguage is null && !string.IsNullOrEmpty(InitialSecondLanguageCode))
+            SecondLanguage = Languages.FirstOrDefault(l => l.Code == InitialSecondLanguageCode);
+
+        if (ThirdLanguage is null && !string.IsNullOrEmpty(InitialThridLanguageCode))
+            ThirdLanguage = Languages.FirstOrDefault(l => l.Code == InitialThridLanguageCode);
     }
+
     async Task NotifyParent()
     {
         if (!OnChanged.HasDelegate) return;
@@ -169,6 +296,9 @@
             Quantity = Quantity,
             Size = SelectedSize,
             ImageURL = garments.ImageURL,
+            NativeLanguage = NativeLanguage?.Code,
+            SecondLanguage = SecondLanguage?.Code,
+            ThirdLanguage = ThirdLanguage?.Code
         };
 
         await OnChanged.InvokeAsync(data);
