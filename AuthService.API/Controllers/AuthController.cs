@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _auth.Register(request.Email, request.Password, request.Name, request.BP, request.Rol, request.Genero, request.DNI, request.BirthDate, request.ActivationDate);
+            var user = await _auth.Register(request.Email, request.Password, request.Name, request.BP, request.Role, request.Gender, request.DNI, request.BirthDate, request.ActivationDate);
 
             if (user == null)
             {
@@ -92,7 +92,10 @@ public class AuthController : ControllerBase
                 name = user.Name,        
                 bp = user.BP, 
                 expiresIn = 3600,
-                rol = user.Rol,
+                rol = user.Role,
+                genero = user.Gender,
+                birthDate = user.BirthDate,
+                activateDate = user.ActivationDate,
                 Result = new
                 {
                     Code = "200",

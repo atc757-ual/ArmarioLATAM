@@ -402,7 +402,7 @@
         if (!firstRender) return;
 
         _session = await AuthService.GetSessionDataAsync();
-        if (_session is null || !_session.IsValid || _session.Rol != "admin")
+        if (_session is null || !_session.IsValid || _session.Role != "admin")
         {
             Navigation.NavigateTo("/", forceLoad: true);
         }

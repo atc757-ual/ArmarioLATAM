@@ -36,7 +36,7 @@ public class AdminController : ControllerBase
         return Ok(new UserByBpResponse
         {
             Name = user.Name ?? string.Empty,
-            Genero = user.Genero ?? string.Empty,
+            Genero = user.Gender ?? string.Empty,
             Correo = user.Email ?? string.Empty,
             Documento = user.DNI ?? string.Empty
         });
