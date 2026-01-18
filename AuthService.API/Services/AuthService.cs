@@ -13,12 +13,12 @@ using System.Text;
 using static System.Net.WebRequestMethods;
 namespace AuthService.API.Services;
 
-public class AuthService
+public class AuthServices
 {
     private readonly AuthDbContext _context;
     private readonly IConfiguration _config;
 
-    public AuthService(AuthDbContext context, IConfiguration config)
+    public AuthServices(AuthDbContext context, IConfiguration config)
     {
         _context = context;
         _config = config;

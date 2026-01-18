@@ -4,18 +4,17 @@
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-
 @if (IsVisible)
 {
     <div class="header-right">
-        <button class="latam-account-toggle" @onclick="ToggleMenu">
+       <button class="latam-account-toggle" @onclick="ToggleMenu">
             <img class="w-36" src="images/ico_burger.svg" alt="Menú" />
         </button>
-    </div>
+    </div>    
     @if (isAccountOpen)
     {
         <div class="latam-account-overlay" @onclick="CloseMenu">
-            <div class="latam-account-panel" @onclick:stopPropagation>
+            <div class="latam-account-panel @(closing ? "closing" : "")" @onclick:stopPropagation="true">
                 <header class="latam-account-header">
                     <img src="images/logo_footer.svg" alt="LATAM" class="latam-account-logo" />
                     <button class="latam-account-close" @onclick="CloseMenu">
@@ -24,19 +23,13 @@
                 </header>
 
                 <div class="latam-account-body">
-                    <div>
-                        <span class="fw-semibold">@sessionData?.Name</span>
-                    </div>
-                    <div>
-                        <span class="margin-top-xs">BP: @sessionData?.BP</span>
-                    </div>
+                    <div><span class="fw-semibold">@sessionData?.Name</span></div>
+                    <div><span class="margin-top-xs">BP: @sessionData?.BP</span></div>
                 </div>
 
                 <footer class="latam-account-footer">
                     <button class="latam-account-logout" @onclick="CerrarSesion">
-                        <span>
-                            <img class="w-24" src="images/ico_logout.svg" />
-                        </span>
+                        <span><img class="w-24" src="images/ico_logout.svg" /></span>
                         <span>Cerrar sesión</span>
                     </button>
                 </footer>
@@ -45,13 +38,12 @@
     }
 }
 
-
 @code {
     private bool IsVisible { get; set; } = false;
     private bool isAccountOpen { get; set; } = false;
     private DataUserSession? sessionData = new();
+    private bool closing = false;
 
-  
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
@@ -60,15 +52,23 @@
         sessionData = await AuthService.GetSessionDataAsync();
         StateHasChanged();
     }
-   
+
     private void ToggleMenu()
     {
+        closing = false;
         isAccountOpen = true;
+        StateHasChanged();
     }
 
-    private void CloseMenu()
+    private async Task CloseMenu()
     {
+        closing = true;
+        StateHasChanged();  
+    
+        await Task.Delay(300);
+        closing = false;
         isAccountOpen = false;
+        StateHasChanged(); 
     }
 
     private async Task CerrarSesion()
@@ -77,8 +77,3 @@
         Navigation.NavigateTo("/", forceLoad: true);
     }
 }
-
-
-
-
-

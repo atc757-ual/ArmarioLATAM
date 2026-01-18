@@ -1,0 +1,237 @@
+﻿@page "/Seguimiento"
+@inject NavigationManager Navigation
+@using System.Web
+@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Models
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject ITrackingService TrackingService
+@inject IOrderService OrderService
+
+@if (!isLoaded)
+{
+    <LoadPage />
+}
+else
+{
+    <section class="latam-section">
+        <div class="page-title">Seguimiento</div>
+
+        <div class="order-title">Orden #@OrderId.ToString("D5")</div>
+        <div class="order-subtitle">Estado</div>
+        <div class="margin-y-m">
+            <StatusTimeline TrackingData="@OrderTracking.Tracking" />
+        </div>
+        <div class="latam-tracking-card">
+            @foreach (var st in OrderTracking.Tracking)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-date">@st.TrackingDate?.ToString("dd/MM/yyyy HH:mm")</div>
+                        <div class="timeline-text">@st.TrackingStatusDescription</div>
+                    </div>
+                </div>
+                
+            }
+        </div>
+
+
+        <div class="latam-section">
+            <div class="nuevo-ingreso-header">
+                <div>
+                    <span class="color-title fw-semibold">Detalle de la solicitud</span><br class="mobile-break" />
+                </div>
+                <div>
+                    <span class="fs-14 mt-">@OrderTracking.KitTypeName</span>
+                </div>
+            </div>
+
+            <div class="summary-list">
+
+                @foreach (var item in OrderTracking.OrderKits)
+                {
+                    <article class="summary-item">
+                        <img src="@item.ImageUrl" class="summary-image" />
+                        <div class="summary-main">
+                            <div class="summary-head">
+                                <span class="summary-data-label">Name</span>
+                                <span class="summary-data-value">@item.GarmentName</span>
+                            </div>
+                            <div class="summary-data--mobile">
+
+                                @if (string.IsNullOrWhiteSpace(item.Languages))
+                                {
+                                    <span class="summary-data-label">Talla</span>
+                                    <span class="summary-data-value">@item.Size</span>
+                                }
+                                else
+                                {
+                                    var languages = item.Languages
+                                    .Split(new char[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(l => l.Trim().ToUpper())
+                                    .ToList();
+
+                                    var nativeFlag = "";
+                                    var secondFlag = "";
+                                    var thirdFlag = "";
+
+                                    if (languages.Count > 0) nativeFlag = GetFlagPath(languages[0]);
+                                    if (languages.Count > 1) secondFlag = GetFlagPath(languages[1]);
+                                    if (languages.Count > 2) thirdFlag = GetFlagPath(languages[2]);
+
+                                    <div class="flag-language">
+                                        <span class="summary-data-label">
+                                            @if (nativeFlag is not null)
+                                            {
+                                                <img src="@nativeFlag" class="flag-language-icon" />
+                                            }
+                                            @if (secondFlag is not null)
+                                            {
+                                                <img src="@secondFlag" class="flag-language-icon" />
+                                            }
+                                            @if (thirdFlag is not null)
+                                            {
+                                                <img src="@thirdFlag" class="flag-language-icon" />
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="summary-data--desktop">
+                            <div class="summary-size-block">
+
+                                @if (string.IsNullOrEmpty(item.Languages))
+                                {
+                                    <span class="summary-data-label">Talla</span>
+                                    <span class="summary-data-value">@item.Size</span>
+                                }
+                                else
+                                {
+                                    var languages = item.Languages
+                                    .Split(new char[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(l => l.Trim().ToUpper())
+                                    .ToList();
+
+                                    var nativeFlag = "";
+                                    var secondFlag = "";
+                                    var thirdFlag = "";
+
+                                    if (languages.Count > 0) nativeFlag = GetFlagPath(languages[0]);
+                                    if (languages.Count > 1) secondFlag = GetFlagPath(languages[1]);
+                                    if (languages.Count > 2) thirdFlag = GetFlagPath(languages[2]);
+                                    <div>
+                                        <span class="summary-data-label">Idiomas</span>
+                                        <span class="summary-data-value">
+                                            @if (nativeFlag is not null)
+                                            {
+                                                <img src="@nativeFlag" class="flag-language-icon" />
+                                            }
+                                            @if (secondFlag is not null)
+                                            {
+                                                <img src="@secondFlag" class="flag-language-icon" />
+                                            }
+                                            @if (thirdFlag is not null)
+                                            {
+                                                <img src="@thirdFlag" class="flag-language-icon" />
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="summary-qty-block">
+                                <span class="summary-data-label">Cantidad</span>
+                                <span class="summary-data-value">@item.Quantity</span>
+                            </div>
+                        </div>
+                    </article>
+                }
+
+            </div>
+
+            <div class="redirects-footer">
+                <button type="button"
+                        class="latam-back-link"
+                        @onclick="GoBack">
+                    <img src="images/ico_arrow_left.svg" />
+                    <span> Volver</span>
+                </button>
+
+            </div>
+        </div>
+    </section>
+    <ValidaSession />
+
+}
+
+@code {
+
+    public int OrderId { get; set; }
+    private bool isLoaded { get; set; }
+    private List<TimelineStep> steps = new();
+    private OrderTrackingResponseDto OrderTracking = new();
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var query = HttpUtility.ParseQueryString(uri.Query);
+        var orden = query["order"];
+        if (string.IsNullOrEmpty(orden))
+        {
+            Navigation.NavigateTo("/Dashboard");
+        }
+        else
+        {
+            OrderId = int.TryParse(orden, out int numero) ? numero : 0;
+        }
+        isLoaded = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (!firstRender) return;
+
+        var orderTracking = await TrackingService.GetOrderTrackingAsync(OrderId);
+
+        if (orderTracking is not null)
+        {
+            OrderTracking = orderTracking;
+        }
+
+        StateHasChanged();
+    }
+
+    private readonly Dictionary<string, string> LanguageFlagMap =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ES"] = "images/flags/ES.svg",
+            ["EN"] = "images/flags/EN.svg",
+            ["FR"] = "images/flags/FR.svg",
+            ["IT"] = "images/flags/IT.svg",
+            ["DE"] = "images/flags/DE.svg",
+            ["PT"] = "images/flags/PT.svg"
+        };
+
+
+    string? GetFlagPath(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return null;
+        return LanguageFlagMap.TryGetValue(code, out var path)
+            ? path
+            : null;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        isLoaded = true;
+
+    }
+    async Task GoBack()
+    {
+        await JS.InvokeVoidAsync("history.back");
+    }
+
+}

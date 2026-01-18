@@ -35,6 +35,11 @@ builder.Services.AddHttpClient<IAdminService, AdminService>(client =>
     client.BaseAddress = new Uri("http://localhost:5215/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+builder.Services.AddHttpClient<ITrackingService, TrackingService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5215/");
+});
+
 // Registrar ProtectedSessionStorage
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<GarmentSelectionState>();
@@ -45,6 +50,7 @@ builder.Services.AddScoped<ProtectedLocalStorageService>();
 builder.Services.AddScoped<SessionStorageService>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddHttpClient<TrackingService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

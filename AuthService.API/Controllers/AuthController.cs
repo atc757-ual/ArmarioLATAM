@@ -3,7 +3,7 @@ using AuthService.API.Dtos;
 using AuthService.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AuthServiceClass = AuthService.API.Services.AuthService;
+
 
 namespace AuthService.API.Controllers;
 
@@ -11,9 +11,9 @@ namespace AuthService.API.Controllers;
 [Route("auth")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthServiceClass _auth;
+    private readonly AuthServices _auth;
 
-    public AuthController(AuthServiceClass auth)
+    public AuthController(AuthServices auth)
     {
         _auth = auth;
     }

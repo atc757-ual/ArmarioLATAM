@@ -1,0 +1,74 @@
+﻿@using ArmarioLATAM.Components.Models
+@rendermode InteractiveServer
+<div class="status-timeline">
+    <div class="timeline-line @(hasProgress ? "progress" : "")"  style="--progress: @progressPercentage%"></div>
+    <div class="timeline-steps">
+        @for (int i = 0; i < StatusSteps.Count; i++)
+        {
+            var step = StatusSteps[i];
+            var trackingMatch = GetTrackingMatch(step.Label);
+            var isCompleted = trackingMatch != null;
+
+            var lastCompletedIndex = GetLastCompletedIndex();
+            var isCurrent = !isCompleted && i == lastCompletedIndex + 1;
+
+            <div class="step-item @(isCompleted ? "success" : isCurrent ? "current" : "pending")">
+                <div class="step-icon">
+                    @if (isCompleted)
+                    {
+                        <img src="images/ico_check_white.svg"/>
+                    }
+                    else if (isCurrent)
+                    {
+                        <div class="pulse"></div>
+                    }
+                    else
+                    {
+                        <div class="pending-circle"></div>
+                    }
+                </div>
+                <div class="step-label @(isCompleted || isCurrent ? "" :"disable")">@step.Label</div>
+                @if (trackingMatch != null)
+                {
+                    <div class="step-date">@trackingMatch.TrackingDate?.ToString("dd/MM/yyyy")</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@code {
+
+    [Parameter] public List<TrackingDto_>? TrackingData { get; set; }
+    private int CurrentStepIndex { get; set; } = 1;
+    private readonly List<StatusStep> StatusSteps = new()
+    {
+        new() { Label= "Pendiente", Step = 1},
+        new() { Label = "Aprobado", Step = 2 },
+        new() { Label = "Preparación", Step = 3},
+        new() { Label = "Despacho", Step = 4},
+        new() { Label = "Entregado", Step = 5}
+    };
+
+   private bool hasProgress => TrackingData?.Any() == true;
+    private double progressPercentage => TrackingData != null 
+        ? Math.Min(TrackingData.Count * 20.0, 100) 
+        : 0;
+
+    private int GetLastCompletedIndex()
+    {
+        for (int i = 0; i < StatusSteps.Count; i++)
+        {
+            if (GetTrackingMatch(StatusSteps[i].Label) == null)
+                return i - 1;  
+        }
+        return StatusSteps.Count - 1;  
+    }
+    private TrackingDto_? GetTrackingMatch(string statusName)
+    {
+        return TrackingData?.FirstOrDefault(t =>
+            t.TrackingStatusName?.ToLower() == statusName.ToLower());
+    }
+
+ 
+ }
+

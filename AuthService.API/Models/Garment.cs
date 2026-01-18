@@ -6,7 +6,7 @@ public class Garment
     public string Name { get; set; } = default!;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-    public string? ImageURL { get; set; }
+    public string ImageUrl { get; set; } = "";
     public int QuantityAuth { get; set; }
     public string? Sizes { get; set; }
     public string? Languages { get; set; }

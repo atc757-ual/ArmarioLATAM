@@ -544,30 +544,38 @@
             StateHasChanged();
 
             await Task.Delay(500);
-            var pendientes = await AdminService.GetPendingOrdersAsync();
+            await LoadPendingOrders();  // 👈 Método separado
 
-            Solicitudes = pendientes
-                .Select(x => new PendingOrderDto
-                {
-                    check = false,
-                    OrderId = x.OrderId,
-                    Nombre = x.Nombre,
-                    BP = x.BP,
-                    Precio = x.Precio,
-                    Kit = x.Kit
-                })
-                .ToList();
-
-            CantidadVisible = Math.Min(5, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes
-                .Take(CantidadVisible)
-                .ToList();
-
-            hasCheck = false;
             isLoadingSolicitudes = false;
-            ClearSelection();
             StateHasChanged();
         }
+    }
+
+    private async Task LoadPendingOrders()
+    {
+        var pendientes = await AdminService.GetPendingOrdersAsync();
+
+        Solicitudes = pendientes
+            .Select(x => new PendingOrderDto
+            {
+                check = false,  // ✅ Siempre false (limpia checks)
+                OrderId = x.OrderId,
+                Nombre = x.Nombre,
+                BP = x.BP,
+                Precio = x.Precio,
+                Kit = x.Kit
+            })
+            .ToList();
+
+        CantidadVisible = Math.Min(5, Solicitudes.Count);
+        SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
+        var siguiente = Solicitudes.FirstOrDefault();
+        if (siguiente != null)
+        {
+            siguiente.check = true;
+            hasCheck = true;
+        }
+        ClearSelection();  
     }
 
     private void ClearSelection()
@@ -628,6 +636,7 @@
     private string? type { get; set; }
     private bool isLoadingAprobar{ get; set;}
     private bool isLoadingRechazar { get; set;}
+
     private async Task Aprobar()
     {
         var selected = Solicitudes.FirstOrDefault(x => x.check);
@@ -641,10 +650,7 @@
             message = $"OrderId #{@selected.OrderId.ToString("D5")} aprobada con éxito";
             type = "success";
 
-            Solicitudes.Remove(selected);
-            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
-            hasCheck = false;
+            await LoadPendingOrders(); 
         }
         else
         {
@@ -652,7 +658,6 @@
             message = $"No hemos podido aprobar la OrderId #{@selected.OrderId.ToString("D5")}";
             type = "error";
         }
-        ClearSelection();
         isLoadingAprobar = false;
         StateHasChanged();
         toastRef!.OnOpen();
@@ -670,11 +675,8 @@
             title = "¡Solicitud rechazada!";
             message = $"OrderId #{@selected.OrderId.ToString("D5")} rechazada con éxito";
             type = "success";
+            await LoadPendingOrders();
 
-            Solicitudes.Remove(selected);
-            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
-            hasCheck = false;
         }
         else
         {

@@ -9,7 +9,7 @@ namespace ArmarioLATAM.Services
     {
         Task<AdminUser?> GetUserByBpAsync(string bp);
         Task<List<PendingOrderDto>> GetPendingOrdersAsync();
-        Task<List<OrderDetailItemDto>> GetOrderDetailAsync(int orderId);
+        Task<List<OrderDetailItemDto>?> GetOrderDetailAsync(int orderId);
         Task<bool> UpdateOrderStatusAsync(int orderId, string accion); // "aprobar"/"rechazar"
     }
 
@@ -73,15 +73,14 @@ namespace ArmarioLATAM.Services
             return result ?? new List<PendingOrderDto>();
         }
 
-        public async Task<List<OrderDetailItemDto>> GetOrderDetailAsync(int orderId)
+        public async Task<List<OrderDetailItemDto>?> GetOrderDetailAsync(int orderId)
         {
             if (!await AttachTokenAsync())
                 return new();
 
-            var result = await _httpClient.GetFromJsonAsync<List<OrderDetailItemDto>>(
-                $"admin/order-detail/{orderId}");
-
-            return result ?? new List<OrderDetailItemDto>();
+           var response = await _httpClient.GetFromJsonAsync<List<OrderDetailItemDto>>(
+               $"admin/order-detail/{orderId}");
+           return response;
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, string accion)
