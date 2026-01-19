@@ -1,35 +1,17 @@
-﻿<!------------------------------------------------------------------------------------->
-<!-- 🧹 COMPONENTE LIMPIADOR DE ESTADOS GLOBALES -->
-<!-- Limpia todos los estados de selección al cargar la página -->
-<!------------------------------------------------------------------------------------->
-@using ArmarioLATAM.Services
+﻿@using ArmarioLATAM.Services
 @inject KitSelectionState KitSelectionState
 @inject GarmentSelectionState GarmentSelectionState
 @inject OrderState OrderState
 
-<!------------------------------------------------------------------------------------->
-<!-- 🎮 LÓGICA DEL COMPONENTE -->
-<!------------------------------------------------------------------------------------->
 @code {
-    // ============================================================================
-    // 🚀 INICIALIZACIÓN - LIMPIEZA DE ESTADOS GLOBALES
-    // ============================================================================
-    // Se ejecuta SOLO en la primera renderización para resetear:
-    // ✅ KitSelectionState (selección de kits)
-    // ✅ GarmentSelectionState (selección de prendas)
-    // ✅ OrderState (estado de orden/carrito)
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // 🔄 Limpiar estados en orden lógico:
-            // 1️⃣ Kits -> 2️⃣ Prendas -> 3️⃣ Orden
             await KitSelectionState.ClearAsync();
             await GarmentSelectionState.ClearAsync();
             await OrderState.ClearAsync();
-
-            // 🔄 Forzar re-render para reflejar cambios
-            StateHasChanged();
+            StateHasChanged(); 
         }
     }
 }

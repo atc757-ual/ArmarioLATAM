@@ -9,19 +9,15 @@
 @inject IKitService kitService
 @inject IJSRuntime JS
 
-<!------------------------------------------------------------------------------------->
-<!-- 🏠 PÁGINA PRINCIPAL ADMINISTRADOR - INTERFAZ COMPLETA -->
-<!------------------------------------------------------------------------------------->
 <section class="latam-section">
-    <!-- 🎯 TÍTULO PRINCIPAL -->
     <div class="title-dashboard">
         Administrador
     </div>
 
-    <!-- 📱 FILA DE TABS (RESPONSIVE - MÓVIL + DESKTOP) -->
+    <!-- FILA DE TABS (MÓVIL + DESKTOP) -->
     <div class="latam-kits-row">
 
-        <!-- 🆔 TAB 1: ACTUAR COMO OTRO USUARIO -->
+        <!-- TAB 1 -->
         <div class="latam-kit-wrapper">
             <button class="latam-kit @(selectedTab == 1 ? "active" : "")"
                     @onclick="() => SelectTab(1)">
@@ -36,11 +32,11 @@
                 <span class="latam-kit-label">Actuar como otro usuario</span>
             </button>
 
-            <!-- 📱 PANEL MÓVIL TAB 1 -->
+            <!-- PANEL MÓVIL TAB 1 -->
             <div class="latam-kit-panel latam-kit-panel--mobile">
                 @if (selectedTab == 1)
                 {
-                    <!-- 🔍 FORMULARIO BUSCAR USUARIO (MÓVIL) -->
+                    @* contenido móvil tab 1 *@
                     <EditForm FormName="fomBP"
                               Model="@adminModel"
                               OnValidSubmit="@Search">
@@ -81,7 +77,6 @@
                         }
                     </EditForm>
 
-                    <!-- ✅ RESULTADO ÉXITO - INFO USUARIO (MÓVIL) -->
                     @if (step == 1 && isSuccess)
                     {
                         <div class="latam-user-summary">
@@ -114,7 +109,6 @@
                             </div>
                         </div>
                     }
-                    <!-- 🔄 MODO ACTUANDO COMO USUARIO (MÓVIL) -->
                     else if (step == 2)
                     {
                         <div class="userselect-row">
@@ -133,7 +127,7 @@
             </div>
         </div>
 
-        <!-- 📋 TAB 2: SOLICITUDES PENDIENTES -->
+        <!-- TAB 2 -->
         <div class="latam-kit-wrapper">
             <button class="latam-kit @(selectedTab == 2 ? "active" : "") @(_isActingAsUser ? "select--disabled" : "")"
                     @onclick="() => SelectTab(2)">
@@ -148,7 +142,7 @@
                 <span class="latam-kit-label">Solicitudes pendientes</span>
             </button>
 
-            <!-- 📱 PANEL MÓVIL TAB 2 -->
+            <!-- PANEL MÓVIL TAB 2 -->
             @if (selectedTab == 2)
             {
                 <div class="latam-kit-panel latam-kit-panel--mobile">
@@ -198,7 +192,6 @@
                                     </a>
                                 </div>
                             }
-                            <!-- 🎛️ BOTONES ACCIÓN SOLICITUDES (MÓVIL) -->
                             <div class="buttons-solicitudes">
                                 <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar" disabled="@(hasCheck == false || isLoadingAprobar)">@(isLoadingAprobar ? "Aprobando..." : "Aprobar")</button>
                                 <a class="latam-link-danger @(hasCheck || isLoadingRechazar ? "" : " latam-link-danger--disabled")" @onclick="Rechazar">@(isLoadingRechazar ? "Rechazando..." : "Rechazar")</a>
@@ -208,15 +201,15 @@
                 </div>
             }
         </div>
-    </div> @* 🎯 FIN ROW TABS *@
 
-    <!-- 💻 PANEL DESKTOP (CONTENIDO PRINCIPAL DEBAJO DE TABS) -->
+    </div> @* fin latam-kits-row *@
+
+    <!-- PANEL DESKTOP GENERAL (debajo de los tabs) -->
     <div class="latam-kit-panel latam-kit-panel--desktop">
         @if (selectedTab == 1)
         {
-            <!-- 🆔 TAB 1 DESKTOP: ACTUAR COMO USUARIO -->
             <div class="container-childtab">
-                <!-- 🔍 FORMULARIO BUSCAR USUARIO (DESKTOP) -->
+                @* contenido desktop tab 1 *@
                 <EditForm FormName="fomBP"
                           Model="@adminModel"
                           OnValidSubmit="@Search">
@@ -257,7 +250,6 @@
                     }
                 </EditForm>
 
-                <!-- ✅ RESULTADO ÉXITO - INFO USUARIO (DESKTOP) -->
                 @if (step == 1 && isSuccess)
                 {
                     <div class="latam-user-summary">
@@ -293,25 +285,25 @@
                         </div>
                     </div>
                 }
-                <!-- 🔄 MODO ACTUANDO COMO USUARIO (DESKTOP) -->
                 else if (step == 2)
                 {
-                <div class="padding-base">
-                    <div class="userselect-row">
-                        <p><strong>Actuando como</strong></p>
-                        <p>@usuarioModel.Name</p>
-                        <a class="latam-link-danger" @onclick="Recuperar">
-                            Recuperar mi sesión
-                        </a>
+                    <div class="padding-base">
+                        <div class="userselect-row">
+                            <p><strong>Actuando como</strong></p>
+                            <p>@usuarioModel.Name</p>
+                            <a class="latam-link-danger" @onclick="Recuperar">
+                                Recuperar mi sesión
+                            </a>
+                        </div>
                     </div>
-                </div>
                 }
             </div>
-        }
 
+
+        }
         @if (selectedTab == 2)
         {
-            <!-- 📋 TAB 2 DESKTOP: SOLICITUDES PENDIENTES -->
+            @* contenido desktop tab 2 *@
             @if (isLoadingSolicitudes)
             {
                 <div class="container-childtab">
@@ -328,7 +320,6 @@
             }
             else
             {
-                <!-- 📊 TABLA SOLICITUDES DESKTOP -->
                 <table class="solicitudes-table desktop-only">
                     <thead>
                         <tr>
@@ -362,10 +353,12 @@
                                 </td>
                             </tr>
                         }
+
+
                     </tbody>
                 </table>
 
-                <!-- ➕ BOTÓN VER MÁS (DESKTOP) -->
+
                 @if (CantidadVisible < Solicitudes.Count)
                 {
                     <div class="mas-solicitudes desktop-only">
@@ -376,7 +369,6 @@
                     </div>
                 }
 
-                <!-- 🎛️ BOTONES ACCIÓN SOLICITUDES (DESKTOP) -->
                 <div class="buttons-solicitudes">
                     <button class="latam-btn latam-btn--primary" type="button" @onclick="Aprobar" disabled="@(hasCheck == false || isLoadingAprobar)">@(isLoadingAprobar ? "Aprobando..." : "Aprobar")</button>
                     <a class="latam-link-danger @(hasCheck || isLoadingRechazar ? "" : " latam-link-danger--disabled")" @onclick="Rechazar">@(isLoadingRechazar ? "Rechazando..." : "Rechazar")</a>
@@ -385,50 +377,51 @@
         }
     </div>
 
-    <!-- 📊 DASHBOARD (SOLO CUANDO ESTÁ ACTUANDO COMO USUARIO) -->
     @if (step == 2)
     {
         <Dashboard />
     }
 
-    <!-- 🪟 MODALES Y TOASTS -->
+
     <ModalDetalle @ref="modalRef" OrderId=selectedOrderId items="KitDetail" Kit="Kit" />
     <Toast @ref="toastRef" Title="@title" Message="@message" Type="@type" />
 </section>
 
-<!------------------------------------------------------------------------------------->
-<!-- 🎮 LÓGICA DEL COMPONENTE - SECCIÓN CÓDIGO -->
-<!------------------------------------------------------------------------------------->
 @code {
-    // ============================================================================
-    // 1) 🛠️ INICIALIZACIÓN Y SERVICIOS
-    // ============================================================================
+
+    // =========================================================
+    // 1) Sesión y servicios
+    // =========================================================
     private DataUserSession? _session;
     private ModalDetalle? modalRef;
     private Toast? toastRef;
     private bool _isActingAsUser = false;
 
-    // 🚀 Inicialización completa de la página (solo primera renderización)
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        // 1️⃣ Inicializar sesión de autenticación
+        // Inicializar sesión primero
         await AuthService.InitializeSessionAsync();
 
-        // 2️⃣ Verificar si está actuando como otro usuario
+        // Verificar si está actuando como usuario
         _isActingAsUser = await AuthService.HasAdminSessionAsync();
 
         if (_isActingAsUser)
         {
             selectedTab = 1;
-            step = 2;
-            await LoadActingAsUserName();
+            step = 2; // Establecer paso 2 automáticamente
+            // Puedes cargar el nombre del usuario si lo tienes guardado
+            var name = await AuthService.GetActingAsUserNameAsync();
+            title = "Sesión iniciada";
+            message = $"Ahora estás actuando como "+ name;
+            type = "success";
             StateHasChanged();
+            toastRef!.OnOpen();
             return;
         }
 
-        // 3️⃣ Verificar sesión admin normal
+        // Si no está actuando como usuario, verificar sesión normal
         _session = await AuthService.GetSessionDataAsync();
         if (_session is null || !_session.IsValid || _session.Role != "admin")
         {
@@ -436,22 +429,21 @@
         }
     }
 
-    // ============================================================================
-    // 2) 🎛️ ESTADO GENERAL DE LA PÁGINA
-    // ============================================================================
-    private int selectedTab = 1;           // 1=ActuarComoUsuario, 2=Solicitudes
-    private int step { get; set; } = 0;    // Flujo actuar como usuario: 0=buscar, 1=resultado, 2=activo
+    // =========================================================
+    // 2) Estado general de la página
+    // =========================================================
+    private int selectedTab = 1;           // 1: Actuar como usuario, 2: Solicitudes
+    private int step { get; set; } = 0;    // flujo de actuar como usuario
     private bool isLoading { get; set; } = false;
     private bool isSuccess { get; set; } = false;
 
-    // ============================================================================
-    // 3) 👤 TAB 1 - ACTUAR COMO OTRO USUARIO
-    // ============================================================================
+    // =========================================================
+    // 3) Modelo admin: actuar como otro usuario (TAB 1)
+    // =========================================================
     public AdminModel adminModel = new();
     public AdminUser usuarioModel = new();
     private bool isValidBP = false;
 
-    // ✅ Validación en tiempo real del BP (blur)
     private void OnBPBlur(FocusEventArgs e)
     {
         var results = new List<ValidationResult>();
@@ -460,18 +452,22 @@
             MemberName = nameof(AdminModel.BPSearch)
         };
 
-        isValidBP = Validator.TryValidateProperty(adminModel.BPSearch, context, results);
+        isValidBP = Validator.TryValidateProperty(
+            adminModel.BPSearch,
+            context,
+            results);
+
         StateHasChanged();
     }
 
-    // 🔍 Buscar usuario por BP
     private async Task Search()
     {
-        if (!isValidBP) return;
+        if (!isValidBP)
+            return;
 
         isLoading = true;
-        await Task.Delay(1000); // UX feedback
 
+        await Task.Delay(1000);
         var user = await AdminService.GetUserByBpAsync(adminModel.BPSearch);
 
         if (user is not null)
@@ -482,7 +478,12 @@
         }
         else
         {
-            ShowToast("No encontrado", $"No se encontró usuario con BP {adminModel.BPSearch}", "error");
+            title = "No encontrado";
+            message = $"No se encontró usuario con BP {adminModel.BPSearch}";
+            type = "error";
+            StateHasChanged();
+            toastRef!.OnOpen();
+            usuarioModel = new();
             step = 0;
             isSuccess = false;
         }
@@ -490,7 +491,6 @@
         StateHasChanged();
     }
 
-    // 🧹 Limpiar formulario de búsqueda
     private void Limpiar()
     {
         adminModel = new();
@@ -498,21 +498,21 @@
         step = 0;
     }
 
-    // 👤 Cargar nombre del usuario cuando está actuando como él
     private async Task LoadActingAsUserName()
     {
         if (_isActingAsUser)
         {
+            // Obtener el nombre desde AuthService
             var userName = await AuthService.GetActingAsUserNameAsync();
             if (!string.IsNullOrEmpty(userName))
             {
                 usuarioModel.Name = userName;
-                ShowToast("Sesión iniciada", $"Ahora estás actuando como {userName}", "success");
+                StateHasChanged();
             }
         }
     }
+   
 
-    // 🎭 Iniciar sesión COMO el usuario seleccionado
     private async Task ActuarComo()
     {
         isLoading = true;
@@ -530,13 +530,21 @@
             }
             else
             {
-                ShowToast("Error", "No se pudo iniciar sesión como el usuario", "error");
+                title = "Error";
+                message = "No se pudo iniciar sesión como el usuario";
+                type = "error"; 
+                StateHasChanged();
+                toastRef!.OnOpen();
                 step = 1;
             }
         }
         catch
         {
-            ShowToast("Error", "Ocurrió un error al iniciar sesión como usuario", "error");
+            title = "Error";
+            message = "Ocurrió un error al iniciar sesión como usuario";
+            type = "error";
+            StateHasChanged();
+            toastRef!.OnOpen();
             step = 1;
         }
         finally
@@ -546,7 +554,6 @@
         }
     }
 
-    // 🔄 Restaurar sesión original de administrador
     private async Task Recuperar()
     {
         isLoading = true;
@@ -559,18 +566,30 @@
             if (restored)
             {
                 _isActingAsUser = false;
+                // Ya no necesitamos limpiar SessionStorage porque AuthService maneja todo internamente
                 Limpiar();
-                ShowToast("Sesión restaurada", "Has vuelto a tu sesión de administrador", "success");
+                title = "Sesión restaurada";
+                message = "Has vuelto a tu sesión de administrador";
+                type = "success";
+                toastRef!.OnOpen();
+
+                // Recargar la página para actualizar completamente
                 Navigation.NavigateTo("/Administrador", forceLoad: true);
             }
             else
             {
-                ShowToast("Error", "No se pudo restaurar la sesión de administrador", "error");
+                title = "Error";
+                message = "No se pudo restaurar la sesión de administrador";
+                type = "error";
+                toastRef!.OnOpen();
             }
         }
         catch
         {
-            ShowToast("Error", "Ocurrió un error al restaurar la sesión", "error");
+            title = "Error";
+            message = "Ocurrió un error al restaurar la sesión";
+            type = "error";
+            toastRef!.OnOpen();
         }
         finally
         {
@@ -579,25 +598,24 @@
         }
     }
 
-    // ============================================================================
-    // 4) 📋 TAB 2 - SOLICITUDES PENDIENTES
-    // ============================================================================
+    // =========================================================
+    // 4) Solicitudes pendientes (TAB 2)
+    // =========================================================
     private bool isLoadingSolicitudes { get; set; } = false;
+
     private List<PendingOrderDto> Solicitudes = new();
     private List<PendingOrderDto> SolicitudesVisibles = new();
     private int CantidadVisible = 10;
+
     private bool hasCheck { get; set; } = false;
 
-    // 📻 Manejo de selección radio button (solo uno activo)
     private void OnRadioChange(PendingOrderDto s)
     {
         var estabaSeleccionado = s.check;
 
-        // Deseleccionar todos
         foreach (var item in Solicitudes)
             item.check = false;
 
-        // Toggle selección actual
         if (estabaSeleccionado)
         {
             s.check = false;
@@ -611,18 +629,19 @@
         StateHasChanged();
     }
 
-    // ➕ Cargar más solicitudes visibles (paginación lazy)
+
     private void VerMas()
     {
         if (CantidadVisible < Solicitudes.Count)
         {
             CantidadVisible = Math.Min(CantidadVisible + 5, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
+            SolicitudesVisibles = Solicitudes
+                .Take(CantidadVisible)
+                .ToList();
         }
         StateHasChanged();
     }
 
-    // 🔄 Cambiar tab y cargar datos
     private async Task SelectTab(int tab)
     {
         if (selectedTab == tab) return;
@@ -634,15 +653,14 @@
             isLoadingSolicitudes = true;
             StateHasChanged();
 
-            await Task.Delay(500); // UX
-            await LoadPendingOrders();
+            await Task.Delay(500);
+            await LoadPendingOrders();  // 👈 Método separado
 
             isLoadingSolicitudes = false;
             StateHasChanged();
         }
     }
 
-    // 📥 Cargar todas las solicitudes pendientes del admin service
     private async Task LoadPendingOrders()
     {
         var pendientes = await AdminService.GetPendingOrdersAsync();
@@ -650,7 +668,7 @@
         Solicitudes = pendientes
             .Select(x => new PendingOrderDto
             {
-                check = false,  // Siempre resetear selección
+                check = false,  // ✅ Siempre false (limpia checks)
                 OrderId = x.OrderId,
                 Nombre = x.Nombre,
                 BP = x.BP,
@@ -661,34 +679,30 @@
 
         CantidadVisible = Math.Min(5, Solicitudes.Count);
         SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
-
-        // Auto-seleccionar primera si existe
         var siguiente = Solicitudes.FirstOrDefault();
         if (siguiente != null)
         {
             siguiente.check = true;
             hasCheck = true;
         }
-
-        ClearSelection(); // Limpia selección previa
+        ClearSelection();
     }
 
-    // 🗑️ Limpiar toda selección
     private void ClearSelection()
     {
         foreach (var item in Solicitudes)
             item.check = false;
+
         hasCheck = false;
     }
-
-    // ============================================================================
-    // 5) 👁️ MODAL DETALLE ORDEN
-    // ============================================================================
+    // =========================================================
+    // 5) Detalle de orden (modal Ver detalle)
+    // =========================================================
     private int selectedOrderId;
+
     private List<KitDetailModel> KitDetail = new();
     private KitModel Kit = new();
 
-    // 📄 Abrir modal con detalle completo de orden
     private async Task VerDetalle(PendingOrderDto selected)
     {
         selectedOrderId = selected.OrderId;
@@ -722,9 +736,10 @@
         StateHasChanged();
     }
 
-    // ============================================================================
-    // 6) ✅✅ APROBAR / RECHAZAR SOLICITUDES + TOASTS
-    // ============================================================================
+
+    // =========================================================
+    // 6) Aprobar / Rechazar + Toast
+    // =========================================================
     private bool success { get; set; } = true;
     private string? title { get; set; }
     private string? message { get; set; }
@@ -732,58 +747,60 @@
     private bool isLoadingAprobar { get; set; }
     private bool isLoadingRechazar { get; set; }
 
-    // ✅ Aprobar solicitud seleccionada
     private async Task Aprobar()
     {
         var selected = Solicitudes.FirstOrDefault(x => x.check);
         if (selected is null) return;
-
         isLoadingAprobar = true;
         var ok = await AdminService.UpdateOrderStatusAsync(selected.OrderId, "aprobar");
 
         if (ok)
         {
-            ShowToast("¡Solicitud aprobada!", $"OrderId #{selected.OrderId.ToString("D5")} aprobada con éxito", "success");
+            title = "¡Solicitud aprobada!";
+            message = $"OrderId #{@selected.OrderId.ToString("D5")} aprobada con éxito";
+            type = "success";
+
             await LoadPendingOrders();
         }
         else
         {
-            ShowToast("¡Ha ocurrido un error!", $"No hemos podido aprobar la OrderId #{selected.OrderId.ToString("D5")}", "error");
+            title = "¡Ha ocurrido un error!";
+            message = $"No hemos podido aprobar la OrderId #{@selected.OrderId.ToString("D5")}";
+            type = "error";
         }
         isLoadingAprobar = false;
         StateHasChanged();
+        toastRef!.OnOpen();
     }
 
-    // ❌ Rechazar solicitud seleccionada
-    private async Task Rechazar()
+    private async void Rechazar()
     {
         var selected = Solicitudes.FirstOrDefault(x => x.check);
         if (selected is null) return;
-
         isLoadingRechazar = true;
         var ok = await AdminService.UpdateOrderStatusAsync(selected.OrderId, "rechazar");
 
         if (ok)
         {
-            ShowToast("¡Solicitud rechazada!", $"OrderId #{selected.OrderId.ToString("D5")} rechazada con éxito", "success");
+            title = "¡Solicitud rechazada!";
+            message = $"OrderId #{@selected.OrderId.ToString("D5")} rechazada con éxito";
+            type = "success";
             await LoadPendingOrders();
+
         }
         else
         {
-            ShowToast("¡Ha ocurrido un error!", $"No hemos podido rechazar la OrderId #{selected.OrderId.ToString("D5")}", "error");
+            title = "¡Ha ocurrido un error!";
+            message = $"No hemos podido rechazar la OrderId #{@selected.OrderId.ToString("D5")}";
+            type = "error";
         }
         isLoadingRechazar = false;
-        StateHasChanged();
-    }
-
-    // 🔔 Método helper para mostrar toasts (DRY)
-    private void ShowToast(string titleText, string messageText, string toastType)
-    {
-        title = titleText;
-        message = messageText;
-        type = toastType;
         StateHasChanged();
         toastRef!.OnOpen();
     }
 
+    // =========================================================
+    // 7) Dashboard (cuando step == 2)
+    // =========================================================
+    private string OrdernAprobada { get; set; } = "";
 }
