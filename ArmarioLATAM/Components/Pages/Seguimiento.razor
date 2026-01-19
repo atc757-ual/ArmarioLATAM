@@ -23,31 +23,31 @@ else
         <div class="margin-y-m">
             <StatusTimeline TrackingData="@OrderTracking.Tracking" />
         </div>
-        <div class="latam-tracking-card">
-            @foreach (var st in OrderTracking.Tracking)
-            {
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <div class="timeline-date">@st.TrackingDate?.ToString("dd/MM/yyyy HH:mm")</div>
-                        <div class="timeline-text">@st.TrackingStatusDescription</div>
+        <div class="padding-bottom-base">
+            <div class="latam-tracking-card">
+                @foreach (var st in OrderTracking.Tracking)
+                {
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">@st.TrackingDate?.ToString("dd/MM/yyyy HH:mm")</div>
+                            <div class="timeline-text">@st.TrackingStatusDescription</div>
+                        </div>
                     </div>
-                </div>
-                
-            }
+
+                }
+            </div>
         </div>
 
 
         <div class="latam-section">
-            <div class="nuevo-ingreso-header">
-                <div>
-                    <span class="color-title fw-semibold">Detalle de la solicitud</span><br class="mobile-break" />
-                </div>
-                <div>
-                    <span class="fs-14 mt-">@OrderTracking.KitTypeName</span>
-                </div>
+            <div class="color-title fw-semibold">
+                <span >Detalle de la solicitud</span><br class="mobile-break" />
+            </div>
+            <div class ="padding-top-s padding-bottom-base fs-14">
+                <span >@OrderTracking.KitTypeName</span>
             </div>
 
-            <div class="summary-list">
+            <div class="summary-list margin-bottom-xxl">
 
                 @foreach (var item in OrderTracking.OrderKits)
                 {
@@ -179,7 +179,7 @@ else
         var orden = query["order"];
         if (string.IsNullOrEmpty(orden))
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("/Dashboard", forceLoad: true);
         }
         else
         {

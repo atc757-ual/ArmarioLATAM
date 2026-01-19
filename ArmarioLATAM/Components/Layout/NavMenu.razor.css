@@ -97,6 +97,9 @@
 .latam-account-body {
     padding: var(--space-base);
     color: var(--color-navbar);
+    display:flex;
+    align-items:center;
+    gap: var(--space-s)
 }
 
 .latam-account-footer {

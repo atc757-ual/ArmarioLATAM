@@ -44,6 +44,7 @@
     --color-dark: #212529;
     --color-accent: #f51b5c;
     --color-accent-light: #f7d2dc;
+    --color-accent-dark: #931037;
     --color-disabled: #EBEBE4;
     --color-footer: #ECECEE;
     --color-navbar: #5C5C5C;
@@ -89,6 +90,10 @@
     --space-l: 2rem; /* 32px */
     --space-xl: 3rem; /* 48px */
     --space-xxl: 4rem; /* 64px */
+    /*width*/
+    --w-24: 1.5rem; /* 24px */
+    --w-32: 2rem; /* 32px */
+    --w-48: 3rem; /* 48px */
     /* BORDERS & RADII --------------- */
     --border-width-0: 0;
     --border-width-1: 0.0625rem; /* 1px  */
@@ -147,6 +152,10 @@
 .color-title {
    color: var(--color-title)
 }
+.text-neutral-9 {
+    color: var(--color-neutral-9)
+}
+
 /* Utilidades de peso de fuente */
 .fw-light {
     font-weight: var(--font-weight-light);

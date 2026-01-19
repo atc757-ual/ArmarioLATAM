@@ -27,6 +27,13 @@
     opacity: 0.6;
 }
 
+.select--disabled {
+    color: var(--color-neutral-4); /* color “apagado” */
+    pointer-events: none; /* no acepta clics */
+    cursor: default;
+    text-decoration: none;
+    opacity: 0.6;
+}
 /* Columna del campo en vertical */
 .admin-desktop-field {
     display: flex;

@@ -14,7 +14,7 @@
 
         if (!isValid && !isHome)
         {
-            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/", forceLoad: true);
         }
 
         StateHasChanged();

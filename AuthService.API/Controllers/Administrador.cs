@@ -159,4 +159,31 @@ public class AdminController : ControllerBase
         return Ok(new { success = true });
     }
 
+    [Authorize(Roles = "admin")]
+    [HttpPost("login-as-user/{bp}")]
+    public async Task<IActionResult> LoginAsUser(string bp)
+    {
+        var user = await _authService.GetUserByBpAsync(bp);
+        if (user == null)
+            return NotFound(new { message = "Usuario no encontrado" });
+
+        var token = _authService.GenerateJwt(user);
+
+        return Ok(new
+        {
+            token,
+            name = user.Name,
+            bp = user.BP,
+            expiresIn = 3600,
+            role = user.Role,
+            gender = user.Gender,
+            birthDate = user.BirthDate,
+            activationDate = user.ActivationDate,
+            Result = new
+            {
+                Code = "200",
+                Description = "OK"
+            }
+        });
+    }
 }

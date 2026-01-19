@@ -39,10 +39,7 @@ else
                     Por favor, inténtalo nuevamente
                 </div>
                 <Separator></Separator>
-                <div class="latam-error-footer">
-                    <button class="latam-btn latam-btn--primary" type="button" @onclick="Reintentar">
-                        Reintentar
-                    </button>
+                <div class="latam-error-footer">                   
                     <a class="latam-link-danger" @onclick="GoInicio">
                         Volver al inicio
                     </a>
@@ -128,16 +125,13 @@ else
     {
         GarmentSelectionState.SetSelections(_selected.Values);
         await GarmentSelectionState.SaveAsync();
-        Navigation.NavigateTo("/GarmentsResumen");
+        Navigation.NavigateTo("/GarmentsResumen", forceLoad: true);
     }
 
-    void Reintentar()
-    {
-
-    }
+ 
     void GoInicio()
     {
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/", forceLoad: true);
     }
 
 
@@ -153,7 +147,7 @@ else
 
         if (KitSelectionState.IsEmpty)
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("/Dashboard", forceLoad: true);
             return;
         }
 
@@ -175,7 +169,7 @@ else
 
             if (_garments is null)
             {
-                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/", forceLoad: true);
                 return;
             }
 

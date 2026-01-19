@@ -34,7 +34,7 @@
 @code {
     void GoNext()
     {
-        Navigation.NavigateTo("/Dashboard");
+        Navigation.NavigateTo("/Dashboard", forceLoad: true);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -48,7 +48,7 @@
 
             if (KitSelectionState.IsEmpty)
             {
-                Navigation.NavigateTo("/Dashboard");
+                Navigation.NavigateTo("/Dashboard", forceLoad: true);
                 return;
             }
             await KitSelectionState.ClearAsync();

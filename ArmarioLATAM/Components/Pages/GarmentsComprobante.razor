@@ -68,7 +68,7 @@
 
         if (OrderState.IsEmpty)
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("/", forceLoad: true);
             return;
         }
         isShow = true;
@@ -89,6 +89,6 @@
 
     void GoNext()
     {
-        Navigation.NavigateTo("/Dashboard");
+        Navigation.NavigateTo("/",forceLoad:true);
     }
 }

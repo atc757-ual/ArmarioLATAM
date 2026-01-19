@@ -10,42 +10,49 @@
 @inject IOrderService OrderService
 @rendermode InteractiveServer
 
+<!-- ==================== UI ==================== -->
 @if (!isLoaded)
 {
     <LoadPage />
 }
 else
 {
-
     <section class="latam-section">
+        <!-- Título kit -->
         <div class="page-title">@KitSelectionState.Name</div>
         <Separator />
+
+        <!-- Header resumen -->
         <div class="nuevo-ingreso-header">
             <span class="label">Resumen de solicitud:</span><br class="mobile-break" />
             <span class="label">@KitSelectionState.Description</span>
         </div>
 
+        <!-- Lista garments -->
         <div class="summary-list">
-
             @foreach (var item in GarmentSelectionState.SelectedGarments)
             {
                 <article class="summary-item">
-                    <img src="@item.ImageURL" class="summary-image" />
+                    <img src="@item.ImageURL" class="summary-image" alt="@item.Name" />
+
+                    <!-- Info principal -->
                     <div class="summary-main">
                         <div class="summary-head">
                             <span class="summary-data-label">Name</span>
                             <span class="summary-data-value">@item.Name</span>
                         </div>
-                        <div class="summary-data--mobile">
 
-                            @if (string.IsNullOrEmpty(item.NativeLanguage) && string.IsNullOrEmpty(item.SecondLanguage) && string.IsNullOrEmpty(item.ThirdLanguage))
+                        <!-- Mobile: talla o idiomas -->
+                        <div class="summary-data--mobile">
+                            @if (string.IsNullOrEmpty(item.NativeLanguage) &&
+                                                string.IsNullOrEmpty(item.SecondLanguage) &&
+                                                string.IsNullOrEmpty(item.ThirdLanguage))
                             {
                                 <span class="summary-data-label">Talla</span>
                                 <span class="summary-data-value">@item.Size</span>
                             }
                             else
                             {
-
                                 var nativeFlag = GetFlagPath(item.NativeLanguage);
                                 var secondFlag = GetFlagPath(item.SecondLanguage);
                                 var thirdFlag = GetFlagPath(item.ThirdLanguage);
@@ -70,10 +77,12 @@ else
                         </div>
                     </div>
 
+                    <!-- Desktop: talla + qty -->
                     <div class="summary-data--desktop">
                         <div class="summary-size-block">
-
-                            @if (string.IsNullOrEmpty(item.NativeLanguage) && string.IsNullOrEmpty(item.SecondLanguage) && string.IsNullOrEmpty(item.ThirdLanguage))
+                            @if (string.IsNullOrEmpty(item.NativeLanguage) &&
+                                                string.IsNullOrEmpty(item.SecondLanguage) &&
+                                                string.IsNullOrEmpty(item.ThirdLanguage))
                             {
                                 <span class="summary-data-label">Talla</span>
                                 <span class="summary-data-value">@item.Size</span>
@@ -110,35 +119,36 @@ else
                     </div>
                 </article>
             }
-
         </div>
 
         <Separator />
+
+        <!-- Botones footer -->
         <div class="redirects-footer">
-            <button type="button"
-                    class="latam-back-link"
-                    @onclick="GoBack">
+            <button type="button" class="latam-back-link" @onclick="GoBack">
                 <img src="images/ico_arrow_left.svg" />
-                <span> Volver</span>
+                <span>Volver</span>
             </button>
             <div class="latam-btn-row">
                 <button type="button"
-                        class="latam-btn latam-btn--primary" disabled="@isLoadingButton"
+                        class="latam-btn latam-btn--primary"
+                        disabled="@isLoadingButton"
                         @onclick="CreateOrder">
                     @(isLoadingButton ? "Enviando solicitud..." : "Confirmar solicitud")
                 </button>
             </div>
-
         </div>
     </section>
     <ValidaSession />
 }
 
+<!-- ==================== LÓGICA ==================== -->
 @code {
+    // Estados carga
     private bool isLoaded = false;
     private bool isLoadingButton = false;
 
-
+    // ==================== MAPEO IDIOMAS ====================
     private readonly Dictionary<string, string> LanguageFlagMap =
         new(StringComparer.OrdinalIgnoreCase)
         {
@@ -150,102 +160,114 @@ else
             ["PT"] = "images/flags/PT.svg"
         };
 
+    // Obtiene path bandera por código idioma
     string? GetFlagPath(string? code)
     {
         if (string.IsNullOrWhiteSpace(code)) return null;
-        return LanguageFlagMap.TryGetValue(code, out var path)
-            ? path
-            : null; // o una imagen por defecto
+        return LanguageFlagMap.TryGetValue(code, out var path) ? path : null;
     }
 
+    // ==================== INIT ====================
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // 1. Cargar selección desde localStorage
+            // Carga datos localStorage
             if (KitSelectionState.IsEmpty || GarmentSelectionState.IsEmpty)
             {
                 await KitSelectionState.LoadAsync();
                 await GarmentSelectionState.LoadAsync();
             }
 
+            // Valida datos requeridos
             if (KitSelectionState.IsEmpty || GarmentSelectionState.IsEmpty)
             {
-                Navigation.NavigateTo("/Dashboard");
+                Navigation.NavigateTo("/", forceLoad: true);
                 return;
             }
-            isLoaded = true;
-            StateHasChanged(); // un solo render extra tras cargar todo
-        }
 
+            isLoaded = true;
+            StateHasChanged();
+        }
     }
 
-
+    // ==================== CREAR ORDEN ====================
     async Task CreateOrder()
     {
+        // Validación rápida
         if (KitSelectionState.KitTypeId is null || !GarmentSelectionState.SelectedGarments.Any())
         {
             return;
         }
 
         isLoadingButton = true;
-        await Task.Delay(500); // Simula tiempo de espera
+        await Task.Delay(500); // UX feedback
 
+        // Carga detalles entrega
         await DetailDeliveredState.LoadAsync();
 
+        // ==================== DTO ORDEN ====================
         var dto = new CreateOrder
         {
             KitTypeId = KitSelectionState.KitTypeId.Value,
             Items = GarmentSelectionState.SelectedGarments
-                    .Select(g => new CreateOrderItem
-                    {
-                        GarmentId = g.GarmentId,
-                        Size = g.Size,
-                        Quantity = g.Quantity,
-                        Languages = string.Join(",",
+                .Select(g => new CreateOrderItem
+                {
+                    GarmentId = g.GarmentId,
+                    Size = g.Size,
+                    Quantity = g.Quantity,
+                    Languages = string.Join(",",
                         new[] { g.NativeLanguage, g.SecondLanguage, g.ThirdLanguage }
                             .Where(code => !string.IsNullOrWhiteSpace(code)))
-                    })
-                    .ToList(),
-                    Motive = DetailDeliveredState.Detail.Motive,
-                    DetailMotive = DetailDeliveredState.Detail.DetailMotive,
-                    Province = DetailDeliveredState.Detail.Province,
-                    District = DetailDeliveredState.Detail.District,
-                    Address = DetailDeliveredState.Detail.Address,
-                    AddressReference = DetailDeliveredState.Detail.Reference
+                }).ToList(),
+            Motive = DetailDeliveredState.Detail.Motive,
+            DetailMotive = DetailDeliveredState.Detail.DetailMotive,
+            Province = DetailDeliveredState.Detail.Province,
+            District = DetailDeliveredState.Detail.District,
+            Address = DetailDeliveredState.Detail.Address,
+            AddressReference = DetailDeliveredState.Detail.Reference
         };
+
+        // API call
         var response = await OrderService.CreateOrderAsync(dto);
 
+        // ==================== MANEJO RESPUESTA ====================
         if (response is null)
         {
-            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/", forceLoad: true);
             return;
         }
 
         if (!response.IsSuccessStatusCode)
         {
-            Navigation.NavigateTo("/GarmentsError");
+            Navigation.NavigateTo("/GarmentsError", forceLoad: true);
             return;
         }
-        var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
 
+        var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
         if (result is null)
         {
-            Navigation.NavigateTo("/GarmentsError");
+            Navigation.NavigateTo("/GarmentsError", forceLoad: true);
             return;
         }
+
+        // ==================== ÉXITO ====================
         string orderNumber = result.OrderId.ToString("D5");
         var fecha = DateTime.ParseExact(result.Fecha!, "yyyy-MM-dd", null);
         string orderDate = fecha.ToString("dd/MM/yyyy");
 
+        // Guarda estado orden
         OrderState.Set(orderNumber, orderDate);
         await OrderState.SaveAsync();
 
-        Navigation.NavigateTo("/GarmentsComprobante");
+        // Redirige comprobante
+        Navigation.NavigateTo("/GarmentsComprobante", forceLoad: true);
     }
 
-    void GoBack()
+    // ==================== NAVEGACIÓN ====================
+    async Task GoBack()
     {
-        JS.InvokeVoidAsync("history.back");
+        // History back suave
+        await JS.InvokeVoidAsync("history.back");
     }
 }

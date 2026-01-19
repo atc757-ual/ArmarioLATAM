@@ -305,7 +305,7 @@
         DetailDeliveredState.SetDetail(detail);
         await DetailDeliveredState.SaveAsync();
         isOpen = false;
-        Navigation.NavigateTo("/Garments");
+        Navigation.NavigateTo("/Garments", forceLoad: true);
         StateHasChanged();
     }
 }
