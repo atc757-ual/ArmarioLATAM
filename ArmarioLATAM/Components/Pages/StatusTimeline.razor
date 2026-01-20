@@ -1,7 +1,7 @@
 ﻿@using ArmarioLATAM.Components.Models
 @rendermode InteractiveServer
 <div class="status-timeline">
-    <div class="timeline-line @(hasProgress ? "progress" : "")"  style="--progress: @progressPercentage%"></div>
+    <div class="timeline-line @(isRejected ? "error" : hasProgress ? "progress" : "")" style="--progress: @ProgressPercentage()%"></div>
     <div class="timeline-steps">
         @for (int i = 0; i < StatusSteps.Count; i++)
         {
@@ -12,22 +12,29 @@
             var lastCompletedIndex = GetLastCompletedIndex();
             var isCurrent = !isCompleted && i == lastCompletedIndex + 1;
 
-            <div class="step-item @(isCompleted ? "success" : isCurrent ? "current" : "pending")">
+            <div class="step-item @(isCompleted && isRejected ? "error" : isCompleted ? "success" : isCurrent && !isRejected ? "current" : "pending")">
                 <div class="step-icon">
                     @if (isCompleted)
                     {
-                        <img src="images/ico_check_white.svg"/>
+                        if (lastCompletedIndex == i && isRejected)
+                        {
+                            <img src="images/ico_close_white.svg" />
+                        }
+                        else
+                        {
+                            <img src="images/ico_check_white.svg" />
+                        }
                     }
-                    else if (isCurrent)
+                    else if (isCurrent && !isRejected)
                     {
                         <div class="pulse"></div>
                     }
                     else
                     {
-                        <div class="pending-circle"></div>
+                       <div class="pending-circle"></div>
                     }
                 </div>
-                <div class="step-label @(isCompleted || isCurrent ? "" :"disable")">@step.Label</div>
+                <div class="step-label @(isCompleted || isCurrent && !isRejected ? "" : "disable")">@step.Label</div>
                 @if (trackingMatch != null)
                 {
                     <div class="step-date">@trackingMatch.TrackingDate?.ToString("dd/MM/yyyy")</div>
@@ -36,32 +43,54 @@
         }
     </div>
 </div>
+
 @code {
+    [Parameter] public List<TrackingDto_> TrackingData { get; set; } = new();
+    [Parameter] public bool isRejected { get; set; } = false;
+    private List<StatusStep> StatusSteps { get; set; } = new();
 
-    [Parameter] public List<TrackingDto_>? TrackingData { get; set; }
+    private double progressPercentage = 0;
+    private bool hasProgress => TrackingData?.Any() == true;
+
     private int CurrentStepIndex { get; set; } = 1;
-    private readonly List<StatusStep> StatusSteps = new()
-    {
-        new() { Label= "Pendiente", Step = 1},
-        new() { Label = "Aprobado", Step = 2 },
-        new() { Label = "Preparación", Step = 3},
-        new() { Label = "Despacho", Step = 4},
-        new() { Label = "Entregado", Step = 5}
-    };
 
-   private bool hasProgress => TrackingData?.Any() == true;
-    private double progressPercentage => TrackingData != null 
-        ? Math.Min(TrackingData.Count * 20.0, 100) 
-        : 0;
+    protected override void OnParametersSet()
+    {
+        StatusSteps = new List<StatusStep>
+        {
+            new() { Label = "Pendiente", Step = 1 },
+            new() { Label = "Aprobado", Step = 2 },
+            new() { Label = "Preparación", Step = 3 },
+            new() { Label = "Despacho", Step = 4 },
+            new() { Label = "Entregado", Step = 5 }
+        };
+
+        if (isRejected)
+        {
+            var step = StatusSteps.FirstOrDefault(s => s.Label.ToLowerInvariant() == "aprobado");
+            if (step != null)
+            {
+                step.Label = "Rechazado";
+            }
+        }      
+
+    }
+
+    private double ProgressPercentage()
+    {
+        if (TrackingData == null) return 0;
+        if (isRejected) return 25;
+        return Math.Min(TrackingData.Count * 25.0, 100);
+    }
 
     private int GetLastCompletedIndex()
     {
         for (int i = 0; i < StatusSteps.Count; i++)
         {
             if (GetTrackingMatch(StatusSteps[i].Label) == null)
-                return i - 1;  
+                return Math.Max(i - 1, -1);
         }
-        return StatusSteps.Count - 1;  
+        return StatusSteps.Count - 1;
     }
     private TrackingDto_? GetTrackingMatch(string statusName)
     {
@@ -69,6 +98,6 @@
             t.TrackingStatusName?.ToLower() == statusName.ToLower());
     }
 
- 
- }
+
+}
 

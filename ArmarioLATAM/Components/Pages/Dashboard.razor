@@ -557,10 +557,33 @@ else
                             }
                         </tbody>
                     </table>
+                    @if (historycOrders is not null && historycOrders.Count > pageSizeMobile)
+                    {
 
+                        <div class="latam-kit-table-footer latam-kit-table-footer--pager">
+                            <button type="button"
+                                    class="pager-arrow"
+                                    @onclick="PrevMobile"
+                                    disabled="@(currentPageMobile == 1)">
+                                <img src="images/ico_arrow_left_grey.svg" alt="Anterior" />
+                            </button>
+
+                            <span class="latam-kit-table-footer__page">
+                                Página @currentPageMobile de @TotalPagesMobile
+                            </span>
+
+                            <button type="button"
+                                    class="pager-arrow"
+                                    @onclick="NextMobile"
+                                    disabled="@(currentPageMobile == TotalPagesMobile)">
+                                <img src="images/ico_arrow_right_grey.svg" alt="Siguiente" />
+                            </button>
+                        </div>
+                    }
                 </div>
                 @if (historycOrders is not null && historycOrders.Count > pageSizeDesktop)
                 {
+
                     <div class="latam-kit-table-footer latam-kit-table-footer--pager">
                         <button type="button"
                                 class="pager-arrow"

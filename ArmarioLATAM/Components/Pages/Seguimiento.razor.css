@@ -20,6 +20,10 @@
     border-left: 5px solid var(--color-turquesa);
 }
 
+    .timeline-item.timeline-item--error {
+        border-left-color: var(--color-error);
+    }
+
 .timeline-content {
     flex: 1;
 }

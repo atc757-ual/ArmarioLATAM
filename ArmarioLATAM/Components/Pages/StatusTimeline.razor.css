@@ -11,7 +11,7 @@
     position: absolute;
     top: 30px;
     left: 10%;
-    right: 90px;
+    right: 10%;
     height: 4px;
     background: #e5e7eb;
     z-index: 1;
@@ -21,6 +21,9 @@
 
     .timeline-line.progress {
         background: linear-gradient(to right, var(--color-turquesa) 0%, var(--color-turquesa) var(--progress, 0%), #e5e7eb var(--progress, 0%), #e5e7eb 100%);
+    }
+    .timeline-line.error {
+        background: linear-gradient(to right, var(--color-error) 0%, var(--color-error) var(--progress, 0%), #e5e7eb var(--progress, 0%), #e5e7eb 100%);
     }
 
 .timeline-steps {
@@ -44,21 +47,28 @@
 }
 
 .step-icon {
+    border-radius: 50%;
+    align-items: center;
     width: 24px;
     height: 24px;
     display: flex;
-    align-items: center;
     justify-content: center;
     position: relative;
     z-index: 3;
 }
-
 .step-item.success .step-icon {
     background: var(--color-turquesa);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
 }
+    .step-item.error .step-date,
+    .step-item.error .step-label 
+    {
+        color: var(--color-error);
+    }
+
+.step-item.error .step-icon {
+        background: var(--color-error);
+}
+
 .step-item.current .step-icon {
     position: relative;
 }
@@ -132,11 +142,19 @@
     font-weight: var(--space-medium);
     white-space: nowrap;
 }
-
-.step-item.success .timeline-line-segment {
-    background: #10b981;
+.step-date--error{
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--fs-12);
+    color: var(--color-error);
+    font-weight: var(--space-medium);
+    white-space: nowrap;
 }
-
+.step-item.success .timeline-line-segment {
+    background: var(--color-turquesa);
+}
 
 .step-item:first-child .step-icon::before,
 .step-item:last-child .step-icon::after {

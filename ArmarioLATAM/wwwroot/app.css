@@ -37,7 +37,7 @@
     --color-secondary: #2316A6;
     --color-title: #1B0088;
     --color-info: #002EFF;
-    --color-error: #DC2020;
+    --color-error: #C82909;
     --color-warning: #F8B106;
     --color-success: #00A364;
     --color-light: #f8f9fa;
@@ -1527,6 +1527,8 @@ a, button {
     .summary-item {
         flex-direction: row;
         align-items: center;
+        gap: var(--space-xs);
+        padding:  var(--space-xs) var(--space-ls);
     }
 
     .summary-data--desktop {
