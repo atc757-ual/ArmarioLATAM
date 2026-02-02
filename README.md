@@ -97,7 +97,6 @@ dotnet run
 | POST | `/api/auth/register` | Nuevo usuario | ❌ |
 | POST | `/api/cart/add` | Añadir al carrito | ✅ |
 | GET | `/api/orders` | Mis pedidos | ✅ |
-| PUT | `/api/orders/{id}/status` | Actualizar estado | ✅ Admin |
 
 **Login Ejemplo**:
 ```bash
@@ -170,15 +169,7 @@ dotnet test API.Tests
    - Azure SQL Database
    - Key Vault (JWT Key + Connection Strings)
 
-2. **Docker Prod**:
-   ```
-   services:
-     db:
-       image: mcr.microsoft.com/mssql/server:2022-latest
-       healthcheck: { test: ["CMD", "sqlcmd", ...] }
-     api:
-       depends_on: [db: { condition: service_healthy }]
-   ```
+```
 
 3. **Variables Ambiente**:
    ```
@@ -198,7 +189,6 @@ dotnet test API.Tests
 
 **Issues Comunes & Fixes**:
 - ❌ **Migraciones fallan**: `dotnet ef database update --verbose` + check DB health
-- ❌ **Docker DB no conecta**: `docker-compose up db -d` primero + `depends_on service_healthy`
 - ❌ **JWT 401**: Ver `appsettings.json` JWT:Key + Issuer
 - ❌ **Blazor CORS**: Config `builder.Services.AddCors()` en Program.cs
 
