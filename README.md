@@ -14,7 +14,6 @@
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET-Core-orange)
 ![SQL Server](https://img.shields.io/badge/SQL-Server-brightgreen)
 ![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-yellow)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
 
 ---
 
@@ -45,9 +44,8 @@ ArmarioLATAM
 | API | ASP.NET Core 8 | REST + MVC |
 | Persistencia | SQL Server + EF Core | Code-First Migrations |
 | Seguridad | JWT Bearer | Roles & Claims |
-| Infraestructura | Docker Compose | Containers Multi-servicio |
 | Documentación | Swagger OpenAPI | Auto-generado |
-| Testing | xUnit + bUnit + Moq | TDD Clean |
+| Testing | bUnit  | TDD Clean |
 
 ---
 
@@ -79,15 +77,6 @@ dotnet restore
 dotnet run
 
 # App: https://localhost:5001
-```
-
-### 🐳 Docker (Todo en uno)
-
-```bash
-docker-compose up --build -d
-
-# API Swagger: http://localhost:8080/swagger
-# Blazor: http://localhost:3000
 ```
 
 **Connection String Ejemplo** (appsettings.json):
