@@ -3,7 +3,7 @@
 
 # 🧥 ArmarioLATAM – Full Stack E-commerce & Logística LATAM
 
-**ArmarioLATAM** es una plataforma **e-commerce & logística** para **LATAM**, enfocada en **gestión de inventario, catálogo de productos, usuarios y pedidos**. Construida con **Clean Architecture**, **Blazor Server**, **ASP.NET Core API** y **EF Core**. [https://github.com/atc757-ual/ArmarioLATAM][attached_file:1]
+**ArmarioLATAM** es una plataforma **e-commerce & logística** para **LATAM**, enfocada en **gestión de inventario, catálogo de productos, usuarios y pedidos**. Construida con **Clean Architecture**, **Blazor Server**, **ASP.NET Core API** y **EF Core**. [https://github.com/atc757-ual/ArmarioLATAM]
 
 ---
 
@@ -161,17 +161,7 @@ dotnet test API.Tests
 - **Swagger** docs auto-generados
 
 ---
-
-## ⚙️ Producción & Deploy
-
-1. **Azure Pipeline**:
-   - App Service (API + Blazor)
-   - Azure SQL Database
-   - Key Vault (JWT Key + Connection Strings)
-
-```
-
-3. **Variables Ambiente**:
+- **Variables Ambiente**:
    ```
    ConnectionStrings__DefaultConnection=...
    JWT__Key=32+chars-super-secret-key-2026
@@ -181,22 +171,11 @@ dotnet test API.Tests
 ---
 
 ## 🤝 Contribución al Repo
-
+ ```
 1. Fork → `git checkout -b feature/nueva-funcionalidad`
 2. Code + Tests: `dotnet test`
 3. Commit: `git commit -m "feat(productos): descripción clara"`
 4. Push + Pull Request a `atc757-ual/ArmarioLATAM`
 
-**Issues Comunes & Fixes**:
-- ❌ **Migraciones fallan**: `dotnet ef database update --verbose` + check DB health
-- ❌ **JWT 401**: Ver `appsettings.json` JWT:Key + Issuer
-- ❌ **Blazor CORS**: Config `builder.Services.AddCors()` en Program.cs
-
----
-
-**⭐ Stars este repo**: https://github.com/atc757-ual/ArmarioLATAM  
-**📊 Lenguajes**: HTML 45.9% | C# 31.0% | CSS 23.1% [attached_file:1]
-
-**© 2026 Armario LATAM – E-commerce Inteligente | srp207@inlumine.ual.es - rbh356@inlumine.ual.es - atc757@inlumine.ual.es**  
-[EF Core Migraciones](https://learn.microsoft.com/es-es/ef/core/managing-schemas/migrations/) | [Blazor Docs](https://learn.microsoft.com/es-es/aspnet/core/blazor/)
-
+```
+© 2026 Armario LATAM – E-commerce |  Creators: srp207@inlumine.ual.es - rbh356@inlumine.ual.es - atc757@inlumine.ual.es 
