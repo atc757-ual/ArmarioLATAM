@@ -56,7 +56,6 @@
     }
 
 
-
 /* PANEL DESKTOP (debajo de los tabs) */
 .latam-kit-panel--desktop {
     background: var(--color-neutral-0);
@@ -112,10 +111,11 @@
     border-collapse: collapse;
     font-size: var(--fs-16);
     color: var(--color-navbar);
+    font-size: var(--fs-14);
 }
 
     .latam-kit-table--details tbody td:first-child {
-        width: 120px;
+        width: 150px;
         font-weight: var(--font-weight-semibold);
         color: var(--color-navbar);
         padding: var(--space-s) var(--space-base);
@@ -162,7 +162,9 @@
 .card-history .no-shadow {
     box-shadow: none;
 }
-
+.text-underline{
+    text-decoration:underline;
+}
 /*Navigation page*/
 .latam-kit-table-footer--pager {
     display: flex;
@@ -215,12 +217,12 @@
         /* Código */
         .latam-kit-table th:nth-child(2),
         .latam-kit-table td:nth-child(2) {
-            width: 26%;
+            width: 36%;
         }
         /* Nombre kit */
         .latam-kit-table th:nth-child(3),
         .latam-kit-table td:nth-child(3) {
-            width: 24%;
+            width: 14%;
         }
         /* Orden */
         .latam-kit-table th:nth-child(4),
@@ -317,7 +319,7 @@
         /* estilo tabla vacía mobile */
 
         .latam-kit-table-empty {
-            height: 120px;
+            height: 80px;
         }
 
             .latam-kit-table-empty td p {
@@ -369,9 +371,13 @@
         }
 
         .latam-kit-table--details tbody td:first-child {
-            white-space: normal; /* antes tenías nowrap */
+            white-space: normal; 
+            padding: var(--space-s) var(--space-s) var(--space-s) var(--space-base);
         }
-
+        .latam-kit-table--details tbody td:last-child {
+        
+            padding: var(--space-s) var(--space-base) var(--space-s) var(--space-s);
+        }
         /* Por si acaso, fuerza el wrap en todas las celdas */
         .latam-kit-table--details td {
             word-break: break-word;

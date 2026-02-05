@@ -13,12 +13,12 @@ using System.Text;
 using static System.Net.WebRequestMethods;
 namespace AuthService.API.Services;
 
-public class AuthService
+public class AuthServices
 {
     private readonly AuthDbContext _context;
     private readonly IConfiguration _config;
 
-    public AuthService(AuthDbContext context, IConfiguration config)
+    public AuthServices(AuthDbContext context, IConfiguration config)
     {
         _context = context;
         _config = config;
@@ -28,7 +28,7 @@ public class AuthService
     // REGISTRO DE USUARIO
     // =========================
     // AuthService.API.Services/AuthService.cs
-    public async Task<User?> Register(string email, string password, string name, string bp,string rol, string genero, string dni, DateOnly birthdate, DateOnly dateactivation)
+    public async Task<User?> Register(string email, string password, string name, string bp,string role, string gender, string dni, DateOnly birthdate, DateOnly dateactivation)
     {
         if (await _context.Users.AnyAsync(x => x.Email == email))
         {
@@ -48,8 +48,8 @@ public class AuthService
             BP = bp,  
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
-            Rol = rol   ,
-            Genero = genero,
+            Role = role   ,
+            Gender = gender,
             DNI = dni,
             ActivationDate = dateactivation,
             BirthDate = birthdate
@@ -143,7 +143,7 @@ public class AuthService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-            new Claim(ClaimTypes.Role, user.Rol ?? "user")
+            new Claim(ClaimTypes.Role, user.Role ?? "user")
         };
 
         var key = new SymmetricSecurityKey(

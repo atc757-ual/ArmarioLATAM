@@ -1,5 +1,4 @@
-
-/**----------------toogle-------------------**/
+﻿/**----------------toogle-------------------**/
 .latam-account-toggle {
     background: transparent;
     border: none;
@@ -7,13 +6,54 @@
     cursor: pointer;
 }
 
+/**----------------animaciones-------------------**/
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /**----------------panel-------------------**/
 /* capa oscura */
 .latam-account-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.35);
-    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 9999;
+    display: flex;
+    justify-content: flex-end;
+    animation: fadeIn 0.2s ease-out;
 }
 
 /* panel base */
@@ -23,7 +63,16 @@
     border-radius: var(--border-radius-soft);
     display: flex;
     flex-direction: column;
+    /* ✅ Slide desde derecha */
+    transform: translateX(100%);
+    opacity: 0;
+    animation: slideInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
+
+    /* ✅ Clase para cerrar */
+    .latam-account-panel.closing {
+        animation: slideOutRight 0.2s ease-in forwards !important;
+    }
 
 .latam-account-header {
     display: flex;
@@ -47,7 +96,10 @@
 
 .latam-account-body {
     padding: var(--space-base);
-    color: var(--color-navbar)
+    color: var(--color-navbar);
+    display:flex;
+    align-items:center;
+    gap: var(--space-s)
 }
 
 .latam-account-footer {
@@ -67,28 +119,32 @@
     cursor: pointer;
 }
 
-
-/* DESKTOP: dropdown junto al �cono, overlay transparente */
+/* DESKTOP: dropdown junto al ícono */
 @media (min-width: 769px) {
-
     .latam-account-overlay {
         background: transparent;
         pointer-events: none;
-       
     }
 
     .latam-account-panel {
         position: absolute;
-        top: 56px; /* altura de tu header */
+        top: 56px;
         right: var(--space-base);
         width: 320px;
+        max-height: 80vh;
+        overflow-y: auto;
         pointer-events: auto;
+        /* Animación desktop más sutil */
+        animation: slideInRight 0.2s ease-out forwards;
     }
+
+        .latam-account-panel.closing {
+            animation: slideOutRight 0.15s ease-in forwards;
+        }
 }
 
 /* MOBILE: modal a pantalla casi completa */
 @media (max-width: 768px) {
-
     .latam-account-panel {
         position: fixed;
         top: 0;
@@ -97,21 +153,6 @@
         width: 100%;
         max-width: 420px;
         margin-left: auto;
-        border-radius: 0;
-    }
-
-    .latam-account-body {
-        padding: var(--space-base);
-        /*padding-right: var(--space-m);*/
-    }
-
-    .latam-account-footer {
-        margin-top: auto;
-        padding: var(--space-l);
-    }
-
-    .latam-account-logout {
-        width: 100%;
-        justify-content: center;
+        border-radius: 0
     }
 }

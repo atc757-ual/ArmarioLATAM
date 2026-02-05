@@ -149,7 +149,7 @@ else
                     await ProtectedLocalStorage.RemoveItemAsync("remember");
                 }
 
-                if(response.Rol == "admin"){
+                if(response.Role == "admin"){
                     Navigation.NavigateTo("/Administrador", forceLoad: true);
                 }else
                 {
@@ -209,7 +209,25 @@ else
         var isValid = await AuthService.IsSessionValidAsync();
         if (isValid)
         {
-            Navigation.NavigateTo("/Dashboard", forceLoad: true);
+            var _isActingAsUser = await AuthService.IsActingAsUserAsync();
+
+            if (_isActingAsUser)
+            {
+                var adminSessionInfo = await AuthService.GetAdminSessionInfoAsync();
+                if (adminSessionInfo != null)  
+                {
+                    Navigation.NavigateTo("/Administrador", forceLoad: true);
+                }
+                else
+                {
+                    Navigation.NavigateTo("/Dashboard", forceLoad: true);
+                }
+            }
+            else
+            {
+                Navigation.NavigateTo("/Dashboard", forceLoad: true);
+            }
+
         }
         else
         {

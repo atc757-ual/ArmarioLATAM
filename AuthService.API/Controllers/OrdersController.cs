@@ -14,14 +14,13 @@ namespace AuthService.API.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly LatamDbContext _context;
-    private readonly AuthDbContext _authContext;
+    private readonly ILogger<OrdersController> _logger;
 
-    public OrdersController(LatamDbContext context, AuthDbContext authContext)
+    public OrdersController(LatamDbContext context, ILogger<OrdersController> logger)
     {
         _context = context;
-        _authContext = authContext;
+        _logger = logger;
     }
-
     // ============================
     // CREAR ORDEN
     // ============================
@@ -30,40 +29,38 @@ public class OrdersController : ControllerBase
     {
         try
         {
-            // 🔐 Obtener email desde JWT
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(userEmail))
                 return Unauthorized(new { message = "Usuario no autenticado" });
 
-            // 👤 Buscar usuario
-            var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
             if (user == null)
                 return NotFound(new { message = "Usuario no encontrado" });
 
-            // 📦 Validar KitType
             var kitType = await _context.KitTypes.FindAsync(dto.KitTypeId);
             if (kitType == null)
                 return BadRequest(new { message = "Tipo de kit no válido" });
 
             if (dto.Items == null || !dto.Items.Any())
                 return BadRequest(new { message = "Debe seleccionar al menos una prenda" });
+            var trackingStatus = _context.TrackingStatus.FirstOrDefault(ts => ts.Name == "Pendiente");
+            if(trackingStatus == null)
+                return BadRequest(new { message = "Estado de seguimiento 'Pendiente' no encontrado" });
 
             decimal totalPrice = 0;
 
-            // 🧾 Crear Orden
-            var order = new Models.Order
+            // 1) Crear orden (para tener OrderId)
+            var order = new Order
             {
-                UserId = user.Id,               // GUID del usuario
+                UserId = user.Id,
                 DateOrder = DateTime.UtcNow,
                 Status = "Pendiente",
-                KitTypeId = dto.KitTypeId,
+                KitTypeId = kitType.KitTypeId,
                 TotalPrice = 0
             };
 
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync(); // genera OrderId
-
-            // 📌 Crear items
+        
+            //3) Items
             foreach (var item in dto.Items)
             {
                 var garment = await _context.Garments.FindAsync(item.GarmentId);
@@ -83,25 +80,32 @@ public class OrdersController : ControllerBase
                     Languages = garment.Languages
                 };
 
-                _context.OrderKits.Add(orderItem);
+                order.OrderKits.Add(orderItem);
             }
 
-            // 💰 Actualizar total
-            order.TotalPrice = totalPrice;
-            await _context.SaveChangesAsync();
-
-            order.TotalPrice = totalPrice;
-            await _context.SaveChangesAsync();
-
-            Console.WriteLine($"Motive={dto.Motive}, Detail={dto.DetailMotive}, Prov={dto.Province}, Dist={dto.District}, Addr={dto.Address}");
-
-            // usar dto.*, que viene del front
-            if (!string.IsNullOrWhiteSpace(dto.Motive) ||
-                !string.IsNullOrWhiteSpace(dto.DetailMotive) ||
-                !string.IsNullOrWhiteSpace(dto.Province) ||
-                !string.IsNullOrWhiteSpace(dto.District) ||
-                !string.IsNullOrWhiteSpace(dto.Address))
+            //2) Tracking inicial (no guardes aún)
+            if(trackingStatus is null) {
+                _logger.LogError("Estado de seguimiento 'Pendiente' no encontrado en la base de datos.");
+            }
+            else
             {
+                _context.Entry(trackingStatus).State = EntityState.Unchanged;
+                var track = new Tracking
+                   {
+                       OrderId = order.OrderId,
+                       TrackingStatusId = trackingStatus.TrackingStatusId,
+                       TrackingStatus = trackingStatus,
+                       Observations = "Solicitud registrada.",
+                       TrackingDate = DateTime.UtcNow
+                   };
+                order.Tracking.Add(track);
+            }
+
+               
+
+            if (!string.IsNullOrEmpty(dto.Motive))
+            {
+                // 4) Extra info (si viene)
                 var extra = new AddInfoOrder
                 {
                     OrderId = order.OrderId,
@@ -112,18 +116,19 @@ public class OrdersController : ControllerBase
                     Address = dto.Address,
                     AddressReference = dto.AddressReference
                 };
-
-                _context.AddInfoOrders.Add(extra);
-                await _context.SaveChangesAsync();
+                order.AddInfoOrder = extra;
             }
-
+            
+            order.TotalPrice = totalPrice;
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
             return Ok(new
             {
                 message = "Orden creada exitosamente",
                 orderId = order.OrderId,
                 total = order.TotalPrice,
                 status = order.Status,
-                fecha = order.DateOrder.ToString("yyyy-MM-dd") // solo fecha
+                fecha = order.DateOrder.ToString("yyyy-MM-dd")
             });
         }
         catch (Exception ex)
@@ -149,7 +154,7 @@ public class OrdersController : ControllerBase
             if (string.IsNullOrEmpty(userEmail))
                 return Unauthorized();
 
-            var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
             if (user == null)
                 return NotFound();
 
@@ -194,7 +199,7 @@ public class OrdersController : ControllerBase
             if (string.IsNullOrEmpty(userEmail))
                 return Unauthorized();
 
-            var user = await _authContext.Users
+            var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
             if (user == null)
                 return NotFound();
@@ -239,7 +244,7 @@ public class OrdersController : ControllerBase
             if (string.IsNullOrEmpty(userEmail))
                 return Unauthorized();
 
-            var user = await _authContext.Users
+            var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
             if (user == null)

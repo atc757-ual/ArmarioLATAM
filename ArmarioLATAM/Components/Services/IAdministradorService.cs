@@ -9,8 +9,9 @@ namespace ArmarioLATAM.Services
     {
         Task<AdminUser?> GetUserByBpAsync(string bp);
         Task<List<PendingOrderDto>> GetPendingOrdersAsync();
-        Task<List<OrderDetailItemDto>> GetOrderDetailAsync(int orderId);
-        Task<bool> UpdateOrderStatusAsync(int orderId, string accion); // "aprobar"/"rechazar"
+        Task<List<OrderDetailItemDto>?> GetOrderDetailAsync(int orderId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, string accion);
+        Task<LoginResponse?> LoginAsUserAsync(string bp);
     }
 
     public class AdminService : IAdminService
@@ -73,15 +74,14 @@ namespace ArmarioLATAM.Services
             return result ?? new List<PendingOrderDto>();
         }
 
-        public async Task<List<OrderDetailItemDto>> GetOrderDetailAsync(int orderId)
+        public async Task<List<OrderDetailItemDto>?> GetOrderDetailAsync(int orderId)
         {
             if (!await AttachTokenAsync())
                 return new();
 
-            var result = await _httpClient.GetFromJsonAsync<List<OrderDetailItemDto>>(
-                $"admin/order-detail/{orderId}");
-
-            return result ?? new List<OrderDetailItemDto>();
+           var response = await _httpClient.GetFromJsonAsync<List<OrderDetailItemDto>>(
+               $"admin/order-detail/{orderId}");
+           return response;
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, string accion)
@@ -99,6 +99,36 @@ namespace ArmarioLATAM.Services
 
             var body = await response.Content.ReadFromJsonAsync<UpdateStatusResponse>();
             return body?.Success == true;
+        }
+        public async Task<LoginResponse?> LoginAsUserAsync(string bp)
+        {
+            if (!await AttachTokenAsync())
+                return null;
+
+            try
+            {
+                _logger.LogInformation($"Llamando a admin/login-as-user/{bp}");
+
+                var response = await _httpClient.PostAsync($"admin/login-as-user/{bp}", null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"Login as user falló: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning($"Error response: {errorContent}");
+                    return null;
+                }
+
+                var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                _logger.LogInformation($"Token obtenido para usuario: {loginResponse?.Name}");
+
+                return loginResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al hacer login como usuario");
+                return null;
+            }
         }
 
         private sealed class UpdateStatusResponse

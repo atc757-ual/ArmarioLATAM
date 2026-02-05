@@ -3,6 +3,7 @@ namespace AuthService.API.Dtos;
 public class CreateOrderDto
 {
     public int KitTypeId { get; set; }
+    public Guid UserId { get; set; }
     public List<CreateOrderItemDto> Items { get; set; } = new();
     public string? Motive { get; set; }
     public string? DetailMotive { get; set; }

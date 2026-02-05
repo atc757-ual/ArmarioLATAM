@@ -1,9 +1,9 @@
 ﻿@rendermode InteractiveServer
 @using ArmarioLATAM.Services
 @using ArmarioLATAM.Components.Models
+@using ArmarioLATAM.Components.Pages
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
-
 
 @if (IsVisible)
 {
@@ -15,7 +15,7 @@
     @if (isAccountOpen)
     {
         <div class="latam-account-overlay" @onclick="CloseMenu">
-            <div class="latam-account-panel" @onclick:stopPropagation>
+            <div class="latam-account-panel @(closing ? "closing" : "")" @onclick:stopPropagation="true">
                 <header class="latam-account-header">
                     <img src="images/logo_footer.svg" alt="LATAM" class="latam-account-logo" />
                     <button class="latam-account-close" @onclick="CloseMenu">
@@ -24,51 +24,116 @@
                 </header>
 
                 <div class="latam-account-body">
+                    @if (sessionData?.Role == "user")
+                    {
+                        <div class="w-48">
+                            @if (sessionData?.Gender == "M")
+                            {
+                                <img src="images/ico_user_male.gif" />
+                            }
+                            else if (sessionData?.Gender == "F")
+                            {
+                                <img src="images/ico_user_female.gif" />
+                            }
+                        </div>
+                    }
                     <div>
-                        <span class="fw-semibold">@sessionData?.Name</span>
-                    </div>
-                    <div>
-                        <span class="margin-top-xs">BP: @sessionData?.BP</span>
+                        <div><span class="fw-semibold">@sessionData?.Name</span></div>
+                        <div><span class="margin-top-xs">BP: @sessionData?.BP</span></div>
                     </div>
                 </div>
 
-                <footer class="latam-account-footer">
-                    <button class="latam-account-logout" @onclick="CerrarSesion">
-                        <span>
-                            <img class="w-24" src="images/ico_logout.svg" />
-                        </span>
-                        <span>Cerrar sesión</span>
-                    </button>
-                </footer>
+                @if (!_isActingAsUser)
+                {
+                    <footer class="latam-account-footer">
+                        <button class="latam-account-logout" @onclick="CerrarSesion">
+                            <span><img class="w-24" src="images/ico_logout.svg" /></span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </footer>
+                }
+
             </div>
         </div>
     }
 }
-
-
+@if (_isActingAsUser)
+{
+    var uri = Navigation.Uri;
+    var isAdminpage = uri.Contains("Administrador", StringComparison.OrdinalIgnoreCase);
+    if (!isAdminpage)
+    {
+        <FloatingCard />
+    }
+}
 @code {
     private bool IsVisible { get; set; } = false;
     private bool isAccountOpen { get; set; } = false;
     private DataUserSession? sessionData = new();
+    private bool closing = false;
 
-  
+    private bool _isActingAsUser = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
         IsVisible = !string.IsNullOrEmpty(uri) && !uri.Contains("Reset", StringComparison.OrdinalIgnoreCase);
         sessionData = await AuthService.GetSessionDataAsync();
+
+        _isActingAsUser = await AuthService.IsActingAsUserAsync();
+
         StateHasChanged();
     }
-   
+
+    private async Task VolverAdmin()
+    {
+        try
+        {
+            // Restaurar sesión del administrador
+            var restored = await AuthService.RestoreAdminSessionAsync();
+
+            if (restored)
+            {
+                // Navegar a la página de administrador
+                Navigation.NavigateTo("/Administrador", forceLoad: true);
+            }
+            else
+            {
+                // Si no se pudo restaurar, cerrar sesión
+                await CerrarSesion();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al volver a admin: {ex.Message}");
+            await CerrarSesion();
+        }
+    }
     private void ToggleMenu()
     {
+        closing = false;
         isAccountOpen = true;
+        StateHasChanged();
+        // lanzar auto-cierre sin bloquear al padre
+        _ = AutoCloseAsync();
     }
 
-    private void CloseMenu()
+    private async Task AutoCloseAsync()
     {
+        await Task.Delay(5000);
+        await CloseMenu();
+    }
+
+    private async Task CloseMenu()
+    {
+        closing = true;
+        StateHasChanged();
+
+        await Task.Delay(300);
+        closing = false;
         isAccountOpen = false;
+        StateHasChanged();
     }
 
     private async Task CerrarSesion()
@@ -77,8 +142,3 @@
         Navigation.NavigateTo("/", forceLoad: true);
     }
 }
-
-
-
-
-

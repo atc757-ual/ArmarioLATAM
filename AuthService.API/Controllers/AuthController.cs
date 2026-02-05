@@ -3,7 +3,7 @@ using AuthService.API.Dtos;
 using AuthService.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AuthServiceClass = AuthService.API.Services.AuthService;
+
 
 namespace AuthService.API.Controllers;
 
@@ -11,9 +11,9 @@ namespace AuthService.API.Controllers;
 [Route("auth")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthServiceClass _auth;
+    private readonly AuthServices _auth;
 
-    public AuthController(AuthServiceClass auth)
+    public AuthController(AuthServices auth)
     {
         _auth = auth;
     }
@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _auth.Register(request.Email, request.Password, request.Name, request.BP, request.Rol, request.Genero, request.DNI, request.BirthDate, request.ActivationDate);
+            var user = await _auth.Register(request.Email, request.Password, request.Name, request.BP, request.Role, request.Gender, request.DNI, request.BirthDate, request.ActivationDate);
 
             if (user == null)
             {
@@ -92,7 +92,10 @@ public class AuthController : ControllerBase
                 name = user.Name,        
                 bp = user.BP, 
                 expiresIn = 3600,
-                rol = user.Rol,
+                role = user.Role,
+                gender = user.Gender,
+                birthDate = user.BirthDate,
+                activationDate = user.ActivationDate,
                 Result = new
                 {
                     Code = "200",

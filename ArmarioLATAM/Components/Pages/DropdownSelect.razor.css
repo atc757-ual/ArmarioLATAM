@@ -21,6 +21,17 @@
     flex: 1 1 auto;
 }
 
+.disable-element {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    touch-action: none;
+}
+
+    .disable-element .lang-select {
+        border: 1px solid var(--color-neutral-4);
+    }
+
 /* lista desplegable */
 .lang-select-list {
     position: absolute;

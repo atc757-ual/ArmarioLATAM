@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
-using AuthServiceService = AuthService.API.Services.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +51,8 @@ builder.Services.AddDbContext<LatamDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("LatamDb")));
 
 // AuthService
-builder.Services.AddScoped<AuthServiceService>();
+builder.Services.AddScoped<AuthServices>();
+
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"];

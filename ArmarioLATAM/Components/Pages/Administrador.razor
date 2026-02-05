@@ -1,6 +1,5 @@
 ﻿@page "/Administrador"
 @rendermode InteractiveServer
-
 @using ArmarioLATAM.Components.Models
 @using System.ComponentModel.DataAnnotations
 @using ArmarioLATAM.Services
@@ -130,7 +129,7 @@
 
         <!-- TAB 2 -->
         <div class="latam-kit-wrapper">
-            <button class="latam-kit @(selectedTab == 2 ? "active" : "")"
+            <button class="latam-kit @(selectedTab == 2 ? "active" : "") @(_isActingAsUser ? "select--disabled" : "")"
                     @onclick="() => SelectTab(2)">
                 @if (selectedTab == 2)
                 {
@@ -396,13 +395,35 @@
     private DataUserSession? _session;
     private ModalDetalle? modalRef;
     private Toast? toastRef;
+    private bool _isActingAsUser = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
+        // Inicializar sesión primero
+        await AuthService.InitializeSessionAsync();
+
+        // Verificar si está actuando como usuario
+        _isActingAsUser = await AuthService.HasAdminSessionAsync();
+
+        if (_isActingAsUser)
+        {
+            selectedTab = 1;
+            step = 2; // Establecer paso 2 automáticamente
+            // Puedes cargar el nombre del usuario si lo tienes guardado
+            var name = await AuthService.GetActingAsUserNameAsync();
+            title = "Sesión iniciada";
+            message = $"Ahora estás actuando como "+ name;
+            type = "success";
+            StateHasChanged();
+            toastRef!.OnOpen();
+            return;
+        }
+
+        // Si no está actuando como usuario, verificar sesión normal
         _session = await AuthService.GetSessionDataAsync();
-        if (_session is null || !_session.IsValid || _session.Rol != "admin")
+        if (_session is null || !_session.IsValid || _session.Role != "admin")
         {
             Navigation.NavigateTo("/", forceLoad: true);
         }
@@ -411,7 +432,7 @@
     // =========================================================
     // 2) Estado general de la página
     // =========================================================
-    private int selectedTab = 0;           // 1: Actuar como usuario, 2: Solicitudes
+    private int selectedTab = 1;           // 1: Actuar como usuario, 2: Solicitudes
     private int step { get; set; } = 0;    // flujo de actuar como usuario
     private bool isLoading { get; set; } = false;
     private bool isSuccess { get; set; } = false;
@@ -470,12 +491,6 @@
         StateHasChanged();
     }
 
-
-    private void ActuarComo()
-    {
-        step = 2;
-    }
-
     private void Limpiar()
     {
         adminModel = new();
@@ -483,9 +498,104 @@
         step = 0;
     }
 
-    private void Recuperar()
+    private async Task LoadActingAsUserName()
     {
-        Limpiar();
+        if (_isActingAsUser)
+        {
+            // Obtener el nombre desde AuthService
+            var userName = await AuthService.GetActingAsUserNameAsync();
+            if (!string.IsNullOrEmpty(userName))
+            {
+                usuarioModel.Name = userName;
+                StateHasChanged();
+            }
+        }
+    }
+   
+
+    private async Task ActuarComo()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await AuthService.LoginAsUserAsync(adminModel.BPSearch, AdminService);
+
+            if (response != null && !string.IsNullOrEmpty(response.Token))
+            {
+                step = 2;
+                _isActingAsUser = true;
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                title = "Error";
+                message = "No se pudo iniciar sesión como el usuario";
+                type = "error"; 
+                StateHasChanged();
+                toastRef!.OnOpen();
+                step = 1;
+            }
+        }
+        catch
+        {
+            title = "Error";
+            message = "Ocurrió un error al iniciar sesión como usuario";
+            type = "error";
+            StateHasChanged();
+            toastRef!.OnOpen();
+            step = 1;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Recuperar()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var restored = await AuthService.RestoreAdminSessionAsync();
+
+            if (restored)
+            {
+                _isActingAsUser = false;
+                // Ya no necesitamos limpiar SessionStorage porque AuthService maneja todo internamente
+                Limpiar();
+                title = "Sesión restaurada";
+                message = "Has vuelto a tu sesión de administrador";
+                type = "success";
+                toastRef!.OnOpen();
+
+                // Recargar la página para actualizar completamente
+                Navigation.NavigateTo("/Administrador", forceLoad: true);
+            }
+            else
+            {
+                title = "Error";
+                message = "No se pudo restaurar la sesión de administrador";
+                type = "error";
+                toastRef!.OnOpen();
+            }
+        }
+        catch
+        {
+            title = "Error";
+            message = "Ocurrió un error al restaurar la sesión";
+            type = "error";
+            toastRef!.OnOpen();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 
     // =========================================================
@@ -495,7 +605,7 @@
 
     private List<PendingOrderDto> Solicitudes = new();
     private List<PendingOrderDto> SolicitudesVisibles = new();
-    private int CantidadVisible = 5;
+    private int CantidadVisible = 10;
 
     private bool hasCheck { get; set; } = false;
 
@@ -544,30 +654,38 @@
             StateHasChanged();
 
             await Task.Delay(500);
-            var pendientes = await AdminService.GetPendingOrdersAsync();
+            await LoadPendingOrders();  // 👈 Método separado
 
-            Solicitudes = pendientes
-                .Select(x => new PendingOrderDto
-                {
-                    check = false,
-                    OrderId = x.OrderId,
-                    Nombre = x.Nombre,
-                    BP = x.BP,
-                    Precio = x.Precio,
-                    Kit = x.Kit
-                })
-                .ToList();
-
-            CantidadVisible = Math.Min(5, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes
-                .Take(CantidadVisible)
-                .ToList();
-
-            hasCheck = false;
             isLoadingSolicitudes = false;
-            ClearSelection();
             StateHasChanged();
         }
+    }
+
+    private async Task LoadPendingOrders()
+    {
+        var pendientes = await AdminService.GetPendingOrdersAsync();
+
+        Solicitudes = pendientes
+            .Select(x => new PendingOrderDto
+            {
+                check = false,  // ✅ Siempre false (limpia checks)
+                OrderId = x.OrderId,
+                Nombre = x.Nombre,
+                BP = x.BP,
+                Precio = x.Precio,
+                Kit = x.Kit
+            })
+            .ToList();
+
+        CantidadVisible = Math.Min(5, Solicitudes.Count);
+        SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
+        var siguiente = Solicitudes.FirstOrDefault();
+        if (siguiente != null)
+        {
+            siguiente.check = true;
+            hasCheck = true;
+        }
+        ClearSelection();
     }
 
     private void ClearSelection()
@@ -626,8 +744,9 @@
     private string? title { get; set; }
     private string? message { get; set; }
     private string? type { get; set; }
-    private bool isLoadingAprobar{ get; set;}
-    private bool isLoadingRechazar { get; set;}
+    private bool isLoadingAprobar { get; set; }
+    private bool isLoadingRechazar { get; set; }
+
     private async Task Aprobar()
     {
         var selected = Solicitudes.FirstOrDefault(x => x.check);
@@ -641,10 +760,7 @@
             message = $"OrderId #{@selected.OrderId.ToString("D5")} aprobada con éxito";
             type = "success";
 
-            Solicitudes.Remove(selected);
-            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
-            hasCheck = false;
+            await LoadPendingOrders();
         }
         else
         {
@@ -652,7 +768,6 @@
             message = $"No hemos podido aprobar la OrderId #{@selected.OrderId.ToString("D5")}";
             type = "error";
         }
-        ClearSelection();
         isLoadingAprobar = false;
         StateHasChanged();
         toastRef!.OnOpen();
@@ -670,11 +785,8 @@
             title = "¡Solicitud rechazada!";
             message = $"OrderId #{@selected.OrderId.ToString("D5")} rechazada con éxito";
             type = "success";
+            await LoadPendingOrders();
 
-            Solicitudes.Remove(selected);
-            CantidadVisible = Math.Min(CantidadVisible, Solicitudes.Count);
-            SolicitudesVisibles = Solicitudes.Take(CantidadVisible).ToList();
-            hasCheck = false;
         }
         else
         {

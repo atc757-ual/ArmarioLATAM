@@ -1,0 +1,99 @@
+﻿@rendermode InteractiveServer
+@using ArmarioLATAM.Services
+@using ArmarioLATAM.Components.Models
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+
+@if (_isActingAsUser)
+{
+    <div class="fab-container @(IsExpanded ? "expanded" : "")">
+        <!-- Círculo flotante SIEMPRE -->
+        @if (IsExpanded)
+        {
+            <div class="fab-card">
+                <div class="card-inline">
+                    <img class="icon" src="images/ico_admin.png" />
+                    <div>@_adminOriginalName</div>
+                    <img class="close" src="/images/ico_close.svg" @onclick="ToggleExpanded" />
+                </div>
+                <div>
+                    <p>Estás en la sesión de <strong>@_actingAsUserName</strong></p>
+                </div>
+                <div class="text-right">
+                    <a class="latam-link-danger" @onclick="VolverAdmin">
+                        <span class="fs-14">Volver a tu sesión como administrador</span>
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="fab-toggle" @onclick="ToggleExpanded" title="Admin info">
+                <img src="images/ico_admin.png" />
+            </div>
+        }
+    </div>
+
+}
+
+@code {
+    private bool _isActingAsUser = false;
+    private bool IsExpanded = false;
+    private string? _actingAsUserName;
+    private string? _adminOriginalName;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        // Verificar si está actuando como usuario
+        _isActingAsUser = await AuthService.IsActingAsUserAsync();
+
+        if (_isActingAsUser)
+        {
+            // Obtener información completa de la sesión de admin
+            var adminSessionInfo = await AuthService.GetAdminSessionInfoAsync();
+            if (adminSessionInfo != null)  // Cambiado de HasValue a != null
+            {
+                _adminOriginalName = adminSessionInfo.AdminName;
+                _actingAsUserName = adminSessionInfo.ActingAsUserName;
+            }
+        }
+        StateHasChanged();
+    }
+    private void ToggleExpanded()
+    {
+        IsExpanded = !IsExpanded;
+        StateHasChanged();
+    }
+
+    private async Task VolverAdmin()
+    {
+        try
+        {
+            // Restaurar sesión del administrador
+            var restored = await AuthService.RestoreAdminSessionAsync();
+
+            if (restored)
+            {
+                // Navegar a la página de administrador
+                Navigation.NavigateTo("/Administrador", forceLoad: true);
+            }
+            else
+            {
+                // Si no se pudo restaurar, cerrar sesión
+                await CerrarSesion();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al volver a admin: {ex.Message}");
+            await CerrarSesion();
+        }
+    }
+    private async Task CerrarSesion()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}

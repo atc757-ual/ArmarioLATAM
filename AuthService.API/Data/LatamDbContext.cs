@@ -14,8 +14,15 @@ public class LatamDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderKit> OrderKits => Set<OrderKit>();
     public DbSet<AddInfoOrder> AddInfoOrders => Set<AddInfoOrder>();
+    public DbSet<Tracking> Tracking => Set<Tracking>();
+    public DbSet<TrackingStatus> TrackingStatus => Set<TrackingStatus>();
+    public DbSet<User> Users => Set<User>();  // o ApplicationUser si es AspNetUsers
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // aquí mapeas Users a la tabla correcta:
+        modelBuilder.Entity<User>().ToTable("Users"); // o "AspNetUsers"
+
         // ========================
         // TABLAS
         // ========================
@@ -24,9 +31,9 @@ public class LatamDbContext : DbContext
         modelBuilder.Entity<Order>().ToTable("Orders");
         modelBuilder.Entity<OrderKit>().ToTable("OrderKits");
         modelBuilder.Entity<AddInfoOrder>().ToTable("AddInfoOrder");
-        // ========================
-        // PRECISIÓN DECIMAL
-        // ========================
+        modelBuilder.Entity<Tracking>().ToTable("Tracking");
+        modelBuilder.Entity<TrackingStatus>().ToTable("TrackingStatus");
+
         modelBuilder.Entity<Garment>()
             .Property(g => g.Price)
             .HasPrecision(18, 2);          // decimal(18,2)
@@ -43,7 +50,7 @@ public class LatamDbContext : DbContext
         // ORDER -> ORDERKITS (1:N)
         // ========================
         modelBuilder.Entity<Order>()
-            .HasMany(o => o.OrderKits)          // ✅ NOMBRE CORRECTO
+            .HasMany(o => o.OrderKits)
             .WithOne(ok => ok.Order)
             .HasForeignKey(ok => ok.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -57,9 +64,21 @@ public class LatamDbContext : DbContext
             .HasForeignKey(ok => ok.GarmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<AddInfoOrder>()
-           .HasOne(a => a.Order)
-           .WithOne()
-           .HasForeignKey<AddInfoOrder>(a => a.OrderId);
+        modelBuilder.Entity<Order>()
+.HasOne(o => o.AddInfoOrder)
+.WithOne(a => a.Order)
+.HasForeignKey<AddInfoOrder>(a => a.OrderId);
+        // Order borra → AddInfoOrder.OrderId=NULL
+
+        // ========================
+        // ORDER -> TRACKING (1:N) ✅ CORREGIDO
+        // ========================
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Tracking)           // Order.Tracking (List<Tracking>)
+            .WithOne(t => t.Order)              // Tracking.Order (Order property) ✅ NO t.OrderId
+            .HasForeignKey(t => t.OrderId)      // FK campo
+            .OnDelete(DeleteBehavior.Cascade);
+
+
     }
 }

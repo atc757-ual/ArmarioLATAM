@@ -100,7 +100,8 @@
                                                 Options="LimaDistricts"
                                                 @bind-OpenId="openSelectId"
                                                 Changed="OnDistrictChanged"
-                                                @bind-Value="addressModel.District" />
+                                                @bind-Value="addressModel.District"
+                                                 />
                             </div>
                         }
 
@@ -304,7 +305,7 @@
         DetailDeliveredState.SetDetail(detail);
         await DetailDeliveredState.SaveAsync();
         isOpen = false;
-        Navigation.NavigateTo("/Garments");
+        Navigation.NavigateTo("/Garments", forceLoad: true);
         StateHasChanged();
     }
 }

@@ -23,8 +23,8 @@ public class User
     public string BP { get; set; } = default!;  
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
-    public string Rol { get; set; } = default!;      
-    public string Genero { get; set; } = default!;    
+    public string Role { get; set; } = default!;      
+    public string Gender { get; set; } = default!;    
     public string DNI { get; set; } = default!;
     public DateOnly BirthDate { get; set; }
     public DateOnly ActivationDate { get; set; } 

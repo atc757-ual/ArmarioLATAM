@@ -73,7 +73,10 @@ namespace ArmarioLATAM.Components.Models
         public string Token { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
-        public string Rol { get; init; } = string.Empty;
+        public string Role { get; init; } = string.Empty;
+        public string Gender { get; set; } = string.Empty;
+        public DateTime BirthDate { get; set; }
+        public DateTime ActivationDate { get; set; }
         public int ExpiresIn { get; set; }
     }
 
@@ -139,15 +142,15 @@ namespace ArmarioLATAM.Components.Models
         public string? ImageURL { get; set; }
         public string? Languages { get; set; }
         public string? NativeLanguage { get; set; }
-        public string? SecondLanguage{ get; set; }
+        public string? SecondLanguage { get; set; }
         public string? ThirdLanguage { get; set; }
-    
+
     }
     public class LanguageInfo
     {
-        public string Code { get; set; } = string.Empty;   
-        public string Name { get; set; } = string.Empty;   
-        public string IconUrl { get; set; } = string.Empty; 
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string IconUrl { get; set; } = string.Empty;
     }
     public class KitTypeSelection
     {
@@ -262,14 +265,20 @@ namespace ArmarioLATAM.Components.Models
         public DateTime? TokenExpiration { get; set; }
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
-        public string Rol { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime? ActivationDate { get; set; }
     }
     public class DataUserSession
     {
         public string Name { get; set; } = string.Empty;
         public string BP { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public DateTime? ActivationDate { get; set; }
         public bool IsValid { get; set; }
-        public string Rol { get; set; } = string.Empty;
     }
 
     public class ChangePassword
@@ -297,6 +306,7 @@ namespace ArmarioLATAM.Components.Models
         public string Genero { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public string Documento { get; set; } = string.Empty;
+        public string BP { get; set; } = string.Empty;
     }
     public class PendingOrderDto
     {
@@ -312,10 +322,70 @@ namespace ArmarioLATAM.Components.Models
     {
         public string Nombre { get; set; } = string.Empty;
         public string Size { get; set; } = string.Empty;
-        public string Languages {  get; set; } = string.Empty;
+        public string Languages { get; set; } = string.Empty;
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
         public decimal Total { get; set; }
     }
 
+    public class OrderTrackingResponseDto
+    {
+        public int OrderId { get; set; }
+        public string KitTypeName { get; set; } = "";
+        public List<TrackingDto_> Tracking { get; set; } = new();
+        public List<OrderKitDto_> OrderKits { get; set; } = new();
+    }
+
+    public class TrackingDto_
+    {
+        public int TrackingStatusId { get; set; }
+        public string TrackingStatusName { get; set; } = string.Empty;
+        public string? TrackingStatusDescription { get; set; }
+        public DateTime? TrackingDate { get; set; }
+    }
+
+    public class OrderKitDto_
+    {
+        public string ImageUrl { get; set; } = string.Empty;
+        public string GarmentName { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
+        public string Languages { get; set; } = string.Empty;
+
+        public int Quantity { get; set; }
+    }
+
+    public class StatusStep
+    {
+        public string Label { get; set; } = "";
+        public int Step { get; set; }
+    }
+
+    public class TimelineStep
+    {
+        public string Label { get; set; } = "";
+        public string Step { get; set; } = "";
+        public string Date { get; set; } = "";
+    }
+
+    /* Session Admin*/
+
+    public class AdminSessionData
+    {
+        public string AdminToken { get; set; } = string.Empty;
+        public string AdminName { get; set; } = string.Empty;
+        public string AdminBP { get; set; } = string.Empty;
+        public DateTime? TokenExpiration { get; set; }
+        public string? ActingAsUserName { get; set; }
+        public string? ActingAsUserBP { get; set; } // Agregar para más información
+    }
+
+    public class AdminSessionInfo
+    {
+        public string? AdminName { get; set; }
+        public string? AdminBP { get; set; }
+        public string? AdminToken { get; set; }
+        public string? ActingAsUserName { get; set; }
+        public string? ActingAsUserBP { get; set; }
+        public DateTime? TokenExpiration { get; set; }
+    }
 }
